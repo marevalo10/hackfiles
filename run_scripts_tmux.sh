@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 echo "********************************************************************************************"
 echo "Don't forget to put the ips.txt and ips.udp with the target ip's or segments (one per line)"
 echo "********************************************************************************************"
