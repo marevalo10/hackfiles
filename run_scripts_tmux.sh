@@ -1,9 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 echo "********************************************************************************************"
 echo "Don't forget to put the ips.txt and ips.udp with the target ip's or segments (one per line)"
 echo "********************************************************************************************"
-echo "Press any key to resume ... or Ctrl - C to cancel"
-read; 
+read -n1 -s -r -p $'Press any key to resume ... or Ctrl - C to cancel\n' key
 SESSION_NAME="recon"
 RECON_PATH="~/scripts_recon"
 
