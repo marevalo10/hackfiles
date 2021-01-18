@@ -5,7 +5,7 @@ echo "**************************************************************************
 echo "Press any key to resume ... or Ctrl - C to cancel"
 read; 
 SESSION_NAME="recon"
-RECON_PATH="~/Scripts_recon"
+RECON_PATH="~/scripts_recon"
 
 cd $RECON_PATH
 chmod +x *.sh
@@ -14,8 +14,6 @@ export PS1
 echo "********************************************************************************************"
 echo "#Starting tmux to run all the scripts"
 echo "********************************************************************************************"
-SESSION_NAME="recon"
-RECON_PATH="~/Scripts_recon"
 # Check if a session exist
 tmux has-session -t ${SESSION_NAME}
 # If not....
