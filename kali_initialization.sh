@@ -63,7 +63,17 @@ cd ..
 echo "*********************************************************"
 
 echo "#Downloading recon scripts"
+wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/run_scripts_tmux.sh
+chmod +x run_scripts_tmux.sh
 wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/scripts_recon.zip
 unzip scripts_recon.zip
+cd scripts_recon
+chmod +x *.sh
 echo "#Files in Scripts_recon"
+
+
+echo "#Stop eth1"
+sudo ifconfig eth1 down
+echo "*********************************************************"
+echo "Process completed"
 echo "*********************************************************"
