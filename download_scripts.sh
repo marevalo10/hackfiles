@@ -17,3 +17,8 @@ unzip scripts_recon.zip
 cd scripts_recon
 chmod +x *.sh
 echo "#Files in Scripts_recon"
+cd ..
+echo "*********************************************************"
+echo "Download completed and files are ready"
+echo "You can run ./run_scripts_tmux.sh to start the automated scans"
+echo "*********************************************************"
