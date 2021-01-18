@@ -17,7 +17,6 @@ echo "*********************************************************"
 echo "Creating new user and adding it to sudoers (marevalo)" 
 echo "*********************************************************"
 sudo useradd marevalo -m
-echo "*********************************************************"
 echo "Define a password for new user"
 echo "*********************************************************"
 sudo passwd marevalo
@@ -56,6 +55,7 @@ echo "Downloading and Installing important dotfiles"
 wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/dotfiles_mod.zip
 unzip  dotfiles_mod.zip
 cd dotfiles
+chmod +x *.sh
 sudo ./install.sh
 echo "Copying the tmux logging files to ~/tmux-logging"
 cp -R tmux-logging ~/
