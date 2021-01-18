@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #Shell:
 sudo apt-get update
 # These sometimes cause the system to fail…. It is better to download an updated version from Kali
@@ -36,3 +36,15 @@ sudo service ssh restart
 echo "#Turning SSH to run after restarts"
 sudo systemctl enable ssh
 
+echo "Downloading and Installing important dotfiles"
+wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/dotfiles_mod.zip
+unzip  dotfiles_mod.zip
+cd dotfiles
+./install.sh
+cp -R tmux-logging ~/
+cd ..
+
+echo "#Downloading recon scripts"
+wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/scripts_recon.zip
+unzip scripts_recon.zip
+echo "Copying the tmux logging files to ~/tmux-logging"
