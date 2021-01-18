@@ -67,10 +67,11 @@ then
 
 
     # Run UDP part in Window 2
+    echo "***************************************************"
     echo "Starting enumupd...."
+    echo "In tmux go to the window 2 and PROVIDE the password to start UDP scan"
     tmux send-keys -t ${SESSION_NAME}:2 'PS1="[\$(date +%F-%T)]"$PS1' C-m
-    echo "Preparing the files after UDP...."
     tmux send-keys -t ${SESSION_NAME}:2 'sudo '${RECON_PATH}'/2_resumenmap-udp.sh -f ips.udp; sudo  ./3_preparefiles.sh; tmux wait-for -S enumtcp-complete' C-m\; wait-for enumtcp-complete
     echo "Running VulnSCAN-udp...."
-    tmux send-keys -t ${SESSION_NAME}:2 'sudo  '${RECON_PATH}'/8_vulnSCAN-udp; chown -R marevalo:marevalo '${RECON_PATH}'/*' C-m
+    tmux send-keys -t ${SESSION_NAME}:2 'sudo  '${RECON_PATH}'/8_vulnSCAN-udp; sudo chown -R marevalo:marevalo '${RECON_PATH}'/*' C-m
 fi
