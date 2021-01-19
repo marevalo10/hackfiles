@@ -20,10 +20,11 @@ if [ $? != 0 ]
 then
     echo "Starting a new session...."
     # Create the session named recon with a window named enumtcp
-    tmux new-session -s ${SESSION_NAME} -n enumtcp -d
+    tmux new-session -s ${SESSION_NAME} -d
 
     echo "Starting a new window enumtcp...."
     # First window (1) -- run enumtcp
+    tmux new-window -n enumtcp -t ${SESSION_NAME}:1
     tmux send-keys -t ${SESSION_NAME}:1 'PS1="[\$(date +%F-%T)]"$PS1' C-m
 
     echo "Starting a new window enumudp...."
@@ -31,12 +32,14 @@ then
     tmux new-window -n enumudp -t ${SESSION_NAME}:2
     tmux send-keys -t ${SESSION_NAME}:2 'PS1="[\$(date +%F-%T)]"$PS1' C-m
 
+    # Starts the enumeration part
     echo "Start running  enumtcp...."
-    echo "Please attach to the tmux session to provide the password...."
+    echo "Please attach to the tmux session to check the progress and if required provide the password...."
     echo "Run this command: tmux attack -trecon"
     echo "And go to the Window 1 (enumtcp) -> ^b 1"
+    echo "Once enumtcp has been completed, all the other scans willl start"
     # Run TCP part and wait until it is completed to complete next commands
-    tmux send-keys -t ${SESSION_NAME}:1 'sudo '${RECON_PATH}'/1_resumenmap-tcp.sh -f ips.txt; tmux wait-for -S enumtcp-complete' C-m\; wait-for enumtcp-complete
+    tmux send-keys -t ${SESSION_NAME}:1 'sudo '${RECON_PATH}'/1_resumenmap-tcp.sh -f '${RECON_PATH}'/ips.txt; tmux wait-for -S enumtcp-complete' C-m\; wait-for enumtcp-complete
     #If a light scan is required then: sudo nmap -oA target.txt.resumenmaplight.1 -sT -top-ports 100 -Pn  -T 4 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --min-hostgroup 256 --privileged -iL ips.txt
 	#In screen with ^b^z returns to the shell and let the screen run alone.
 	#Once resumnmap-tcp has completed the scan, run  all remaining scripts. Each one can be run in a different screen
@@ -71,7 +74,7 @@ then
     echo "Starting enumupd...."
     echo "In tmux go to the window 2 and PROVIDE the password to start UDP scan"
     tmux send-keys -t ${SESSION_NAME}:2 'PS1="[\$(date +%F-%T)]"$PS1' C-m
-    tmux send-keys -t ${SESSION_NAME}:2 'sudo '${RECON_PATH}'/2_resumenmap-udp.sh -f ips.udp; sudo  ${RECON_PATH}/3_preparefiles.sh; tmux wait-for -S enumtcp-complete' C-m\; wait-for enumtcp-complete
+    tmux send-keys -t ${SESSION_NAME}:2 'sudo '${RECON_PATH}'/2_resumenmap-udp.sh -f '${RECON_PATH}'/ips.udp; sudo  ${RECON_PATH}/3_preparefiles.sh; tmux wait-for -S enumtcp-complete' C-m\; wait-for enumtcp-complete
     echo "Running VulnSCAN-udp...."
     tmux send-keys -t ${SESSION_NAME}:2 'sudo  '${RECON_PATH}'/8_vulnSCAN-udp; sudo chown -R marevalo:marevalo '${RECON_PATH}'/*' C-m
 fi
