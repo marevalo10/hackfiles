@@ -4,8 +4,8 @@ echo "*********************************************************"
 echo "Updating the system..."
 echo "*********************************************************"
 sudo apt-get update
-# These sometimes cause the system to fail…. It is better to download an updated version from Kali
-#apt-get upgrade 
+# These sometimes cause the system to fail…. Sometimes it is better to download an updated version from Kali
+sudo apt-get upgrade 
 #apt-get dist-upgrade
 
 NEW_USER="marevalo"
@@ -39,8 +39,10 @@ echo "Disabling root login"
 echo "By adding this line:  PermitRootLogin no"
 echo 'PermitRootLogin no' | sudo tee -a  /etc/ssh/sshd_config
 echo "Adding user to let it SSH"
-echo "By adding this line:  AllowUsers marevalo,kali"
-echo 'AllowUsers kali,'$NEW_USER | sudo tee -a  /etc/ssh/sshd_config
+echo "By adding this line:  AllowUsers kali, "$NEW_USER
+echo 'AllowUsers kali, '$NEW_USER | sudo tee -a  /etc/ssh/sshd_config
+echo "Setting time-zone"
+sudo timedatectl set-timezone Australia/Melbourne
 echo "*********************************************************"
 
 echo 'Cleaning ssh'
