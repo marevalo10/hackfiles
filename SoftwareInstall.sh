@@ -56,12 +56,12 @@ sudo apt-get install libpcap-dev libssl-dev libnetfilter-queue-dev
 cd ~/Downloads
 git clone https://github.com/vanhauser-thc/thc-ipv6.git
 cd thc-ipv6; sudo make all; sudo make install
-cd ..; rm -R thc-ipv6
+cd ..; sudo rm -R thc-ipv6
 
 # Metagoofil -> to look for documents in the website. 
 echo "******************************************************"
 echo "Installing metagoofil"
-apt-get install metagoofil
+sudo apt-get install metagoofil
 
 # Sn1per:
 echo "******************************************************"
@@ -72,7 +72,7 @@ echo "Installing Sn1per"
     # To investigate: why it install metasploit if it is alrady installed! It could cause problems
     sudo bash install.sh
     cd ~/Downloads
-    rm -R Sn1per
+    sudo rm -R Sn1per
 
 # Update Metasploit:
 echo "******************************************************"
@@ -93,7 +93,7 @@ echo "******************************************************"
 echo "Downloading PCredz"
     wget https://github.com/lgandx/PCredz/archive/master.zip --no-check-certificate -O pcredz.zip
 	unzip pcredz.zip
-	rm pcredz.zip
+	sudo rm pcredz.zip
 	#Transfer the python-libpcap to the system and install it
     wget http://mirrors.kernel.org/ubuntu/pool/universe/p/python-libpcap/python-libpcap_0.6.4-1_amd64.deb -O python-libpcap_0.6.4-1_amd64.deb
 	sudo apt-get install ./python-libpcap_0.6.4-1_amd64.deb
