@@ -1,0 +1,73 @@
+Adding the time to the PROMPT:
+vi .zshrc
+	Add this to the PROMPT despues del símbolo └─: 
+		└─%{$fg[yellow]%}[%f/%m/%y %D{%T}]) 
+		└─%{$fg[yellow]%}[%D{%f/%m/%y %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset}) ' 
+
+
+
+
+
+First Install TPM:
+
+	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+vi ~/.tmux.conf
+	
+	At the end it should looks like:
+	
+	# List of plugins
+	set -g @plugin 'tmux-plugins/tpm'
+	set -g @plugin 'tmux-plugins/tmux-sensible'
+	                                              
+	# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+	run '~/.tmux/plugins/tpm/tpm'                                                        
+	#run-shell  ~/.tmux-logging/logging.tmux
+	
+	
+tmux source ~/.tmux.conf
+
+Now copy the loging directory to .tmux/plugins
+Make sure loging.tmux and all the .sh files in the directory are executable
+chmod +x .tmux/plugins/tmux-logging/logging.tmux
+chmod +x .tmux/plugins/tmux-logging/scripts/*.sh
+
+vi ~/.tmux.conf
+	#Add this line to the plugins list:
+	set -g @plugin 'tmux-plugins/tmux-logging'
+	
+tmux source ~/.tmux.conf
+
+If it is not working then run the scripts manually onside the tmux session
+
+⇒ reload in tmux (Run tmux and in the session install the logs addon: Ctrl-b shift i)
+⇒ You should now have all tmux-logging key bindings defined.
+
+
+Start / Stop logging: prefix + shift + p
+Screen capture: prefix + alt + p
+Save complete history: prefix + alt + shift + p
+
+	
+
+Installing plugins
+1. Add new plugin to ~/.tmux.conf with set -g @plugin '...'
+2. Press prefix + I (capital i, as in Install) to fetch the plugin.
+You're good to go! The plugin was cloned to ~/.tmux/plugins/ dir and sourced.
+
+
+Uninstalling plugins
+1. Remove (or comment out) plugin from the list.
+2. Press prefix + alt + u (lowercase u as in uninstall) to remove the plugin.
+All the plugins are installed to ~/.tmux/plugins/ so alternatively you can find plugin directory there and remove it.
+
+Key bindings
+prefix + I
+• Installs new plugins from GitHub or any other git repository
+• Refreshes TMUX environment
+
+prefix + U
+◇ updates plugin(s)
+
+prefix + alt + u
+◇ remove/uninstall plugins not on the plugin list
