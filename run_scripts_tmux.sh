@@ -7,8 +7,8 @@ read -n1 -s -r -p $'Press any key to resume ... or Ctrl - C to cancel\n' key
 SESSION_NAME="recon"
 #It could be ~/Pentest/scripts_recon
 RECON_PATH="scripts_recon"
-file1=cde.txt
-file2=support.txt
+file1=ips.txt
+#file2=support.txt
 
 cd ~; cd $RECON_PATH
 chmod +x *.sh
@@ -73,9 +73,9 @@ else
     # Modify this part to include a scan for each grupo you have (cde.txt or dmz.txt, or just ips.txt...)
     ###################################################################################
     tmux send-keys -t ${SESSION_NAME}:1.0 'sudo ./1_resumenmap-tcp_new.sh -f $file1; tmux wait-for -S enumtcp0-complete' C-m\;
-    tmux send-keys -t ${SESSION_NAME}:1.1 'sudo ./1_resumenmap-tcp_new.sh -f $file2; tmux wait-for -S enumtcp1-complete' C-m\; 
+    #tmux send-keys -t ${SESSION_NAME}:1.1 'sudo ./1_resumenmap-tcp_new.sh -f $file2; tmux wait-for -S enumtcp1-complete' C-m\; 
     tmux send-keys -t ${SESSION_NAME}:1.0  wait-for enumtcp0-complete
-    tmux send-keys -t ${SESSION_NAME}:1.1  wait-for enumtcp1-complete
+    #tmux send-keys -t ${SESSION_NAME}:1.1  wait-for enumtcp1-complete
     #If the scan was innitiated but canceled at some point, the scan will resume from the previous completed part automatically
 	#In screen with ^b^z returns to the shell and let the screen run alone.
 	#Once resumnmap-tcp has completed the scan, run  all remaining scripts. Each one can be run in a different screen
@@ -85,22 +85,22 @@ else
     # Run commands in each window 1.x
     echo "Running enumSMB...."
     #tmux send-keys -t ${SESSION_NAME}:1.0 'PS1="[\$(date +%F-%T)]"$PS1' C-m
-    tmux send-keys -t ${SESSION_NAME}:1.0 './4_enumSMB.sh' C-m
+    tmux send-keys -t ${SESSION_NAME}:1.0 './4_enumSMB_new.sh' C-m
     echo "Running enumWEB...."
     #tmux send-keys -t ${SESSION_NAME}:1.1 'PS1="[\$(date +%F-%T)]"$PS1' C-m
     #Start loging the window
     #tmux send-keys -t ${SESSION_NAME}:1.1 C-P
-    tmux send-keys -t ${SESSION_NAME}:1.1 './5_enumWEB.sh' C-m
+    tmux send-keys -t ${SESSION_NAME}:1.1 './5_enumWEB_new.sh' C-m
     echo "Running enumSSH...."
     #tmux send-keys -t ${SESSION_NAME}:1.2 'PS1="[\$(date +%F-%T)]"$PS1' C-m
     #Start loging the window
     #tmux send-keys -t ${SESSION_NAME}:1.2 C-P
-    tmux send-keys -t ${SESSION_NAME}:1.2 './6_enumSSH.sh' C-m
+    tmux send-keys -t ${SESSION_NAME}:1.2 './6_enumSSH_new.sh' C-m
     echo "Running VulnSCAN-tcp...."
     #tmux send-keys -t ${SESSION_NAME}:1.3 'PS1="[\$(date +%F-%T)]"$PS1' C-m
     #Start loging the window
     #tmux send-keys -t ${SESSION_NAME}:1.3 C-P
-    tmux send-keys -t ${SESSION_NAME}:1.3 './7_vulnSCAN-tcp.sh' C-m
+    tmux send-keys -t ${SESSION_NAME}:1.3 './7_vulnSCAN-tcp_new.sh' C-m
 
     ###################################################################################
     # 2.2 Run UDP part and wait until it is completed to continue running next commands
