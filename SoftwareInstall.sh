@@ -88,10 +88,12 @@ echo "By default, responder is in /usr/share/Responder.py"
     FILE=/usr/share/Responder.py
     if test -f "$FILE"; then
         echo "$FILE exists!! :)"
+    elif
+        wget https://github.com/lgandx/Responder/archive/refs/heads/master.zip --no-check-certificate -O responder.zip
     fi
 echo "******************************************************"
 echo "Downloading PCredz"
-    wget https://github.com/lgandx/PCredz/archive/master.zip --no-check-certificate -O pcredz.zip
+    wget https://github.com/lgandx/PCredz/archive/refs/heads/master.zip --no-check-certificate -O pcredz.zip
 	unzip pcredz.zip
 	sudo rm pcredz.zip
 	#Transfer the python-libpcap to the system and install it
