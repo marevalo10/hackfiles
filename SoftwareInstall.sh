@@ -10,6 +10,12 @@ echo "***********************************************************"
     sudo netstat -tulpn > services.txt
     #sudo openvas-stop
     #sudo service postgresql stop
+# Updating
+echo "******************************************************"
+    sudo apt-get update
+# Installing seclists:
+echo "******************************************************"
+    sudo apt-get install seclists
 # Download and install Teamviewer to complete any graphical part:
 echo "******************************************************"
 echo "Installing and configuring TeamViewer"
@@ -66,6 +72,7 @@ sudo apt-get install metagoofil
 # Sn1per:
 echo "******************************************************"
 echo "Installing Sn1per"
+    mkdir ~/Downloads
     cd ~/Downloads
     git clone https://github.com/1N3/Sn1per.git
     cd Sn1per
@@ -127,10 +134,12 @@ echo "Install VNC "
 echo "******************************************************"
 echo "Install / Update and setup openvas => now called gvm (If required to run Vuln Scans. Require 6 to 10GB):"
     #Pending to update
+    sudo apt-get install python3-tornado
 	sudo apt-get install gvm*
     echo "Configuring GVM.... Could take TIME and requieres internet connection"
     sudo gvm-setup
-    echo "******************************************************"
+    echo "******************************************************"'
+    echo "If this process fails, follow instructions to change postgresqlv12 and postgresqlv13 ports: https://community.greenbone.net/t/gvm-install-setting-on-kali-linux-2020-3/7298/6"
     echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
     echo "||||||||||||||||||||||||||||||||||||||||||||||||||||||"
     echo "              TAKE NOTE OF THE PASSWORD!"
