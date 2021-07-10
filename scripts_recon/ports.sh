@@ -1,0 +1,2 @@
+for i in $(cat ips.txt.resumenmap-tcp.ports.csv); do echo "Extracting hosts list for TCP port $i in $i.ips file"; cat ips.txt.resumenmap-tcp.openports.csv | grep "$i/open" | awk {'print $2'} >$i.ips; done;
+for i in $(cat ips.txt.resumenmap-udp.ports.csv); do echo "Extracting hosts list for UDP port $i in $i.ipsudp file"; cat ips.txt.resumenmap-udp.openports.csv | grep "$i/open" | awk {'print $2'} >$i.ipsudp; done;
