@@ -2,9 +2,9 @@
 Useful scripts to run as a part of the initial recon in an internal network. This scripts should be used in a recent Kali Linux machine.
 To use it:
 * First, download the *kali_initialization.sh* script in this repository and run it to:
-** Create a new user / password (needs to modify the shell to change from marevalo to any other user), 
-** Download some tmux configuration files that let it work with mouse integration and logging enable (ctrl-b shift-p)
-** Download additional scripts that will be used during the recom.
+    * Create a new user / password (needs to modify the shell to change from marevalo to any other user), 
+    * Download some tmux configuration files that let it work with mouse integration and logging enable (ctrl-b shift-p)
+    * Download additional scripts that will be used during the recom.
 * Install the required software by running the *SoftwareInstall.sh*
 
 ## Prepare list of IP's or networks to scan
