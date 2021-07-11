@@ -16,6 +16,9 @@ echo "******************************************************"
 # Installing seclists:
 echo "******************************************************"
     sudo apt-get install seclists
+# Installing masscan:
+echo "******************************************************"
+    sudo apt-get install masscan
 # Download and install Teamviewer to complete any graphical part:
 echo "******************************************************"
 echo "Installing and configuring TeamViewer"

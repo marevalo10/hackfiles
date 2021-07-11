@@ -21,6 +21,8 @@ for ip in $(cat ./results/$file); do
     echo "***************************************************************"
     filename=$ip"_rpcdump.txt"
     python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee enumSMB/$filename;
+    filename2=$ip"_nbtscan.txt"
+    sudo nbtscan -r $ip | tee enumSMB/$filename2
     echo "Scan Completed for IP: $ip"; 
 done
 
