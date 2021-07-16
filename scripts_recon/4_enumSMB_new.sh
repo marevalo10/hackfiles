@@ -12,10 +12,18 @@ mkdir enumSMB;
 file=445_all_TCP.ips
 
 for ip in $(cat ./results/$file); do 
-    echo "********************************************************"
     filename=$ip"_enum4.txt"
+    echo "********************************************************"
     echo "Checking IP: "$ip" using enum4linux saving into file $filename"; 
+    echo "***************************************************************"
     enum4linux $ip | tee enumSMB/$filename 
+
+    filename=$ip"_smbmap.txt"
+    echo "***************************************************************"
+    echo "Checking IP: "$ip" using smbmap saving into file $filename"; 
+    echo "***************************************************************"
+    smbmap -u "" -H $ip  | tee enumSMB/$filename
+
     echo "***************************************************************"
     echo "Checking IP: "$ip" using rpcdump saving into file $filename"; 
     echo "***************************************************************"

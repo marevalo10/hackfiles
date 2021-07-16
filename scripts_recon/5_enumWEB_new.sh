@@ -24,13 +24,24 @@ rm ./enumWEB/http_ips.txt; touch ./enumWEB/http_ips.txt
 for port in $(cat ./enumWEB/httpports.txt); do
     filename=$port"_all_TCP.ips"
     numips=$(cat ./results/$filename | wc -l)
-    echo "Running Whatweb and Nikto for all IP's ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
+    echo "####################################################################"
+    echo "Running gobuster, Whatweb and Nikto for all IP's ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
+    echo "####################################################################"
     for ip in $(cat ./results/$filename); do 
-        echo "Testing $ip port $port with WhatWeb"; 
         #Add the IP and port to the file
         echo "$ip $port" >> ./enumWEB/http_ips.txt;
+        echo "####################################################################"
+        echo "Capturing a screenshot for $ip port $port with cutycapt"; 
         cutycapt --url=http://$ip:$port --out=./enumWEB/Screenshot_$ip-$port.png
+        echo "####################################################################"
+        echo "Testing $ip port $port with gobuster"; 
+        #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20 -x txt,php -u http://$ip:$port/
+        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20 -u http://$ip:$port/ | tee enumWEB/gobuster_http_$ip-$port.txt;
+        echo "####################################################################"
+        echo "Testing $ip port $port with WhatWeb"; 
         whatweb -a 3 $ip | tee enumWEB/whatweb_http_$ip-$port.txt;
+        echo "####################################################################"
+        echo "Testing $ip port $port with nikto"; 
         nikto -host $ip -p $port -o enumWEB/nikto_http_$ip-$port.csv -maxtime 300
     done
 done
@@ -42,9 +53,17 @@ for port in $(cat ./enumWEB/httpsports.txt); do
     numips=$(cat ./results/$filename | wc -l)
     echo -e "Running Whatweb and Nikto for all IP's ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
     for ip in $(cat ./results/$filename); do 
+        echo "####################################################################"
+        echo "Capturing a screenshot for $ip port $port with cutycapt"; 
+        cutycapt --url=https://$ip:$port --out=./enumWEB/Screenshot_https_$ip-$port.png --insecure
+        echo "####################################################################"
+        echo "Testing $ip port $port with gobuster"; 
+        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20 -u https://$ip:$port/ | tee enumWEB/gobuster_https_$ip-$port.txt;
+        echo "####################################################################"
         echo "Testing $ip port $port with WhatWeb"; 
-        cutycapt --url=https://$ip:$port --out=./enumWEB/Screenshot_$ip-$port.png --insecure
         whatweb -a 3 --url-prefix https://  $ip:$port | tee enumWEB/whatweb_https_$ip-$port.txt
+        echo "####################################################################"
+        echo "Testing $ip port $port with Nikto"; 
         nikto -host $ip -p $port -o enumWEB/nikto_https_$ip-$port.csv -maxtime 300
     done
 done
