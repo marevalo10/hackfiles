@@ -10,7 +10,7 @@ This will install xrdp in the machine to get access remotely using any RDP clien
     * Create a new user / password (needs to modify the shell to change from marevalo to any other user), 
     * Download some tmux configuration files that let it work with mouse integration and logging enable (ctrl-b shift-p)
     * Download additional scripts that will be used during the recom.
-* Install additional software by running the *[1_SoftwareInstall.sh](1_SoftwareInstall.sh)*
+* At the end of the previous step, the script will download and run the software installation. If you want to customise it, you can stop the script at the end of the process when you are asked to continue / stop. You can download, customize and run the software using *[1_SoftwareInstall.sh](1_SoftwareInstall.sh)*
 
 # 1. Internal Recon Scripts
 Useful scripts to run as a part of the initial recon in an internal network. This scripts should be used in a recent Kali Linux machine.
