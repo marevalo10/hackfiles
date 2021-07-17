@@ -1,3 +1,5 @@
+This page contains 2 examples. One for Windows and other for Linux
+
 **BUFFER OVERFLOW IN WINDOWS**
 
 The goal of this text is to explain how to complete a buffer overflow (BoF) attack by building a PoC in python and using it to figure out the final BoF that let us exploit the vulnerable application.
@@ -175,7 +177,8 @@ After running it we got the shell ...
 
 ![](BoF_files/image008.jpg)
 
-![](BoF_files/image008.jpg)
+
+
 
 **BUFFER OVERFLOW IN LINUX**
 
