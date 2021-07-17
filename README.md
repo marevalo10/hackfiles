@@ -3,14 +3,17 @@ This repository contains different utilities I have worked on as a part of my Pe
 - 1. Recon: I took some scripts previously developed and I improved them based on the knowledge I got to complete a recon phase in an internal network.
 - 2. BoF: this directory contains a short explanation of the fuzzing process to identify a buffer overflow. Additionally, it explains the steps to develop a Proof of Concept (PoC) in python to validate and exploit this BoF. I included the steps and the scripts in python to complete these steps.
 
-# 1. Internal Recon Scripts
-Useful scripts to run as a part of the initial recon in an internal network. This scripts should be used in a recent Kali Linux machine.
-To use it:
-* First, download the *kali_initialization.sh* script in this repository and run it to:
+# 0. Preparing Kali Linux
+Before start running the scripts, I've prepared some modifications / adjustments to the default Kali Linux installation, including the change of the default password, creating a new account, tmux configuration, and some software installation to complement the initial tools.
+This will install xrdp in the machine to get access remotely using any RDP client to the port 3390. You can customize any configuration by modifying the scripts (0_kali_initialization.sh) and (1_software_install.sh). All the scripts are commented to make it easier to understand the goal and steps.
+* 1. download the *(0_kali_initialization.sh)* script in this repository and run it to:
     * Create a new user / password (needs to modify the shell to change from marevalo to any other user), 
     * Download some tmux configuration files that let it work with mouse integration and logging enable (ctrl-b shift-p)
     * Download additional scripts that will be used during the recom.
-* Install the required software by running the *SoftwareInstall.sh*
+* Install additional software by running the *(1_SoftwareInstall.sh)*
+
+# 1. Internal Recon Scripts
+Useful scripts to run as a part of the initial recon in an internal network. This scripts should be used in a recent Kali Linux machine.
 
 ## Prepare list of IP's or networks to scan
 - [ ] Before running the recon scripts, you should define the scope IP's or networks by creating a file *ips.txt* inside the recon_scripts folder. 
