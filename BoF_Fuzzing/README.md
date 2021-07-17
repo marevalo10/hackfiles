@@ -1,5 +1,3 @@
-           <!--  -->  
-
 **BUFFER OVERFLOW IN WINDOWS**
 
 The goal of this text is to explain how to complete a buffer overflow (BoF) attack by building a PoC in python and using it to figure out the final BoF that let us exploit the vulnerable application.
@@ -30,7 +28,7 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Start a connection to the server and run some commands to understand how it works:
 
-nc -nv \[IPWINDOWS\] 9999
+           <!-- nc -nv \[IPWINDOWS\] 9999 -->  
 
 #In the answer the server indicates the use of HELP to get additional info.
 
