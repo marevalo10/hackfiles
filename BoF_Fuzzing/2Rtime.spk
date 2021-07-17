@@ -1,0 +1,4 @@
+printf("RTIME 2rtime.spk : "); //print to terminal command and filename
+s_readline(); //print received line from server
+s_string("RTIME "); // send "HELP " to program. Requires a space as the fuzz will go after it
+s_string_variable("COMMAND"); //send fuzzed string after HELP

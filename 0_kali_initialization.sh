@@ -67,9 +67,11 @@ echo "*********************************************************"
     echo "[+] Configuring XRDP to listen to port 3390 (but not starting the service)..."
     sudo sed -i 's/port=3389/port=3390/g' /etc/xrdp/xrdp.ini
     sudo systemctl enable xrdp --now
+    sudo systemctl enable xrdp-sesman
     #If you are using WSL, dbus-x11 needs to be installed next for xrdp and xfce to connect.
     #sudo apt install -y dbus-x11
     sudo systemctl start xrdp
+    sudo systemctl start xrdp-sesman
     echo "************************************************************************"
     echo "Be sure to not be logged into the Kali GUI interface when connecting to the RDP service"
     echo "************************************************************************"

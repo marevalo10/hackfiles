@@ -1,0 +1,4 @@
+printf("STATS 1Statds.spk : "); //print to terminal command and filename
+s_readline(); //print received line from server
+s_string("STATS "); // send "HELP " to program. Requires a space as the fuzz will go after it
+s_string_variable("COMMAND"); //send fuzzed string after HELP
