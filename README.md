@@ -1,4 +1,4 @@
-#README
+# README
 This repository contains different utilities I have worked on as a part of my Penentration Testing learning path.
 - 1. Recon: I took some scripts previously developed and I improved them based on the knowledge I got to complete a recon phase in an internal network.
 - 2. BoF: this directory contains a short explanation of the fuzzing process to identify a buffer overflow. Additionally, it explains the steps to develop a Proof of Concept (PoC) in python to validate and exploit this BoF. I included the steps and the scripts in python to complete these steps.
@@ -26,4 +26,5 @@ To use it:
     This will create a tmux session with 2 main windows: enumtcp and enumudp
     Within this windows, the script will start running the scripts for each protocol following a "numeric order" except for the 2nd script (udp) that will run after all the tcp scripts have been completed based in previous experiences.
 
-
+# 2. Buffer Overflow
+Access to the BoF directory to check the details.
