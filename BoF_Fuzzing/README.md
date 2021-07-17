@@ -1,6 +1,8 @@
+# README
+
 This page contains 2 examples. One for Windows and other for Linux
 
-**BUFFER OVERFLOW IN WINDOWS**
+# 1. BUFFER OVERFLOW IN WINDOWS**
 
 The goal of this text is to explain how to complete a buffer overflow (BoF) attack by building a PoC in python and using it to figure out the final BoF that let us exploit the vulnerable application.
 
@@ -180,7 +182,7 @@ After running it we got the shell ...
 
 
 
-**BUFFER OVERFLOW IN LINUX**
+# 2. BUFFER OVERFLOW IN LINUX**
 
 We will use Crossfire 1.9.0 as it is vulnerable. It has a network-based BoF when strings of more than 4000 bytes in the setup sound command
 
