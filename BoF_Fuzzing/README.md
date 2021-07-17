@@ -13,6 +13,7 @@ The goal of this text is to explain how to complete a buffer overflow (BoF) atta
 · How to automatise the process: [https://resources.infosecinstitute.com/topic/fuzzer-automation-with-spike/](https://resources.infosecinstitute.com/topic/fuzzer-automation-with-spike/)
 
 · Good explanation: [https://hex-men.tech/vulnserver\_buffer\_overflow/](https://hex-men.tech/vulnserver_buffer_overflow/)
+· Hack the box training: https://academy.hackthebox.eu/course/preview/stack-based-buffer-overflows-on-windows-x86/debugging-windows-programs
 
 Here I'm going to explain the process to follow, but mainly the concepts we need to understand to complete a BoF attack.
 
@@ -121,7 +122,7 @@ We will use mona.py in Immunity Debugger to complete this part.
 
 To detect if there are unprotected modules we can use to get an address with this operation we need to use mona.py. It works with Inmmunity Debugger and WinDBG ([https://github.com/corelan/mona](https://github.com/corelan/mona)). Download and copy the file into Immunity Debugger\\PyCommands
 
-For Ghidra x64dbg is more complicated: [https://github.com/x64dbg/mona](https://github.com/x64dbg/mona)
+For x64dbg is more complicated: [https://github.com/x64dbg/mona](https://github.com/x64dbg/mona). However, there is another maintained pluggin in https://github.com/Andy53/ERC.Xdbg/releases that just require to unzip it in the pluggins directory. 
 
 More details about mona: [https://www.corelan-training.com/](https://www.corelan-training.com/)
 
