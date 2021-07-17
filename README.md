@@ -27,4 +27,4 @@ To use it:
     Within this windows, the script will start running the scripts for each protocol following a "numeric order" except for the 2nd script (udp) that will run after all the tcp scripts have been completed based in previous experiences.
 
 # 2. Buffer Overflow
-Access to the  ![BoF directory](BoF_Fuzzing) to check the details.
+Access to the [BoF directory](BoF_Fuzzing) to check the details.
