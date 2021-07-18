@@ -6,7 +6,8 @@ This page contains 2 examples. One for Windows and other for Linux
 
 The goal of this text is to explain how to complete a buffer overflow (BoF) attack by building a PoC in python and using it to figure out the final BoF that let us exploit the vulnerable application.
 
-2 Great article explaining the process and how to use SPIKE:
+A very good example with details and a vulnerable application ready to test: https://github.com/justinsteven/dostackbufferoverflowgood
+Great articles explaining the process and how to use SPIKE:
 
 · How spike works: [https://resources.infosecinstitute.com/topic/intro-to-fuzzing/](https://resources.infosecinstitute.com/topic/intro-to-fuzzing/)
 
@@ -90,6 +91,7 @@ Identify the exact size of the buffer where the program crashes by creating an s
            In other Kali: 
            msf-pattern\_create -l \[LENGHT\]
            \#This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
+           \#This can be done in x64dbg by running  ERC --pattern c 5000
            #Phase 3 of the python script help us to identify this task.
 
 Restart the vulnserver in windows from the debugger (ctrl-F2) and run the python script Phase 2 using the pattern we got. Once the server crash, check the value in the registers (right side in immunity), specially the EIP value. In this case it is **386F4337**
@@ -99,6 +101,7 @@ Calculate the offset for this EIP value using
            /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_offset.rb -l \[length\] -q **386F4337**
            \#In other kali: msf-pattern\_offset -l \[length\] -q 386F4337
            \=> \[\*\] Exact match at offset 2003
+           \# In ERC the command ERC --pattern o 8oC7 #In python b"\x38\x6F\x43\x37" to get 8oC7
 
 Confirm the EIP can be manipulated by us:
 
@@ -128,10 +131,10 @@ More details about mona: [https://www.corelan-training.com/](https://www.corelan
 
 To run mona, in Immunity Debugger run the command in the textbox in the downside of the debugger. Just write:
 
-           !mona modules #In this case essfunc.dll is found
+           !mona modules #In this case essfunc.dll is found or
+           ERC --ModuleInfo  #using x64dbg with the ERC pluggin
            \# Identify which modules have less protections active from the process running.
            \# To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
-           
            msf-nasm\_shell
            \>JMP ESP
            \#In other Kali is: /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm\_shell.rb
@@ -139,6 +142,8 @@ To run mona, in Immunity Debugger run the command in the textbox in the downside
            \# Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected modules
            !mona find -s "\\xff\\xe4" -m "essfunc.dll" => -s is the byte string to search for, -m specifies the module to search in
            \#9 occurrences were found.
+           #In x64dbg, go to symbols (alt+e), select any of the dll or exe files by double clicking it. Then ctrl+f to search and jmp esp
+           #Pick an address that does not contain badchars including 00 or any other previously identified
 
 ![](BoF_files/image004.jpg)
 
@@ -164,7 +169,7 @@ Now we have all the pieces we need:
 
 · Offset (2003 in this case)
 
-· Address we want to overwrite in the EIP (observe we need to include it in little indian notation for x86: "\\xaf\\x11\\x50\\x62"
+· Address we want to overwrite in the EIP (observe we need to include it in little indian notation for x86: "\\xaf\\x11\\x50\\x62". In python, there is a method called pack to convert to little indian in the struct library: pack('<L', 0x625011af)
 
 · the pattern string (shellcode) we want to inject and run.
 
