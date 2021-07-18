@@ -2,7 +2,7 @@
 
 This page contains 2 examples. One for Windows and other for Linux
 
-# 1. BUFFER OVERFLOW IN WINDOWS**
+# 1. BUFFER OVERFLOW IN WINDOWS
 
 The goal of this text is to explain how to complete a buffer overflow (BoF) attack by building a PoC in python and using it to figure out the final BoF that let us exploit the vulnerable application.
 
@@ -42,10 +42,10 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Create a SPIKE script to send the commands with fuzzed data. It is simple as if we understand what information should be sent always and what we can manipulate, the resulting script is like this:
 
-           _printf__("HELP 0help.spk : "); //print to terminal command and filename_
-           _s_readline__(); //print received line from server_
-           _s_string__("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
-           _s_string_variable__("INJECTION\_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
+           printf("HELP 0help.spk : "); //print to terminal command and filename_
+           s_readline(); //print received line from server_
+           s_string("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
+           s_string_variable("INJECTION_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
 
 #Create a spk file for each commands supported by the server: STATS, RTIME, etc. Assign a sequence number to the filename so when it is restarted, it could continue from the last tested and not from the beginning.
 
