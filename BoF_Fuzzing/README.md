@@ -34,18 +34,18 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Start a connection to the server and run some commands to understand how it works:
 
-           nc -nv \[IPWINDOWS\] 9999  
+           nc -nv [IPWINDOWS] 9999  
 
 #In the answer the server indicates the use of HELP to get additional info.
 
-#There are many commands we can execute HELP, STATS, RTIME, LTIME, 
+#There are many commands we can execute HELP, STATS, RTIME, LTIME, ...
 
 · Create a SPIKE script to send the commands with fuzzed data. It is simple as if we understand what information should be sent always and what we can manipulate, the resulting script is like this:
 
            _printf__("HELP 0help.spk : "); //print to terminal command and filename_
-           _s\_readline__(); //print received line from server_
-           _s\_string__("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
-           _s\_string\_variable__("INJECTION\_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
+           _s_readline__(); //print received line from server_
+           _s_string__("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
+           _s_string_variable__("INJECTION\_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
 
 #Create a spk file for each commands supported by the server: STATS, RTIME, etc. Assign a sequence number to the filename so when it is restarted, it could continue from the last tested and not from the beginning.
 
@@ -53,7 +53,7 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Run the SPIKE script to look for overflows:
 
-           generic\_send\_tcp \[ip\] \[port\] \[script.spk\] 0 0
+           generic_send_tcp [ip] [port] [script.spk] 0 0
 
 Spike send a predeterminate list of strings each time replacing the string variable "INJECTION\_POINT" by predetermined injection chars already preconfigured in spike by default. The 0 indicates where to start from the predetermined file and where to stop. To run all by default use 0 0
 
