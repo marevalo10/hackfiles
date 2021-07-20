@@ -1,16 +1,20 @@
+# README
+
 This page contains 2 examples. One for Windows and other for Linux
 
-**BUFFER OVERFLOW IN WINDOWS**
+# 1. BUFFER OVERFLOW IN WINDOWS
 
 The goal of this text is to explain how to complete a buffer overflow (BoF) attack by building a PoC in python and using it to figure out the final BoF that let us exploit the vulnerable application.
 
-2 Great article explaining the process and how to use SPIKE:
+A very good example with details and a vulnerable application ready to test: https://github.com/justinsteven/dostackbufferoverflowgood
+Great articles explaining the process and how to use SPIKE:
 
 · How spike works: [https://resources.infosecinstitute.com/topic/intro-to-fuzzing/](https://resources.infosecinstitute.com/topic/intro-to-fuzzing/)
 
 · How to automatise the process: [https://resources.infosecinstitute.com/topic/fuzzer-automation-with-spike/](https://resources.infosecinstitute.com/topic/fuzzer-automation-with-spike/)
 
 · Good explanation: [https://hex-men.tech/vulnserver\_buffer\_overflow/](https://hex-men.tech/vulnserver_buffer_overflow/)
+· Hack the box training: https://academy.hackthebox.eu/course/preview/stack-based-buffer-overflows-on-windows-x86/debugging-windows-programs
 
 Here I'm going to explain the process to follow, but mainly the concepts we need to understand to complete a BoF attack.
 
@@ -30,18 +34,18 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Start a connection to the server and run some commands to understand how it works:
 
-           nc -nv \[IPWINDOWS\] 9999  
+           nc -nv [IPWINDOWS] 9999  
 
 #In the answer the server indicates the use of HELP to get additional info.
 
-#There are many commands we can execute HELP, STATS, RTIME, LTIME, 
+#There are many commands we can execute HELP, STATS, RTIME, LTIME, ...
 
 · Create a SPIKE script to send the commands with fuzzed data. It is simple as if we understand what information should be sent always and what we can manipulate, the resulting script is like this:
 
-           _printf__("HELP 0help.spk : "); //print to terminal command and filename_
-           _s\_readline__(); //print received line from server_
-           _s\_string__("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
-           _s\_string\_variable__("INJECTION\_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
+           printf("HELP 0help.spk : "); //print to terminal command and filename_
+           s_readline(); //print received line from server_
+           s_string("HELP "); // send "HELP " **command** to the program. Requires a space as the fuzz will go after it_
+           s_string_variable("INJECTION_POINT"); //send fuzzed string. At the end, the resulting string sent to the server is HELP INJECTION\_POINT_
 
 #Create a spk file for each commands supported by the server: STATS, RTIME, etc. Assign a sequence number to the filename so when it is restarted, it could continue from the last tested and not from the beginning.
 
@@ -49,7 +53,7 @@ We need a Windows system including the Vulnserver ([http://sites.google.com/site
 
 · Run the SPIKE script to look for overflows:
 
-           generic\_send\_tcp \[ip\] \[port\] \[script.spk\] 0 0
+           generic_send_tcp [ip] [port] [script.spk] 0 0
 
 Spike send a predeterminate list of strings each time replacing the string variable "INJECTION\_POINT" by predetermined injection chars already preconfigured in spike by default. The 0 indicates where to start from the predetermined file and where to stop. To run all by default use 0 0
 
@@ -83,19 +87,21 @@ We need to identify what information is stored in each register at the crash mom
 
 Identify the exact size of the buffer where the program crashes by creating an special string with metasploit framework pattern\_create (locate pattern\_create). In my case I had to run it in this way:
 
-           /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_create.rb -l 5000
+           /opt/metasploit-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_create.rb -l 5000
            In other Kali: 
-           msf-pattern\_create -l \[LENGHT\]
-           \#This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
+           msf-pattern_create -l [LENGHT]
+           #This can also be generated using mona.py in Immunity Debugger but I will not show here the details.
+           #This can be done in x64dbg by running  ERC --pattern c 5000
            #Phase 3 of the python script help us to identify this task.
 
 Restart the vulnserver in windows from the debugger (ctrl-F2) and run the python script Phase 2 using the pattern we got. Once the server crash, check the value in the registers (right side in immunity), specially the EIP value. In this case it is **386F4337**
 
 Calculate the offset for this EIP value using
 
-           /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern\_offset.rb -l \[length\] -q **386F4337**
-           \#In other kali: msf-pattern\_offset -l \[length\] -q 386F4337
-           \=> \[\*\] Exact match at offset 2003
+           /opt/metasploit-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/pattern_offset.rb -l [length] -q **386F4337**
+           #In other kali: msf-pattern\_offset -l [length] -q 386F4337
+           => [*] Exact match at offset 2003
+           # In ERC the command ERC --pattern o 8oC7 #In python b"\x38\x6F\x43\x37" to get 8oC7
 
 Confirm the EIP can be manipulated by us:
 
@@ -119,23 +125,26 @@ We will use mona.py in Immunity Debugger to complete this part.
 
 To detect if there are unprotected modules we can use to get an address with this operation we need to use mona.py. It works with Inmmunity Debugger and WinDBG ([https://github.com/corelan/mona](https://github.com/corelan/mona)). Download and copy the file into Immunity Debugger\\PyCommands
 
-For Ghidra x64dbg is more complicated: [https://github.com/x64dbg/mona](https://github.com/x64dbg/mona)
+For x64dbg is more complicated: [https://github.com/x64dbg/mona](https://github.com/x64dbg/mona). However, there is another maintained pluggin in https://github.com/Andy53/ERC.Xdbg/releases that just require to unzip it in the pluggins directory. 
 
 More details about mona: [https://www.corelan-training.com/](https://www.corelan-training.com/)
 
 To run mona, in Immunity Debugger run the command in the textbox in the downside of the debugger. Just write:
 
-           !mona modules #In this case essfunc.dll is found
-           \# Identify which modules have less protections active from the process running.
-           \# To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
-           
-           msf-nasm\_shell
-           \>JMP ESP
-           \#In other Kali is: /opt/metasploit\-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm\_shell.rb
-           \#We got "FFE4"
-           \# Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected modules
+           !mona modules #In this case essfunc.dll is found or
+           ERC --ModuleInfo  #using x64dbg with the ERC pluggin
+           # Identify which modules have less protections active from the process running.
+           # To know the op codefor JUMP ESP we can use msf-nasm\_shell. Run it and put JMP ESP to identify the op code
+           msf-nasm_shell
+           >JMP ESP
+           #In other Kali is: /opt/metasploit-framework/embedded/bin/ruby /opt/metasploit-framework/embedded/framework/tools/exploit/nasm_shell.rb
+           #We got "FFE4"
+           # Now we need to look for the instruction JMP ESP ("\\xff\\xe4") in the memory for any of these unprotected module
+           # The easiest way is running: # !mona jmp -r esp -cpb "\x00\x0A"   #badchars
            !mona find -s "\\xff\\xe4" -m "essfunc.dll" => -s is the byte string to search for, -m specifies the module to search in
            \#9 occurrences were found.
+           #In x64dbg, go to symbols (alt+e), select any of the dll or exe files by double clicking it. Then ctrl+f to search and jmp esp
+           #Pick an address that does not contain badchars including 00 or any other previously identified
 
 ![](BoF_files/image004.jpg)
 
@@ -161,7 +170,7 @@ Now we have all the pieces we need:
 
 · Offset (2003 in this case)
 
-· Address we want to overwrite in the EIP (observe we need to include it in little indian notation for x86: "\\xaf\\x11\\x50\\x62"
+· Address we want to overwrite in the EIP (observe we need to include it in little indian notation for x86: "\\xaf\\x11\\x50\\x62". In python, there is a method called pack to convert to little indian in the struct library: pack('<L', 0x625011af)
 
 · the pattern string (shellcode) we want to inject and run.
 
@@ -180,7 +189,7 @@ After running it we got the shell ...
 
 
 
-**BUFFER OVERFLOW IN LINUX**
+# 2. BUFFER OVERFLOW IN LINUX**
 
 We will use Crossfire 1.9.0 as it is vulnerable. It has a network-based BoF when strings of more than 4000 bytes in the setup sound command
 
