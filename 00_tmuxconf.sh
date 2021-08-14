@@ -10,5 +10,6 @@ echo "****************************************************************"
     echo "Copying the tmux logging files to ~/tmux-logging"
     cp -R tmux-logging ~/
     cd ..
+    curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o .tmux.conf 
     rm dotfiles_mod.zip
     echo "tmux configured to support mouse and logs..."

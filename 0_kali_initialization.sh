@@ -91,6 +91,7 @@ echo "****************************************************************"
     echo "Copying the tmux logging files to ~/tmux-logging"
     cp -R tmux-logging ~/
     cd ..
+    curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o ~/.tmux.conf
 
     echo "**********************************************************************"
     echo "Installing the shell and tmux improvements scripts for user "$NEW_USER
@@ -100,6 +101,7 @@ echo "****************************************************************"
     sudo -H -u $NEW_USER bash -c 'cd ~; unzip  ~/dotfiles_mod.zip; chmod +x ~/dotfiles/*.sh; sudo ~/dotfiles/install.sh'
     echo "Copying the tmux logging files to ~/tmux-logging for user "$NEW_USER
     sudo -H -u $NEW_USER bash -c 'cp -R ~/dotfiles/tmux-logging ~/; rm dotfiles_mod.zip'
+    sudo -H -u $NEW_USER bash -c 'curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o ~/.tmux.conf'
     echo "****************************************************************"
     echo "..."
     echo "..."
