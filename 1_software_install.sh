@@ -142,7 +142,7 @@ echo "If required a SMB server use impacket SMB:
 	copy \\IP\ROPNOP\file.exe"
 
 echo "******************************************************"
-    echo "Install MINGW AND WIN EMULATOR WINE
+    echo "Install MINGW AND WIN EMULATOR WINE"
     sudo apt install mingw-w64
     echo "Use: i686-w64-mingw32-gcc 42341.c -o syncbreeze_exploit.exe"
     sudo apt-get install wine
