@@ -15,10 +15,9 @@ echo "Install virtualenv:"
 	sudo apt-get install python3-virtualenv
 echo "Install python FTP to facilitate files exchange when required:"
 	pip3 install pyftpdlib
-echo "To run the ftp server: python3 -m pyftpdlib -w"
-	python3 -m pyftpdlib -w
-    #Or it can be used Metasploit ftp: auxiliary/server/ftp
-	#set FTPROOT /home/marevalo
+echo "To run the ftp server: python3 -m pyftpdlib -w
+    Or it can be used Metasploit ftp: auxiliary/server/ftp
+	set FTPROOT /home/marevalo"
 
 echo "***********************************************************"
     # List all services listening and stop unnecesary:
@@ -47,17 +46,18 @@ echo "******************************************************"
 echo "Installing metagoofil"
 sudo apt-get install metagoofil
 
-# Sn1per:
-echo "******************************************************"
-echo "Installing Sn1per"
-    mkdir ~/Downloads
-    cd ~/Downloads
-    git clone https://github.com/1N3/Sn1per.git
-    cd Sn1per
+# Sn1per:   => It installs and configure a lot of python packages and a different version of metasploit
+# This could affect other programs! => it is better to use it in Docker
+#echo "******************************************************"
+#echo "Installing Sn1per"
+    #mkdir ~/Downloads
+#    cd ~/Downloads
+#    git clone https://github.com/1N3/Sn1per.git
+#    cd Sn1per
     # To investigate: why it install metasploit if it is alrady installed! It could cause problems
-    sudo bash install.sh
-    cd ~/Downloads
-    sudo rm -R Sn1per
+#    sudo bash install.sh
+#    cd ~/Downloads
+#    sudo rm -R Sn1per
 
 # Update Metasploit:
 echo "******************************************************"
@@ -71,7 +71,7 @@ echo "Installing required software for internal tests"
 echo "******************************************************"
 echo "******************************************************"
 echo "Downloading PCredz"
-    sudo apt install sudo apt-get install libpcap-dev && pip3 install Cython && pip3 install python-libpcap
+    sudo apt-get install libpcap-dev && pip3 install Cython && pip3 install python-libpcap
     wget https://raw.githubusercontent.com/lgandx/PCredz/master/Pcredz
     chmod +x Pcredz
     sudo mv Pcredz /usr/bin
@@ -97,11 +97,6 @@ echo "Install / run armitage: (if not is installed yet)"
     echo "To run armintage use the graphical interface or run sudo -E armitage"
 
 	
-echo "**************************************************************************************"
-echo "Download and install CrackMapExec (if not is installed yet - Post-exploitation tool ):"
-	python3 -m pip install pipx
-    pipx ensurepath
-    pipx install crackmapexec
 
 
 
@@ -130,7 +125,7 @@ echo "Download and Install DeathStar (When you have credentials to try to get la
 echo "It could be dangerous as it will try automatically to inject code and AV could detect it" 
 	# DeathStar
     #cd ~/Downloads; git clone https://github.com/byt3bl33d3r/DeathStar
-    python3 -m pip install --user pipx
+    #python3 -m pip install --user pipx
     pipx install deathstar-empire
 
 echo "****************************************************************************************"
@@ -165,6 +160,8 @@ echo "******************************************************"
 #	echo "To start GVM run: gvm-start"
 #    echo "******************************************************"
 #    #gvm-start
+
+searchsploit -u
 
 sudo apt autoremove
 
@@ -298,3 +295,11 @@ sudo apt autoremove
 #	#	Create a file with the IPS target (ips.txt)
 #	#	portia.py -d DOMAIN -u USER -p PASS IP 
 #
+
+
+#echo "**************************************************************************************"
+#echo "Download and install CrackMapExec (if not is installed yet - Post-exploitation tool ):"
+#	python3 -m pip install pipx
+#    pipx ensurepath
+#    pipx install crackmapexec
+
