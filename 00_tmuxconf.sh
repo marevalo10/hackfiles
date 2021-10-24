@@ -8,6 +8,7 @@ echo "****************************************************************"
     chmod +x *.sh
     sudo ./install.sh
     echo "Copying the tmux logging files to ~/tmux-logging"
+    git clone https://github.com/tmux-plugins/tpm
     cp -R tmux-logging ~/
     cd ..
     curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o .tmux.conf 
