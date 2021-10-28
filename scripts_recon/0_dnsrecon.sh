@@ -11,7 +11,7 @@ declare domain
 # First check input for paramaters
 validate_parameters()
 {
-    while getopts "f:hAVS" opt; do
+    while getopts "d:hAVS" opt; do
         case $opt in
         # d to receive the domain name to evaluate
         d)  #echo "-d was triggered, Parameter: $OPTARG" >&2
@@ -96,4 +96,6 @@ echo "**************************************************************************
 echo "********************************************************************************************"  |tee $outfile
 echo "dnsrecon $domain results: "   |tee -a $outfile
 echo "********************************************************************************************"   |tee -a $outfile
+# -a checks zone transfer, -s runs reverse lookups for names in soa, -k performs crt.sh enumeration# 
+# -w runs a deep whois record analysis and reverse lookups, -z executes a DNSSEC zone walk
 dnsrecon -d $domain -a -s -k -w |tee -a $outfile
