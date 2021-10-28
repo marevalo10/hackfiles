@@ -1,13 +1,18 @@
 #!/bin/bash
-#Run enum4linux and rpcdump on all hosts identified with port 445 open
-#Takes the file ./results/445_all_TCP.ips created by 3_preparefiles_new as input
-#Run nmap with rdpenum script for all host with port 3389 open
-#requires enum4linux instaled and available in the running path
+# This script runs different tests related with NMB / Microsoft services (RDP, LDAP) withput credentials
+# It uses: enum4linux, smbmap, rpcdump, nbtscan, crackmapexec smb, nmap scripts for smb and rdp 
+#       ./4_enumSMB_new.sh
+# It takes the consolidated file ./results/445_all_TCP.ips created by 3_preparefiles_new as input
+# and runs enum4linux and rpcdump on all hosts identified with port 445 open
+# It runs nmap with rdpenum script for all host with port 3389 open
+# It requires enum4linux instaled and available in the running path
 ######################################################################################
 #The base for this script was taken from a previous version provided by Carlos Marquez
 #Some additions in this version were completed by Miguel Arevalo (M4rc14n0) 
 ######################################################################################
 
+
+# Check possible issues on port 445 using enum4linux, smbmap with empty credentials, rpcdump, and nbtscan
 mkdir enumSMB;
 file=445_all_TCP.ips
 

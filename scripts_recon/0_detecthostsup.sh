@@ -1,6 +1,7 @@
 #!/bin/bash
 # SYNTAX: ./0_detecthostsup.sh -f targets.txt
-# This script extract the hosts identified as alive in each subnet received using some special techniques 
+# This script extract the hosts identified as alive in each subnet received using some special techniques:
+#   sudo nmap -sn -n -PA -PU -PO -T4 $network -oG - | awk '/Up$/{print $2}' 
 # The result is stored in an output file target.txt.hostlist.txt containing one IP by line identified us up
 # Resulting file could be used in the nmap tcp / udp as it is focused in the systems identified as up.
 # The script reads each line in the file with the networks list / IP
