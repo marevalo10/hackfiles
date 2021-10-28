@@ -96,6 +96,21 @@ echo "**************************************************************************
 echo "********************************************************************************************"  |tee $outfile
 echo "dnsrecon $domain results: "   |tee -a $outfile
 echo "********************************************************************************************"   |tee -a $outfile
-# -a checks zone transfer, -s runs reverse lookups for names in soa, -k performs crt.sh enumeration# 
+# -a checks zone transfer, -s runs reverse lookups for names in soa, 
+# -k performs crt.sh enumeration to check for public certificates using this domain 
 # -w runs a deep whois record analysis and reverse lookups, -z executes a DNSSEC zone walk
 dnsrecon -d $domain -a -s -k -w |tee -a $outfile
+
+#Run nmap for dns
+echo "********************************************************************************************"  |tee $outfile
+echo "Running nmap for DNS servers: sudo nmap -p53 -sU -sC -sV --script vuln -i dnsservers.txt "   |tee -a $outfile
+echo "********************************************************************************************"   |tee -a $outfile
+sudo nmap -p53 -sU -sC -sV --script vuln -i dnsservers.txt -oA nmap_dnsservers
+
+# For each IP in the file (allips.txt) will try to look for a name associated with it
+echo "********************************************************************************************"  |tee $outfile
+echo "Running reverse lookup for each IP in the file allips.txt "   |tee -a $outfile
+echo "********************************************************************************************"   |tee -a $outfile
+filename=allips.txt
+dnsserver=`head -n 1 dnsservers.txt`
+for ip in $(cat $filename); do host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g"; done | tee -a dnsreverseallips.txt
