@@ -91,4 +91,9 @@ for nameserver in $(cat dnsservers.txt); do
 done;
 echo -e "Total DNS Servers reviewed: ${GREEN}$index${NC} "  |tee -a $outfile
 echo "********************************************************************************************"  |tee -a $outfile
- 
+
+#Run dnsrecon (python)
+echo "********************************************************************************************"  |tee $outfile
+echo "dnsrecon $domain results: "   |tee -a $outfile
+echo "********************************************************************************************"   |tee -a $outfile
+dnsrecon -d $domain -a -s -k -w |tee -a $outfile
