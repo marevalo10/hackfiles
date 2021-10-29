@@ -110,7 +110,8 @@ sudo nmap -p53 -sU -sC -sV --script vuln -i dnsservers.txt -oA nmap_dnsservers
 # For each IP in the file (allips.txt) will try to look for a name associated with it
 echo "********************************************************************************************"  |tee $outfile
 echo "Running reverse lookup for each IP in the file allips.txt "   |tee -a $outfile
+echo "Output will be saved in file dnsreverseallips.txt "   |tee -a $outfile
 echo "********************************************************************************************"   |tee -a $outfile
 filename=allips.txt
 dnsserver=`head -n 1 dnsservers.txt`
-for ip in $(cat $filename); do host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g"; done | tee -a dnsreverseallips.txt
+for ip in $(cat $filename); do host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g"; done | tee dnsreverseallips.txt
