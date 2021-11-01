@@ -22,13 +22,13 @@ mkdir enumSMB;
 file=smb_all_TCP.ips
 #Join all the IP's with SMB related open ports
 cd results
-cat 135_all_*.ips 137_all_*.ips 139_all_*.ips 445_all_*.ips | sort -n | uniq > .$file
-cd ../enumSMB
+cat 135_all_*.ips 137_all_*.ips 139_all_*.ips 445_all_*.ips | sort -n | uniq > $file
+cp $file ../enumSMB; cd ../enumSMB
 totalips=(`cat $file|wc -l`)
 echo -e "Total IP's to validate: ${GREEN}$totalips${NC}"
 echo "***************************************************************"
 for ip in $(cat $file); do 
-    filename=$ip"_enum4.txt"
+    filename="enum4_"$ip".txt"
     echo "***************************************************************"
     echo "Checking IP: "$ip" using enum4linux saving into file $filename"; 
     echo "***************************************************************"
@@ -49,19 +49,19 @@ for ip in $(cat $file); do
     #enum4linux -r $ip
 
 
-    filename=$ip"_smbmap.txt"
+    filename="smbmap_"$ip".txt"
     echo "***************************************************************"
     echo "Checking IP: "$ip" using smbmap saving into file $filename"; 
     echo "***************************************************************"
     smbmap -u "" -H $ip  | tee $filename
 
-    filename=$ip"_rpcdump.txt"
+    filename="rpcdump_"$ip".txt"
     echo "***************************************************************"
     echo "Checking IP: "$ip" using rpcdump saving into file $filename"; 
     echo "***************************************************************"
     python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee $filename;
 
-    filename=$ip"_nbtscan.txt"
+    filename="nbtscan_"$ip".txt"
     echo "***************************************************************"
     echo "Checking IP: "$ip" using nbtscan saving into file $filename"; 
     echo "***************************************************************"
@@ -151,6 +151,12 @@ echo "********************************************************"
 
 # python3 /usr/share/doc/python3-impacket/examples/rpcdump.py [domain/]<username>[:password]@$target
 # rpcclient.py -U <username> [-p port] [-W workgroup] $target  
+# If access is obtained then: https://mucomplex.medium.com/remote-procedure-call-and-active-directory-enumeration-616b234468e5
+# querydispinfo
+# querydominfo
+# enumprivs
+# netshareenumall
+# netshareenum
 
 # Tries to get the shares info based on user credentials
 # python3 /usr/share/doc/python3-impacket/examples/psexec.py <user>@$target
