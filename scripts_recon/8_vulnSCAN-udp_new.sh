@@ -1,13 +1,14 @@
 #!/bin/bash
-# VULNSCAN
-# preparefiles.sh must be run first
-# Original:
-# for((i=1;i<=` cat ips.txt.resumenmap-tcp.openports.csv | wc -l` ;i++)); do awk FNR==$i ips.txt.resumenmap-tcp.openportsPTV.csv| grep -o  -E "\b[0-9]{1,5}/open"  | sed 's/\/open//g' | awk -vORS=, '{ print  }'  > focused/portsPTV.line.$i    ;  done
-# Review each line of the raw file to extract the ports to scan for each IP
-#create a file with identified open ports by line
-#for((i=1;i<=` cat ips.txt.resumenmap-tcp.openports.csv | wc -l` ;i++)); do awk FNR==$i ips.txt.resumenmap-tcp.openports.csv| grep -o  -E "\b[0-9]{1,5}/open"  | sed 's/\/open//g' | awk -vORS=, '{ print  }'  > focused/ports.line.$i    ;  done
-#Runing a focused VULNERABILITY SCAN (nmap scripts) to all hosts with specific identified open ports by resumenmap.sh
-#j=0; for i in $(cat ips.txt.resumenmap-tcp.hosts.csv); do echo "Scaning $i in line $j"; echo "incrementing $((j++))"; nmap $i -p `cat focused/ports.line.$((j++))` -R  -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA focused/.$j.vuln-scan.$i --min-rate 500 --max-rate 700 --privileged ; done
+# Usage: ./8_vulnSCAN-udp_new.sh
+# No parameters are required as it will use the results from preparefiles script
+# VULNSCAN check for common UDP vulnerabilities on the identified IP and ports
+# preparefiles_new.sh must be run first for each file used to run resumenmap-udp
+# Script uses file ./results/all_portsbyhosUDP.csv to get IP's and ports
+# TODO: Check https://github.com/scipag/vulscan to include this scan?
+######################################################################################
+#The base for this script was taken from a previous version provided by Carlos Marquez
+#Some additions in this version were completed by Miguel Arevalo (M4rc14n0) 
+######################################################################################
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -34,7 +35,7 @@ fi
 echo -e ""
 echo -e "############################################################################################################################"
 echo -e "                                           NMAP VULNERABILITY FOCUSED SCAN UDP"
-echo -e "If the scan stops by any reason, just delete lines already completed from file ${GREEN}$udpfile${NC}and restart the program"
+echo -e "If the scan stops by any reason, just delete lines already completed from file ${GREEN}$udpfile${NC} and restart the program"
 echo -e "File ${GREEN}./$focused/scanudp.log${NC} keeps a record of the scanned IP's"
 echo -e "Results will be stored in drectory ${GREEN}./$focused${NC} files IP_vulnscan*"
 echo -e "############################################################################################################################"

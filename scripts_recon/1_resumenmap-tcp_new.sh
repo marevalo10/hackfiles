@@ -11,6 +11,17 @@
 # In this way, it could be called using independent files by each group. Example: CDE.txt, DMZ.txt, ...
 # And all the findings will be associated in the same group of files (target.txt.resume-tcp...)
 ######################################################################################
+# RESULTS
+# This script will produce nmap results in all formats:  target.txt.resumnmap-tcp.[gnmap,nmap,xml]
+# These files will be used by 3_preparefiles script to produce analysed results 
+# These files will be additionally created:
+#   $file.resumenmap-tcp.openports.csv      => File with open ports found. Each line has IP and one open port. Example:
+#       Host: 10.64.1.175 ()	Ports: 80/open/tcp//http//Microsoft IIS httpd 10.0/
+#   $file.resumenmap-tcp.hosts.csv          => File with a list of all the IP's having open ports. Each line has one IP
+#   $file.resumenmap-tcp.ports.csv          => List of all TCP ports found open. Each line has one port
+#   $file.resumenmap-tcp.portsonline.csv    => List of all TCP ports found as open in one line separated by commas 
+#   $file.resumenmap-tcp.portscount.csv     => List of TCP open port and number of systems having it open in desc order "(number_of_hosts port_number)
+######################################################################################
 #The base for this script was taken from a previous version provided by Carlos Marquez
 #Some additions in this version were completed by Miguel Arevalo (M4rc14n0) 
 ######################################################################################

@@ -108,13 +108,15 @@ for port in $(cat ./enumWEB/httpports.txt); do
 
         echo "----------------------------------------------------------------------------------------------------------------------------------------"
         echo -e "Checking for interesting directories in ${GREEN}http://$ip:$port/${NC} with GoBuster"; 
+            #https://www.hackingarticles.in/comprehensive-guide-on-gobuster-tool/
             #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20 -x txt,php -u http://$ip:$port/
+            #Additional options: -s 200 filter to check only status 200 pages, -to 10s timeout 10 seconds
             if test -z "$urlname"; then
                 #Hostname does not exist, then checks using the IP only
-                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$ip:$port/ -o enumWEB/gobuster_http_$ip-$port.txt;
+                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -to 10s -t 20 -u http://$ip:$port/ -o enumWEB/gobuster_http_$ip-$port.txt;
             else
                 #Hostname exists then check using it
-                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$urlname:$port/ -o enumWEB/gobuster_http_$ip-$port-$urlname.txt;
+                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -to 10s -t 20 -to 10s -u http://$urlname:$port/ -o enumWEB/gobuster_http_$ip-$port-$urlname.txt;
             fi
 
         echo "----------------------------------------------------------------------------------------------------------------------------------------"
@@ -198,11 +200,11 @@ for port in $(cat ./enumWEB/httpsports.txt); do
             if test -z "$urlname"; then
                 echo -e "Checking for interesting directories in ${GREEN}https://$ip:$port/${NC} with GoBuster"; 
                 #Hostname does not exist, then checks using the IP only
-                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$ip:$port/ -o enumWEB/gobuster_https_$ip-$port.txt;
+                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -to 10s -k -u https://$ip:$port/ -o enumWEB/gobuster_https_$ip-$port.txt;
             else
                 echo -e "Checking for interesting directories in ${GREEN}https://$urlname:$port/${NC} with GoBuster"; 
                 #Hostname exists then check using it
-                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/gobuster_https_$ip-$port-$urlname.txt;
+                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -to 10s -k -u https://$urlname:$port/ -o enumWEB/gobuster_https_$ip-$port-$urlname.txt;
             fi
 
 
@@ -226,13 +228,13 @@ for port in $(cat ./enumWEB/httpsports.txt); do
         #        feroxbuster --url https://$urlname:$port -o ./enumWEB/feroxbuster_https_$ip-$port.txt -t 20 -d 3 --silent
         #    fi
 
-        echo "${GREEN}####################################################################"
+        echo -e "${GREEN}####################################################################"
         echo -e "###          HTTPS validation completed for IP $ip            ###"
-        echo "####################################################################${NC}"
+        echo -e "####################################################################${NC}"
     done
-    echo "${GREEN}####################################################################"
-    echo -e "###          HTTPS validation completed on port $port!            ###"
-    echo "####################################################################${NC}"
+    echo -e "${GREEN}####################################################################"
+    echo -e "###         HTTPS validation completed on port $port!            ###"
+    echo -e "####################################################################${NC}"
 done
 
 echo "####################################################################"
@@ -243,15 +245,32 @@ for port in $(cat ./enumWEB/httpsports.txt); do
     numips=$(cat ./results/$filename | wc -l)
     echo -e "Running sslscan, sslyze and openssl for all IP's ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
     for ip in $(cat ./results/$filename); do 
-        sslscan --show-certificate --bugs $ip:$port | tee enumWEB/sslscan_$ip-$port.txt
-        sslyze --json_out=sslyzeresults.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $ip:$port| tee enumWEB/sslyze_$ip-$port.txt
-        #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
-		openssl s_client -connect $ip:$port -showcerts | tee enumWEB/certificate_$ip-$port.txt
-        #Check if the server supports TLSv1.0
-        #openssl s_client -connect $ip:$port -tls1 | tee enumWEB/tlsv1_$ip-$port.txt
-        #if ($port==25) then 
-        #openssl s_client -starttls smtp -showcerts -connect $i:25 -servername $i?
-        #fi
+        #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
+        nodnsname=$(host $ip|grep "not found")
+        #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
+        if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
+            #Hostname does not exist, then checks using the IP only
+            echo -e "Checking certificate with sslscan using IP $ip"; 
+            sslscan --show-certificate --bugs $ip:$port | tee enumWEB/sslscan_$ip-$port.txt
+            echo -e "Checking certificate with sslyze using IP $ip"; 
+            sslyze --json_out=enumWEB/sslyzeresults_$ip-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $ip:$port| tee enumWEB/sslyze_$ip-$port.txt
+            #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
+            echo -e "Checking certificate with openssl using IP $ip"; 
+            openssl s_client -connect $ip:$port -showcerts | tee enumWEB/certificate_$ip-$port.txt
+            echo -e "Checking support to TLSv1.0 with s_client using IP $ip"; 
+            #openssl s_client -connect $ip:$port -tls1 | tee enumWEB/tlsv1_$ip-$port.txt
+        else
+            #Hostname exists then check using it
+            echo -e "Checking certificate with sslscan using name $urlname"; 
+            sslscan --show-certificate --bugs $urlname:$port | tee enumWEB/sslscan_$ip-$urlname-$port.txt
+            echo -e "Checking certificate with sslyze using name $urlname"; 
+            sslyze --json_out=enumWEB/sslyzeresults_$ip-$urlname-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $urlname:$port| tee enumWEB/sslyze_$ip-$urlname-$port.txt
+            #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
+            echo -e "Checking certificate with openssl using name $urlname"; 
+            openssl s_client -connect $urlname:$port -showcerts | tee enumWEB/certificate_$ip-$urlname-$port.txt
+            echo -e "Checking support to TLSv1.0 with s_client using name $urlname"; 
+            #openssl s_client -connect $urlname:$port -tls1 | tee enumWEB/tlsv1_$ip-$urlname-$port.txt
+        fi
     done
 done
 # Checking insecure TLS
@@ -263,9 +282,9 @@ if test -e ./enumWEB/tls1.0.txt; then
     rm ./enumWEB/tls1.0.txt;
 fi
 touch ./enumWEB/tls1.0.txt
-for filename in $(ls ./enumWEB/*.nmap); do
-    if (( $(cat $filename | grep  TLSv1.0 | wc -l) != 0 )) ; then 
-        cat $filename >> ./enumWEB/tls1.0.txt;
+for filenmap in $(ls ./*.nmap); do
+    if (( $(cat $filenmap | grep  TLSv1.0 | wc -l) != 0 )) ; then 
+        cat $filenmap >> ./enumWEB/tls1.0.txt;
     fi
 done
 
@@ -283,8 +302,12 @@ for port in $(cat ./enumWEB/httpsports.txt); do
     nmap -sV --script=ssl-enum-ciphers,ssl-ccs-injection.nse,ssl-dh-params.nse,ssl-date.nse,ssl-dh-params.nse,ssl-heartbleed.nse,ssl-known-key.nse,ssl-poodle.nse,sslv2-drown.nse,sslv2.nse -p $port -iL ./results/$filename -oA enumWEB/nmap_sslenum_$port
 done
 
+echo "####################################################################"
+echo -e "${GREEN}TLS connections on SQL Servers using nmap...${NC}"
+echo "####################################################################"
 # Test certificates used in SQL Servers
-echo "Checking TLS connections on SQL Servers using nmap...";
+numips==$(cat ./results/1433_all_TCP.ips | wc -l)
+echo -e "Checking TLS connections on SQL Servers for ${RED}$numips${NC} IP's using nmap...";
 if test -e ./results/1433_all_TCP.ips; then
     nmap -sV --script=ssl-enum-ciphers -p 1433 -iL ./results/1433_all_TCP.ips -oA enumWEB/nmap_sslenum_1433;
 fi
@@ -293,13 +316,14 @@ fi
 echo ""
 echo ""
 echo "####################################################################"
-echo "${GREEN}Checking for printers ...${NC}"
+echo -e "${GREEN}Checking for printers ...${NC}"
 echo "####################################################################"
 mkdir enumPrinters;
 # Grep selects only printers services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
 cat ./results/*_ipsnports_all.csv | grep '9100\|jetdirect\|printer' | awk 'BEGIN {FS = ","}; {print $1}' | sed 's/\"//g' | sort -n | uniq > ./enumPrinters/printers.txt
 numprinters==$(cat ./enumPrinters/printers.txt | wc -l)
-echo -e "Total printers found: ${RED} $numprinters${NC}. Check them manually in the file ./enumPrinters/printers.txt"
+echo -e "Total printers found: ${RED} $numprinters${NC}. "
+echo "Check printers manually in the file ./enumPrinters/printers.txt"
 echo "####################################################################"
 
 
@@ -336,7 +360,7 @@ echo "####################################################################"
 
 
 ##### ADDITIONAL THINGS TO DO WITH WEBSITES DISCOVERED
-HYDRA
+#HYDRA
 #Error message is different when the logins is wrong / password is wrong. => Brute force attack to identify logins
 #hydra -L ./fsocity.dic -p test $target http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^:Invalid username" -t 64
 #After identifying a valid user, then the password

@@ -6,6 +6,8 @@
 # and runs enum4linux and rpcdump on all hosts identified with port 445 open
 # It runs nmap with rdpenum script for all host with port 3389 open
 # It requires enum4linux instaled and available in the running path
+# TODO:
+#   enum SQL
 ######################################################################################
 #The base for this script was taken from a previous version provided by Carlos Marquez
 #Some additions in this version were completed by Miguel Arevalo (M4rc14n0) 
