@@ -164,14 +164,14 @@ for port in $(cat ./enumWEB/httpsports.txt); do
         #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
         if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
         echo -e "Capturing a screenshot for ${GREEN}https://$ip:$port/${NC} with cutycapt"; 
-            cutycapt --url=https://$ip:$port --out=./enumWEB/Cutycapt_$ip-$port.png
+            cutycapt --url=https://$ip:$port --out=./enumWEB/Cutycapt_$ip-$port.png --insecure;
             # If urlname is not empty then tries to capture the webpage using the name
             if test -z "$urlname"; then
                 echo "No name was found in the DNS for $ip"; 
             else
                 #Hostname exist then check using it
                 echo -e "Capturing a screenshot for ${GREEN}https://$urlname:$port/${NC} with cutycapt"; 
-                cutycapt --url=https://$urlname:$port --out=./enumWEB/Cutycapt_$ip-$port-$urlname.png;
+                cutycapt --url=https://$urlname:$port --out=./enumWEB/Cutycapt_$ip-$port-$urlname.png --insecure;
             fi
 
         echo "----------------------------------------------------------------------------------------------------------------------------------------"
