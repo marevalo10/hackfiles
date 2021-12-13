@@ -5,10 +5,10 @@ echo " By default it will take cde.txt and support.txt as the files that contain
 echo "******************************************************************************************************************************************************"
 read -n1 -s -r -p $'Press any key to resume ... or Ctrl - C to cancel\n' key
 SESSION_NAME="recon"
-#It could be ~/Pentest/scripts_recon
+# REcon path could be ~/Pentest/scripts_recon
 RECON_PATH="scripts_recon"
-file1=ips.txt
-#file2=support.txt
+file1=cdeips.txt
+file2=support.txt
 
 cd ~; cd $RECON_PATH
 chmod +x *.sh

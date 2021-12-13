@@ -1,7 +1,13 @@
 #!/bin/bash
-# VULNSCAN check for common vulnerabilities on the identified IP and ports
-# preparefiles_new.sh must be run first
+# Usage: ./7_vulnSCAN-tcp_new.sh
+# VULNSCAN check for common TCP vulnerabilities on the identified IP and ports
+# No parameters are required as it will use the results from preparefiles script
+# preparefiles_new.sh must be run first for each file used to run resumenmap-tcp
 # Script uses file ./results/all_portsbyhostTCP.csv to get IP's and ports
+# Important results will be left in file:
+#   ./foucsed/vulnsystemsTCP.txt
+# Each line contains the Filename containing possible vulnerabilites for each IP
+# CHECK this file to validate possible vulnerabilities
 # TODO: Check https://github.com/scipag/vulscan to include this scan?
 ######################################################################################
 #The base for this script was taken from a previous version provided by Carlos Marquez
@@ -45,6 +51,7 @@ echo -e "#######################################################################
 
 # Number of IP's to check
 n=` cat $tcpfile | wc -l`
+echo -e "Running nmap for ${RED}$n IP's{NC}"
 for((i=1;i<=$n;i++)); do 
     # Extract the line $i from the file (ip port1,port2,...)
     line=`awk FNR==$i $tcpfile`
@@ -61,8 +68,7 @@ done
 
 #Print out what files identified vulnerable services -r recursive -n print line number -w whole word
 #grep --include=\*.{nmap,other} -rnw ./focused -e "CVE" > ./focused/vulnsystemsTCP.txt
-grep --include=\*TCP.nmap -rnw './'$focused -e "CVE" > ./$focused/vulnsystemsTCP.txt
-grep --include=\*TCP.nmap -rnw './'$focused -e "VULNERABLE" >> ./$focused/vulnsystemsTCP.txt
+grep --include=\*TCP.nmap -rnw './'$focused -e "CVE\|VULNERABLE" > ./$focused/vulnsystemsTCP.txt
 lines=`wc -l ./$focused/vulnsystemsTCP.txt`
 echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsTCP.txt${NC}. Lines in the file: ${RED}$lines${NC}"
 echo -e "Script vulnSCAN-tcp finished successfully"

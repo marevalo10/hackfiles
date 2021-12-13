@@ -1,13 +1,26 @@
 #!/bin/bash
 #################################################################################
 # SYNTAX: ./1_resumenmap-tcp_new.sh -f targets.txt
-# I improved the nmap call using a file targets.txt containing the IP's or subnets to scan on it 
-# and grouping by 64 hosts in case of any issue to resume from there. 
+# I improved the nmap call using the filename received (targets.txt in the example) 
+# containing the IP's or subnets to scan on it and grouping by 8 hosts in case of any issue to resume from there. 
+# Additionally, I left only some basic scans to make this process faster. 
+# With the discovered ports a more complete scan can be completed, including scripts and OS recon
 # Nmap has the ability to resume automaticaly. 
 # It could be grouped by 64 IPs for example just in case stop, it resume (--resume and the filename) from the last 64 IP group
 # By doing so, this script will be very simple! Just check if the .gnmap file already exist. If so, the run --resume instead of the full command
 # In this way, it could be called using independent files by each group. Example: CDE.txt, DMZ.txt, ...
-# And all the findings will be associated in the same group of files (cde.txt.resume-tcp...)
+# And all the findings will be associated in the same group of files (target.txt.resume-tcp...)
+######################################################################################
+# RESULTS
+# This script will produce nmap results in all formats:  target.txt.resumnmap-tcp.[gnmap,nmap,xml]
+# These files will be used by 3_preparefiles script to produce analysed results 
+# These files will be additionally created:
+#   $file.resumenmap-tcp.openports.csv      => File with open ports found. Each line has IP and one open port. Example:
+#       Host: 10.64.1.175 ()	Ports: 80/open/tcp//http//Microsoft IIS httpd 10.0/
+#   $file.resumenmap-tcp.hosts.csv          => File with a list of all the IP's having open ports. Each line has one IP
+#   $file.resumenmap-tcp.ports.csv          => List of all TCP ports found open. Each line has one port
+#   $file.resumenmap-tcp.portsonline.csv    => List of all TCP ports found as open in one line separated by commas 
+#   $file.resumenmap-tcp.portscount.csv     => List of TCP open port and number of systems having it open in desc order "(number_of_hosts port_number)
 ######################################################################################
 #The base for this script was taken from a previous version provided by Carlos Marquez
 #Some additions in this version were completed by Miguel Arevalo (M4rc14n0) 
@@ -101,11 +114,13 @@ else
     # Take care with --privileged => It assumes the user has privileges and this could cause the scan to fail some detections
     #sudo nmap --top-ports $topports -A -Pn -T4 -sV -sT --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 64 -n -iL $file -oA $file.resumenmap-tcp;
     # Scan all ports by groups of 8
-    sudo nmap -p- -A -Pn -T4 -sV -sT --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n -iL $file -oA $file.resumenmap-tcp;
+    #sudo nmap -p- -A -Pn -T4 -sV -sT --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n -iL $file -oA $file.resumenmap-tcp;
+    # Light scan to do it faster
+    sudo nmap --top-ports $topports -Pn -T4 --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n -iL $file -oA $file.resumenmap-tcp;
     #Zenmap in Windows system:
-    #nmap -sT -sV -p- -T3 -A -vvv -n -iL "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde.txt" -oA "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde_enumtcp" --max-hostgroup 64 --min-rtt-timeout 100ms --min-rate 5500 --max-rate 5700 -Pn --open;
+    #nmap -sT -sV -p- -T3 -A -vvv -n -iL "C:\\Temp\\Client\\zenmap\\cde.txt" -oA "C:\\Temp\\Client\\zenmap\\cde_enumtcp" --max-hostgroup 8 --min-rtt-timeout 100ms --min-rate 5500 --max-rate 5700 -Pn --open;
     # Soft Scan 1 by 1
-    #nmap -sT -top-ports 100 -T2 -vvv -n -iL "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde.txt" -oA "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde_enumtcpsoft" --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn --open;
+    #nmap -sT -top-ports 100 -T2 -vvv -n -iL "C:\\Temp\\Client\\zenmap\\cde.txt" -oA "C:\\Temp\\Client\\zenmap\\cde_enumtcpsoft" --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn --open;
     # masscan:
     #masscan -e tun0 -p 1-65535 --rate 2000 10.10.10.90
 
@@ -136,7 +151,7 @@ fi
 
 
 echo "#####################################################################"
-echo "Reviewing of TCP open ports:"
+echo "Reviewing TCP open ports:"
 echo ""
 echo -e "${NC}List of ALL hosts and TCP open ports will be stored in:${GREEN}" $file.resumenmap-tcp.openports.csv;
     grep "open/tcp"  $file.resumenmap-tcp.gnmap --color > $file.resumenmap-tcp.openports.csv
@@ -158,3 +173,4 @@ echo -e "${NC}List of TCP open ports with counts in desc order (number_of_hosts 
     echo ""
 echo -e "${NC}#####################################################################"
 echo ""
+sudo chown -R marevalo:marevalo *

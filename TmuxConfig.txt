@@ -10,24 +10,25 @@ vi .zshrc
 
 First Install TPM:
 
-	git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+	git clone https://github.com/tmux-plugins/tpm
 
 vi ~/.tmux.conf
 	
 	At the end it should looks like:
 	
 	# List of plugins
-	set -g @plugin 'tmux-plugins/tpm'
+	set -g @plugin 'tpm'
 	set -g @plugin 'tmux-plugins/tmux-sensible'
+	set -g @plugin 'tmux-logging'
 	                                              
 	# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
-	run '~/.tmux/plugins/tpm/tpm'                                                        
-	#run-shell  ~/.tmux-logging/logging.tmux
+	run '~/tpm/tpm'                                                        
+	run-shell  ~/tmux-logging/logging.tmux
 	
 	
 tmux source ~/.tmux.conf
 
-Now copy the loging directory to .tmux/plugins
+Now copy the login directory to .tmux/plugins
 Make sure loging.tmux and all the .sh files in the directory are executable
 chmod +x .tmux/plugins/tmux-logging/logging.tmux
 chmod +x .tmux/plugins/tmux-logging/scripts/*.sh

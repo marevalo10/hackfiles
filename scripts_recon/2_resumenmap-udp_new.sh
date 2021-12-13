@@ -1,5 +1,8 @@
 #!/bin/bash
-#Identify file with targets and if is a new scan or an already started scan
+#This script completes an UDP scan suing top 100 udp ports.
+#  ./2_resumenmap-udp_new.sh -f targets.txt
+#Takes the list of ip's from the provided file (targets.txt in the example) to validate. Groups by 8 IP's.
+#The script identifies if there is a previous scan to resumne it or ask to continue from the scatch
 ######################################################################################
 #The base for this script was taken from a previous version provided by Carlos Marquez
 #Some additions in this version were completed by Miguel Arevalo (M4rc14n0) 
@@ -34,7 +37,7 @@ validate_parameters()
             ;;
 
         # help
-        h)  echo "resumenmap-udp new version 0.5";
+        h)  echo "resumenmap-udp new version 0.6";
             echo "";
             echo "A tool for resuming and reporting Nmap scans using the --resume feature. Should be executed as root.";
             echo "Please use a targets file with one target per line (host, range or network).";
@@ -42,11 +45,11 @@ validate_parameters()
             echo "It use the output $file.resumenmap-udp.gnmap to check if it was paused or just need to start from the begining"
             echo "Scan will group by 64 hosts. This value could be change in case more or less space is required"
             echo "";
-            echo "SYNTAX: ./1_resumenmap-udp_new.sh -f targets.txt"
+            echo "SYNTAX: ./2_resumenmap-udp_new.sh -f targets.txt"
             echo "";
             exit 0	>&2;;
 
-        *) echo "SYNTAX: ./1_resumenmap-udp_new.sh -f targets.txt or ./resumenmap-udp_new.sh -h for help" >&2
+        *) echo "SYNTAX: ./2_resumenmap-udp_new.sh -f targets.txt or ./resumenmap-udp_new.sh -h for help" >&2
             exit 1;;
 
         \?)
@@ -86,11 +89,11 @@ else
     read -n1 -s -r -p $'Press any key to start or Ctrl - C to cancel\n' key
     echo "Starting the scan top $topports UDP ports..."
     # Take care with --privileged => It assumes the user has privileges and this could cause the scan to fail some detections
-    sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T3 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 64 -n;
+    sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T3 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n;
     #Zenmap in Windows system:
-    #nmap -sU -sV -top-ports 100 -T3 -A -vvv -n -iL "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde.txt" -oA "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde_enumudp" --max-hostgroup 64 --min-rtt-timeout 100ms --min-rate 5500 --max-rate 5700 -Pn --open;
+    #nmap -sU -sV -top-ports 100 -T3 -A -vvv -n -iL "C:\\Temp\\Client\\zenmap\\cde.txt" -oA "C:\\Temp\\Client\\zenmap\\cde_enumudp" --max-hostgroup 8 --min-rtt-timeout 100ms --min-rate 5500 --max-rate 5700 -Pn --open;
     # Soft Scan 1 by 1
-    #nmap -sT -top-ports 100 -T2 -vvv -n -iL "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde.txt" -oA "C:\\Users\\GMST\\Desktop\\Bupa\\zenmap\\cde_enumtcpsoft" --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn --open;
+    #nmap -sU -top-ports 100 -T2 -vvv -n -iL "C:\\Temp\\Client\\zenmap\\cde.txt" -oA "C:\\Temp\\Client\\zenmap\\cde_enumudpsoft" --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn --open;
 
 fi
 
@@ -145,4 +148,4 @@ echo ""
 	cat $file.resumenmap-udp.openports.csv | grep -o -n -E "\b[0-9]{1,5}/open" --color | awk -F ":" {'print $1'}  | uniq -c | awk {'print $1'} > $file.udpport.ip
 	pr -mts  $file.resumenmap-udp.hosts.csv $file.udpport.ip > $file.resumenmap-udp.hostsportcount.csv  ; rm $file.udpport.ip
 
-
+sudo chown -R marevalo:marevalo *

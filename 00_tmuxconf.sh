@@ -8,8 +8,11 @@ echo "****************************************************************"
     chmod +x *.sh
     sudo ./install.sh
     echo "Copying the tmux logging files to ~/tmux-logging"
+    git clone https://github.com/tmux-plugins/tpm
     cp -R tmux-logging ~/
     cd ..
-    curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o .tmux.conf 
+    chmod +x tmux-logging/logging.tmux
+    chmod +x tmux-logging/scripts/*.sh
+    curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o ~/.tmux.conf
     rm dotfiles_mod.zip
     echo "tmux configured to support mouse and logs..."
