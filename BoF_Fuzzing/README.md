@@ -14,6 +14,7 @@ Great articles explaining the process and how to use SPIKE:
 · How to automatise the process: [https://resources.infosecinstitute.com/topic/fuzzer-automation-with-spike/](https://resources.infosecinstitute.com/topic/fuzzer-automation-with-spike/)
 
 · Good explanation: [https://hex-men.tech/vulnserver\_buffer\_overflow/](https://hex-men.tech/vulnserver_buffer_overflow/)
+
 · Hack the box training: https://academy.hackthebox.eu/course/preview/stack-based-buffer-overflows-on-windows-x86/debugging-windows-programs
 
 Here I'm going to explain the process to follow, but mainly the concepts we need to understand to complete a BoF attack.
