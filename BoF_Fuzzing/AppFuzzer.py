@@ -33,10 +33,10 @@ while(size < 2000):
         s.send(buffer) 
         s.close() 
         size += 100 
-        time.sleep(10)
+        time.sleep(1)
 
     except:
-        print ("Could not connect!")
+        print("Fuzzing crashed at {} bytes".format(len(inputBuffer)))
 
 print ("\nFuzz Done!")
 
