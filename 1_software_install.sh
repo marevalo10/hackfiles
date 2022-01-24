@@ -162,6 +162,8 @@ echo "******************************************************"
 #    #gvm-start
 
 searchsploit -u
+#To analyse webpages
+sudo apt install html2text
 
 sudo apt autoremove
 

