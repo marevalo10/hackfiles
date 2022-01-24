@@ -115,7 +115,7 @@ else
     #sudo nmap --top-ports $topports -A -Pn -T4 -sV -sT --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 64 -n -iL $file -oA $file.resumenmap-tcp;
     # Scan all ports by groups of 8
     #sudo nmap -p- -A -Pn -T4 -sV -sT --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n -iL $file -oA $file.resumenmap-tcp;
-    # Light scan to do it faster
+    # Light scan to do it faster => I added -sV again to get services that are used in the preparefiles
     sudo nmap --top-ports $topports -Pn -T4 --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n -iL $file -oA $file.resumenmap-tcp;
     #Zenmap in Windows system:
     #nmap -sT -sV -p- -T3 -A -vvv -n -iL "C:\\Temp\\Client\\zenmap\\cde.txt" -oA "C:\\Temp\\Client\\zenmap\\cde_enumtcp" --max-hostgroup 8 --min-rtt-timeout 100ms --min-rate 5500 --max-rate 5700 -Pn --open;

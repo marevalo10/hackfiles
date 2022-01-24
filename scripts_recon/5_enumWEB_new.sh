@@ -16,7 +16,11 @@
 #   ./enumWEB/httpports.txt and httpports.txt => contains the list of ports identified as having http or https servers
 #   ./enumWEB/Cutycapt*.png => screenshots for all http/https servers
 #   ./enumWEB/nikto_*, gobuster_*, feroxbuster_*, whatweb_*   => Results of nikto for each server-port found
+######################################################################################
+# TODO:
+#   - Adjust resumenmap or take the right source to identify http ports. resumenmap was not detecting -sV, so after adjusted it needs to be checked....
 
+######################################################################################
 # Wordlists:  
 # /usr/share/seclists/Discovery/Web-Content/common.txt
 # /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt 

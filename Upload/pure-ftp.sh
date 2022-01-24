@@ -1,11 +1,12 @@
 #!/bin/bash
 
 #Install
-sudo apt update && sudo apt install pure-ftpd
+sudo apt install pure-ftpd
 #Configure
-groupadd ftpgroup 
+sudo groupadd ftpgroup 
 #useradd -g ftpgroup -d /dev/null -s /etc ftpuser 
 sudo useradd -g ftpgroup -d /dev/null ftpuser 
+echo "Insert the password for the ftptestuser account:"
 sudo pure-pw useradd ftptestuser -u ftpuser -d /ftphome   #password is requested
 sudo pure-pw mkdb 
 cd /etc/pure-ftpd/auth/ 

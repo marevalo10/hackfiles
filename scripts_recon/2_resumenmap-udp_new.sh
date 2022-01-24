@@ -4,6 +4,14 @@
 #Takes the list of ip's from the provided file (targets.txt in the example) to validate. Groups by 8 IP's.
 #The script identifies if there is a previous scan to resumne it or ask to continue from the scatch
 ######################################################################################
+# RESULTS
+# This script will produce nmap results in all formats:  target.txt.resumenmap-udp.[gnmap,nmap,xml]
+# These files will be used by 3_preparefiles script to produce analysed results 
+# IMPORTANT: To easily identify openports (as many could be identified as "open|filtered"):
+#   In file supportipsall.txt.resumenmap-udp.xml look for "open" 
+#   In file supportipsall.txt.resumenmap-udp.nmap look for open and add a blank space
+#
+######################################################################################
 #The base for this script was taken from a previous version provided by Carlos Marquez
 #Some additions in this version were completed by Miguel Arevalo (M4rc14n0) 
 ######################################################################################

@@ -1,5 +1,5 @@
 #!/bin/bash
-# SYNTAX: ./1_evasiontechs.sh -f [filename]    by default it takes ipshide.txt as the source 
+# SYNTAX: sudo ./1_evasiontechs.sh -f [filename]    by default it takes ipshide.txt as the source 
 # This script attempts to bypass network controls to validate if a conneciton can be established to a non-reachable IP.
 # To do do, the script first extract a list of hosts from the received file (ipshide.txt) and tries to check if it is reacheble using some evasion techniques
 # Results are left in files evasiontech[x].$file
@@ -60,17 +60,19 @@ validate_parameters()
 validate_parameters $@
 
 
-sudo nmap -f -iL $file -oN evasiontech1.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
-sudo nmap --mtu 16 -iL $file -oN evasiontech2.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
-sudo nmap --badsum -iL $file -oN evasiontech3.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
-sudo nmap -sS -T4 -iL $file --script firewall-bypass -oN evasiontech4.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
-sudo nmap -D RND:10 -iL $file -oN evasiontech5.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
-sudo nmap -D 10.68.254.1,10.68.100.129,172.30.35.10,10.68.58.101,10.69.25.111 -iL $file -oN evasiontech6.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
-sudo nmap --source-port 53 -iL $file -oN evasiontech7.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
-sudo nmap -sT -Pn --spoof Dell -iL $file -oN evasiontech8.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+nmap -f -iL $file -oN evasiontech1.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+nmap --mtu 16 -iL $file -oN evasiontech2.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+nmap --badsum -iL $file -oN evasiontech3.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+nmap -sS -T4 -iL $file --script firewall-bypass -oN evasiontech4.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+nmap -D RND:10 -iL $file -oN evasiontech5.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+# Change these IP's to other known segments in the network to be assessed
+nmap -D 10.68.254.1,10.68.100.129,172.30.35.10,10.68.58.101,10.69.25.111 -iL $file -oN evasiontech6.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+nmap --source-port 53 -iL $file -oN evasiontech7.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
+nmap -sT -Pn --spoof Dell -iL $file -oN evasiontech8.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
 
 # Using a Zombie machine:
-echo "Run: sudo nmap -sI [ZOMbie] [trget]-F -oN evasiontech8.txt"
+echo "To run through a zombie machine run: "
+echo "sudo nmap -sI [ZOMbie_Machine] [target] -F -oN evasiontech9.txt"
 
 
 #hping3 -S -c 1 -s 5151 -p 80 192.168.1.12
@@ -80,4 +82,6 @@ echo "Run: sudo nmap -sI [ZOMbie] [trget]-F -oN evasiontech8.txt"
 echo "In Metasploit: use auxiliary/scanner/ip/ipidseq"
 echo "set RHOSTS ip1,ip2,..."
 echo "run"
-msfconsole
+echo "To start Metasploit: msfconsole"
+#msfconsole
+
