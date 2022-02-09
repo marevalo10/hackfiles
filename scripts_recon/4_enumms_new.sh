@@ -55,7 +55,12 @@ for ip in $(cat $file); do
     echo "***************************************************************"
     echo "Checking IP: "$ip" using smbmap saving into file $filename"; 
     echo "***************************************************************"
+    echo "" | tee $filename
+    echo "smbmap -u \'\' -H $ip" | tee $filename
     smbmap -u "" -H $ip  | tee $filename
+    echo "" | tee $filename
+    echo "smbmap -u Guest -p \'\' -H $ip" | tee $filename
+    smbmap -u Guest -p '' -H $ip | tee $filename
 
     filename="rpcdump_"$ip".txt"
     echo "***************************************************************"
@@ -69,6 +74,17 @@ for ip in $(cat $file); do
     echo "***************************************************************"
     sudo nbtscan -r $ip | tee $filename
     echo "Scan Completed for IP: $ip"; 
+
+    filename="smbclient_"$ip".txt"
+    echo "***************************************************************"
+    echo "Checking IP: "$ip" using smbclient saving into file $filename"; 
+    echo "***************************************************************"
+    echo "smbclient -N -L //$ip " | tee $filename
+    smbclient -N -L //$ip | tee $filename
+    echo "" | tee $filename
+    echo "smbclient -N -L smb -I $target" | tee $filename
+    smbclient -N -L smb -I $target
+
 done
 
 

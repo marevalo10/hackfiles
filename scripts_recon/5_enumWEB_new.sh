@@ -19,7 +19,7 @@
 ######################################################################################
 # TODO:
 #   - Adjust resumenmap or take the right source to identify http ports. resumenmap was not detecting -sV, so after adjusted it needs to be checked....
-
+#   - Include TLS validation for other ports using SSL like 3389, 1433. 25
 ######################################################################################
 # Wordlists:  
 # /usr/share/seclists/Discovery/Web-Content/common.txt

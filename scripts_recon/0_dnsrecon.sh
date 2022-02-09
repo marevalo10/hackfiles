@@ -75,7 +75,7 @@ validate_parameters $@
 
 # Runs a dig query to extract the name servers
 echo "********************************************************************************************"  |tee $outfile
-echo "dig ns $domain response: "   |tee -a $outfile
+echo "dig ns $domain response: "   > $outfile
 echo "********************************************************************************************"   |tee -a $outfile
 dig ns $domain >> $outfile
 grep -E "NS.+\.$" $outfile | sed 's/\.$//g' | cut -f 5 > dnsservers.txt

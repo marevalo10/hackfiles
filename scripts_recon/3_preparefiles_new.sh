@@ -110,7 +110,7 @@ validate_parameters()
 
 validate_parameters $@
 echo "Preparing files resulting from TCP and UDP scans through resumetcp and resumeudp scripts"
-echo "Script will use $file.enum[tcp|ud].gnmap as the base"
+echo "Script will use $file.resume[tcp|ud].gnmap as the base"
 echo "You can run this script after any of the TCP/UDP scripts have finished."
 if test -d results; then
     echo -e "Directory ${RED}./results exist....${NC} If files exist there, they will be overwroten"
