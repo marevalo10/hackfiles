@@ -98,7 +98,7 @@ crackmapexec smb SMBtargets.txt -u '' -p '' |tee SMBAttackResults.txt
 # Run SMB enumeration (nmap scripts) using NMAP port hosts in file $file
 echo "********************************************************"
 echo "Checking SMB vulnerabilities port 445, 139, 137 and 135"; 
-sudo nmap -Pn -n -p445,139,135,137 -vvvv --script=smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-brute,smb-vuln-ms17-010 -oA nmap-SMB -iL $file --open --max-hostgroup 16
+sudo nmap -Pn -n -p445,139,135,137 -vvvv --script=smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -oA nmap-SMB -iL $file --open --max-hostgroup 16
 
 # To check if all in the same or it is needed to separate this part:
 # nmap -Pn -sV -v --script smb-os-discovery.nse,nbstat.nse -oA nmap-NBT -iL $file --open --max-hostgroup 16
@@ -125,7 +125,7 @@ cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($3=="\"389\"") {
 cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($3=="\"636\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq >> ./enumLDAP/ldap.txt
 numservers==$(cat ./enumLDAP/ldap.txt | wc -l)
 echo -e "Total servers found: ${RED} $numservers ${NC}"
-nmap -p389,636,3268,3269 -sV --script="ldap* and not brute" -iL ./enumLDAP/ldap.txt -oA ./enumLDAP/ldap_all
+nmap -p389,636,3268,3269 -Pn -sV --script="ldap* and not brute" -iL ./enumLDAP/ldap.txt -oA ./enumLDAP/ldap_all
 
 echo "********************************************************"
 echo "Checking SMB2 on port 445"; 

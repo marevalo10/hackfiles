@@ -28,6 +28,6 @@ for port in $(cat ./enumSSH/sshports.txt); do
     echo -e "Running SSH check for each IP ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
     for ipadd in $(cat ./results/$filename); do 
         echo "Testing SSH on $ipadd port $port "; 
-        ssh -o "StrictHostKeyChecking no" -vN $ipadd 2>&1 | grep "remote software version" | tee enumSSH/enum$ipadd.txt
+        ssh -o "StrictHostKeyChecking no" -vN root@$ipadd 2>&1 | grep "remote software version" | tee enumSSH/enum$ipadd.txt
     done
 done

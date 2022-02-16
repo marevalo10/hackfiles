@@ -51,7 +51,7 @@ echo -e "#######################################################################
 
 # Number of IP's to check
 n=` cat $tcpfile | wc -l`
-echo -e "Running nmap for ${RED}$n IP's{NC}"
+echo -e "Running nmap for ${RED}$n IP's ${NC}"
 for((i=1;i<=$n;i++)); do 
     # Extract the line $i from the file (ip port1,port2,...)
     line=`awk FNR==$i $tcpfile`
