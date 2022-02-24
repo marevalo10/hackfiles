@@ -58,7 +58,8 @@ for((i=1;i<=$n;i++)); do
     #Extract the IP from the line and the ports
     ipadd=`echo $line | awk '{ print $1 }'`
     tports=`echo $line | awk '{ print $2 }'`
-    echo "IP: $ipadd Ports: $tports \nFile: $tcpfile Line: "$line
+    echo "IP: $ipadd Ports: $tports"
+    echo "File: $tcpfile Line: "$line
     echo -e "Scanning IP ${GREEN}$ipadd${NC}..."; echo "Scanning IP $ipadd AND PORTS: $tports" >> ./$focused/scantcp.log
     outfile="./$focused/"$ipadd"_vulnscanTCP"
     echo "Command to be run: sudo nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "T:"$tports $ipadd; "
@@ -68,9 +69,16 @@ done
 
 #Print out what files identified vulnerable services -r recursive -n print line number -w whole word
 #grep --include=\*.{nmap,other} -rnw ./focused -e "CVE" > ./focused/vulnsystemsTCP.txt
-grep --include=\*TCP.nmap -rnw './'$focused -e "CVE\|VULNERABLE" > ./$focused/vulnsystemsTCP.txt
-lines=`wc -l ./$focused/vulnsystemsTCP.txt`
-echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsTCP.txt${NC}. Lines in the file: ${RED}$lines${NC}"
+grep --include=\*TCP.nmap -rnw './'$focused -e "CVE\|VULNERABLE" |grep -v 'avahi' > ./$focused/vulnsystemsTCP.txt
+#lines=`wc -l ./$focused/vulnsystemsTCP.txt`
+cat ./$focused/vulnsystemsTCP.txt|awk '{print $1}' |sed 's/\(.\+\/\)\(.\+_\)\(.\+\)/\2/g'|sed 's/_//g' |sort|uniq > ./$focused/vulnsystemsTCP_ips.txt
+totalips=$(cat ./$focused/vulnsystemsTCP_ips.txt |wc -l)
+echo "Total IPs: $totalips" >> vulnsystemsTCP_ips.txt
+echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsTCP.txt${NC}. 
+echo -e "File with list of IP's found vulnerables in the file: ${GREEN}./$focused/vulnsystemsTCP_ips.txt${NC}"
+echo -e "A total of ${RED}$totalips${NC} where found vulnerable"
 echo -e "Script vulnSCAN-tcp finished successfully"
 echo -e "############################################################################################################################"
 #find . -type f -exec grep -H 'CVE' {} \;
+
+
