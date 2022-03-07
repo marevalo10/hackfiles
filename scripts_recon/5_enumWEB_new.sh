@@ -6,7 +6,7 @@
 #   ./results/*_ipsnports_all.csv => Results of IP's and open ports. 
 #       Each line contains an IP and one service identified on it. Example of filename: cdeips.txt.ipsnports_all.csv
 #       Example of a line: "10.10.11.112","","4567","tcp","https","","" 
-#   Files for each of the ports identified as using http or https in the scan. example:
+#   Takes the files for each of the ports identified as using http or https in the scan. example:
 #   ./results/80_all_TCP.ips
 #   ./results/443_all_TCP.ips
 #   ./results/ANYPORTHTTP-HTTPS_all_TCP.ips
@@ -68,7 +68,7 @@ for port in $(cat ./enumWEB/httpports.txt); do
     echo -e "## Running curl, cutycapt, gobuster, Whatweb and Nikto for all IP's"
     for ip in $(cat ./enumWEB/$filename); do 
         echo -e "${GREEN}####################################################################"
-        echo -e "##                    Checking IP $IP"
+        echo -e "##                    Checking IP $ip"
         echo -e "####################################################################${NC}"
         #Add the IP and port to the file
         echo "$ip $port" >> ./enumWEB/http_ips.txt;
@@ -141,13 +141,13 @@ for port in $(cat ./enumWEB/httpports.txt); do
         #        #Hostname exists then check using it
         #        feroxbuster --url http://$urlname:$port -o ./enumWEB/feroxbuster_http_$ip-$port-$urlname.txt -t 20 -d 3 --silent
         #    fi
-        echo "${GREEN}####################################################################"
+        echo -e "${GREEN}####################################################################"
         echo -e "###          HTTP validation completed for IP $ip            ###"
-        echo "####################################################################${NC}"
+        echo -e "####################################################################${NC}"
     done
-    echo "${GREEN}####################################################################"
+    echo -e "${GREEN}####################################################################"
     echo -e "###          HTTP validation completed on port $port!            ###"
-    echo "####################################################################${NC}"
+    echo -e "####################################################################${NC}"
 done
 
 echo "####################################################################"
