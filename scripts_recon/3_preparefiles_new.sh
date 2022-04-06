@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script must be run after resumetcp or resumeudp scripts have finished. It should be called for each file used for resumenmap (i.e. cde.txt, supportips.txt, ...)
 # It receives the filename containing the IPs used to run the nmap  (i.e. cde.txt or support.txt or ips.txt) 
-#     ./3_preparefiles_new.sh cdeips.txt
+#     ./3_preparefiles_new.sh -f cdeips.txt
 # It creates different files with the open ports TCP/UDP extracted from the nmap results file $file.resumenamep-[tcp|udp].gnmap 
 # Files will be stored in Directory ./results
 # MAIN FILES:
@@ -110,7 +110,7 @@ validate_parameters()
 
 validate_parameters $@
 echo "Preparing files resulting from TCP and UDP scans through resumetcp and resumeudp scripts"
-echo "Script will use $file.resume[tcp|ud].gnmap as the base"
+echo "Script will use $file.resume-[tcp|udp].gnmap as the base"
 echo "You can run this script after any of the TCP/UDP scripts have finished."
 if test -d results; then
     echo -e "Directory ${RED}./results exist....${NC} If files exist there, they will be overwroten"
@@ -134,9 +134,12 @@ cp ../$file .
 cp ../$file.resumenmap-tcp.gnmap .
 cp ../$file.resumenmap-udp.gnmap .
 
-    if (( "$(ls $file.resumenmap-tcp.gnmap|wc -l)" < 1 ) && (( "$(ls $file.resumenmap-udp.gnmap|wc -l)" < 1 ))) ; then 
-            echo -e "{RED} Error: Required files were not found: "$file".resumenmap-tcp.gnmap or "$file".resumenmap-udp.gnmap){NC}"
-            exit 1
+    # Check if the required files exist and are not empty (at least one):
+    if $($(test -s $file.resumenmap-tcp.gnmap) || $(test -s $file.resumenmap-udp.gnmap)); then 
+        echo -e "{GREEN} Required files were found and are not empty. {NC}";
+    else
+        echo -e "{RED} Error: Required files were not found: "$file".resumenmap-tcp.gnmap or "$file".resumenmap-udp.gnmap){NC}";
+        exit 1;
     fi
 
     # Loop to extract the information relative to each network segment analized
@@ -151,7 +154,7 @@ cp ../$file.resumenmap-udp.gnmap .
         # 0. Extracts raw info of the gnmap file, IP and open TCP or UDP ports. File contains only an IP and identified open ports each line
         # Example of one line content: 
         # $file.resumenmap-tcp.1.gnmap:Host: 10.135.0.4 ()	Ports: 22/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2001/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2002/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2003/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2004/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2005/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2006/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2007/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2008/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2009/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2011/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2013/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2015/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2016/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2017/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2018/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2019/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2021/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2023/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2024/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2025/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2027/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2029/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2030/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2031/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/, 2032/open/tcp//ssh//Cisco SSH 1.25 (protocol 2.0)/
-        # Original line was: grep "open/tcp"  $file.resumenmap-tcp.*.gnmap --color | tee $file.resumenmap-tcp.openports.csv
+        # Original line was: grep "open/tcp"  $file.resumenmap-tcp.*.gnmap --color | tee -a $file.resumenmap-tcp.openports.csv
         grep "open/tcp"  $file.resumenmap-tcp.gnmap --color > "$file""$raw"TCP.csv
         grep "open/udp"  $file.resumenmap-udp.gnmap --color > "$file""$raw"UDP.csv
         echo -e "TCP ports (IP Ports: #port/open/...) raw list extracted to file: ${GREEN}"$file""$raw"TCP.csv${NC}"
@@ -318,7 +321,8 @@ cp ../$file.resumenmap-udp.gnmap .
     echo -e "${GREEN}Most IMPORTANT files to check: ${NC}"
     echo -e "IP and details open port by line CVS: ${GREEN}cat "$file"_ipsnports_all.csv |more${NC}"
     echo -e "IP and open ports list: ${GREEN}cat "$file"_portsbyhostTCP.csv |more${NC}"
-    echo -e "Top open ports: ${GREEN}head -10 all_TCPportscount.csv${NC}"
+    echo -e "Top open ports: ${GREEN}head -10 ./results/all_TCPportscount.csv${NC}"
+    head -10 ./results/all_TCPportscount.csv
     echo -e "All information of the processed files with this script are consolidated in files ${RED}all_*${NC}";
     echo -e "#####################################################################"
 

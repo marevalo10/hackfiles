@@ -1,8 +1,7 @@
 Adding the time to the PROMPT:
 vi .zshrc
 	Add this to the PROMPT despues del símbolo └─: 
-		└─%{$fg[yellow]%}[%f/%m/%y %D{%T}]) 
-		└─%{$fg[yellow]%}[%D{%f/%m/%y %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset}) ' 
+		└─%{$fg[yellow]%}[%D{%f/%m/%y %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset} ' 
 
 
 

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Usage: ./8_vulnSCAN-udp_new.sh
+# Usage: 
+#       sudo ./8_vulnSCAN-udp_new.sh
 # No parameters are required as it will use the results from preparefiles script
 # VULNSCAN check for common UDP vulnerabilities on the identified IP and ports
 # preparefiles_new.sh must be run first for each file used to run resumenmap-udp
@@ -16,7 +17,14 @@ NC='\033[0m' # No Color
 #file=ips.txt
 results="results"
 focused="focused"
+user="marevalo"
 udpfile="$results/all_portsbyhostUDP.csv"  # Info about IP and UDP openports on each line: IP port1,port2,...,portx
+# Checks if the user is root (sudo)
+if [[ "$EUID" != 0 ]]; then
+        username=$(whoami);
+        echo "$username, please run it as sudo $0";
+        exit 0;
+fi
 if test -d $focused; then
     echo -e "Directory focused already exists.... If files exist there, they will be overwroten"
 	read -p "Are you sure? (y|n): " -n 1 -r; echo -e "\n";
@@ -48,8 +56,8 @@ for((i=1;i<=$n;i++)); do
     echo -e "Scanning IP ${GREEN}$ipadd${NC}..."; echo "Scanning IP $ipadd AND PORTS: $Uports" >> ./$focused/scanudp.log
     outfile="./$focused/"$ipadd"_vulnscanUDP"
     echo "Command to be run: sudo nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "U:"$uports $ipadd"
-    sudo nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -sU -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "U:"$uports $ipadd ; 
-    echo -e "IP ${GREEN}$ipadd${NC} scanned!"; echo "IP $ipadd scanned!" >> ./$focused/scanudp.log
+    nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -sU -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "U:"$uports $ipadd ; 
+    echo -e "IP ${GREEN}$ipadd${NC} scanned!" | tee ./$focused/scanudp.log
 done
 
 echo "####################################################################"
@@ -57,13 +65,15 @@ echo "Checking for snmp open systems ..."
 mkdir enumSNMP;
 # Grep selects only ssh services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
 cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($3=="\"161\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq > ./enumSNMP/snmp.txt
-sudo nmap -sU -p 161 -Pn-sV -sC -iL ./enumSNMP/snmp.txt -oA ./enumSNMP/snmpall
+nmap -sU -p 161 -Pn-sV -sC -iL ./enumSNMP/snmp.txt -oA ./enumSNMP/snmpall
 #nmap -sU -p 161 --script snmp-brute 127.0.0.1 --script-args snmp-brute.communitiesdb=/home/sam/comstring.txt
 for ip in $(cat ./enumSNMP/snmp.txt); do 
     filename=$ip"_snmp.txt"
     snmp-check $ip > ./enumSNMP/$filename
     echo "SNMP check Completed for IP: $ip"; 
 done
+
+chown -R $user:$user *
 
 #Print out what files identified vulnerable services -r recursive -n print line number -w whole word
 #grep --include=\*.{nmap,other} -rnw ./focused -e "CVE" > ./focused/vulnsystemsUDP.txt
@@ -72,7 +82,7 @@ grep --include=\*UDP.nmap -rnw './'$focused -e "CVE" |grep -v "avahi" > ./$focus
 cat ./$focused/vulnsystemsUDP.txt|awk '{print $1}' |sed 's/\(.\+\/\)\(.\+_\)\(.\+\)/\2/g'|sed 's/_//g' |sort|uniq > ./$focused/vulnsystemsUDP_ips.txt
 totalips=$(cat ./$focused/vulnsystemsUDP_ips.txt |wc -l)
 echo "Total IPs: $totalips" >> vulnsystemsUDP_ips.txt
-echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsUDP.txt${NC}. 
+echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsUDP.txt${NC}." 
 echo -e "File with list of IP's found vulnerables in the file: ${GREEN}./$focused/vulnsystemsUDP_ips.txt${NC}"
 echo -e "A total of ${RED}$totalips${NC} where found vulnerable"
 echo -e "Script vulnSCAN-udp finished successfully"

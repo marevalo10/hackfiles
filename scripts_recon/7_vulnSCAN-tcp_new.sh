@@ -1,5 +1,6 @@
 #!/bin/bash
-# Usage: ./7_vulnSCAN-tcp_new.sh
+# Usage: 
+#       sudo ./7_vulnSCAN-tcp_new.sh
 # VULNSCAN check for common TCP vulnerabilities on the identified IP and ports
 # No parameters are required as it will use the results from preparefiles script
 # preparefiles_new.sh must be run first for each file used to run resumenmap-tcp
@@ -19,11 +20,17 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 results="results"
 focused="focused"
+user="miguel"
 # This file contains the info about IP and TCP openports on each line: IP port1,port2,...,portx,
 # This is an example of a line: 10.99.88.77 80,443,515,9100,65001,65002,65003,65004,
 tcpfile="$results/all_portsbyhostTCP.csv"  
 echo "#################################################################################"
-
+# Checks if the user is root (sudo)
+if [[ "$EUID" != 0 ]]; then
+        username=$(whoami);
+        echo "$username, please run it as sudo $0";
+        exit 0;
+fi
 # Checks if the focused directory exists
 if test -d $focused; then
     echo -e "Directory focused already exists.... If files exist there, they will be overwroten"
@@ -51,7 +58,7 @@ echo -e "#######################################################################
 
 # Number of IP's to check
 n=` cat $tcpfile | wc -l`
-echo -e "Running nmap for ${RED}$n IP's ${NC}"
+echo -e "Running nmap for a total of ${RED}$n IP's ${NC}"
 for((i=1;i<=$n;i++)); do 
     # Extract the line $i from the file (ip port1,port2,...)
     line=`awk FNR==$i $tcpfile`
@@ -60,12 +67,16 @@ for((i=1;i<=$n;i++)); do
     tports=`echo $line | awk '{ print $2 }'`
     echo "IP: $ipadd Ports: $tports"
     echo "File: $tcpfile Line: "$line
-    echo -e "Scanning IP ${GREEN}$ipadd${NC}..."; echo "Scanning IP $ipadd AND PORTS: $tports" >> ./$focused/scantcp.log
+    echo -e "Scanning IP ${GREEN}$ipadd${NC}... ($i out of $n)"
+    echo "Scanning IP $ipadd AND PORTS: $tports" >> ./$focused/scantcp.log
     outfile="./$focused/"$ipadd"_vulnscanTCP"
-    echo "Command to be run: sudo nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "T:"$tports $ipadd; "
-    sudo nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "T:"$tports $ipadd; 
-    echo -e "IP ${GREEN}$ipadd${NC} scanned!"; echo "IP $ipadd scanned!" >> ./$focused/scantcp.log
+    echo "Command to be run: nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "T:"$tports $ipadd; "
+    nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "T:"$tports $ipadd; 
+    echo -e "IP ${GREEN}$ipadd${NC} scanned!  ($i out of $n)"; 
+    echo "IP $ipadd scanned! ($i out of $n)" >> ./$focused/scantcp.log
+    echo -e "############################################################################################################################"
 done
+chown -R $user:$user *
 
 #Print out what files identified vulnerable services -r recursive -n print line number -w whole word
 #grep --include=\*.{nmap,other} -rnw ./focused -e "CVE" > ./focused/vulnsystemsTCP.txt

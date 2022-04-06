@@ -44,8 +44,8 @@ totalports=$(cat ./enumWEB/httpports.txt |wc -l)
 echo -e "HTTP Ports stored in file ${GREEN} ./enumWEB/httpports.txt: ${NC} ${RED}($totalports)${NC} "
 # Selects https ports observed in the result of enumTCP 
 cat ./results/*_ipsnports_all.csv | grep 'https\|ssl' | awk 'BEGIN {FS = ","}; {print $3}' | sed 's/\"//g' | sort -n | uniq > ./enumWEB/httpsports.txt
-totalports=$(cat ./enumWEB/httpsports.txt |wc -l)
-echo -e "HTTPS Ports stored in file ${GREEN} ./enumWEB/httpsports.txt: ${NC} ${RED}($totalports)${NC} "
+totalports2=$(cat ./enumWEB/httpsports.txt |wc -l)
+echo -e "HTTPS Ports stored in file ${GREEN} ./enumWEB/httpsports.txt: ${NC} ${RED}($totalports2)${NC} "
 
 echo "####################################################################"
 echo -e "           ${GREEN}CHECKING HTTP SERVERS ${NC}"
@@ -59,16 +59,18 @@ fi
 touch ./enumWEB/http_ips.txt
 touch ./enumWEB/https_ips.txt
 # A loop to read the file storing the IP's with the specific port open
+indexport=1
 for port in $(cat ./enumWEB/httpports.txt); do
     filename=$port"_all_TCP.ips"
     cp ./results/$filename ./enumWEB/
     numips=$(cat ./results/$filename | wc -l)
     echo "####################################################################"
-    echo -e "## Checking port ${GREEN}$port${NC} for a total of ${RED}$numips${NC} IP's in file: ${GREEN} $filename ${NC} ###"
+    echo -e "## Checking port ${GREEN}$port${NC} ($indexport out of $totalports) for a total of ${RED}$numips${NC} IP's in file: ${GREEN} $filename ${NC} ###"
     echo -e "## Running curl, cutycapt, gobuster, Whatweb and Nikto for all IP's"
+    indexip=1
     for ip in $(cat ./enumWEB/$filename); do 
         echo -e "${GREEN}####################################################################"
-        echo -e "##                    Checking IP $ip"
+        echo -e "##                    Checking IP $ip  ($indexip out of $numips)"
         echo -e "####################################################################${NC}"
         #Add the IP and port to the file
         echo "$ip $port" >> ./enumWEB/http_ips.txt;
@@ -142,26 +144,34 @@ for port in $(cat ./enumWEB/httpports.txt); do
         #        feroxbuster --url http://$urlname:$port -o ./enumWEB/feroxbuster_http_$ip-$port-$urlname.txt -t 20 -d 3 --silent
         #    fi
         echo -e "${GREEN}####################################################################"
-        echo -e "###          HTTP validation completed for IP $ip            ###"
+        echo -e "###          HTTP validation completed for IP $ip  ($indexip out of $numips)"
+        indexip=$(($indexip+1))
         echo -e "####################################################################${NC}"
     done
     echo -e "${GREEN}####################################################################"
-    echo -e "###          HTTP validation completed on port $port!            ###"
+    echo -e "###          HTTP validation completed on port $port!  ($indexport out of $totalports)          ###"
+    indexport=$(($indexport+1))
     echo -e "####################################################################${NC}"
 done
 
 echo "####################################################################"
 echo "                  Checking HTTPS servers "
 echo "####################################################################"
+indexport2=1
 for port in $(cat ./enumWEB/httpsports.txt); do
-    if port != 3389; then 
+    echo -e "${GREEN}####################################################################"
+    echo -e "Checking port  ${RED}($port)${NC} ($indexport2 out of $totalports2) for discovered IP's: ${RED}($numips)${NC} in file: ${GREEN} $filename ${NC}";
+    if [ $port -ne 3389 ]; then 
         filename=$port"_all_TCP.ips";
         cp ./results/$filename ./enumWEB/;
         numips=$(cat ./results/$filename | wc -l);
-        echo -e "Checking port  ${RED}($port)${NC} for discovered IP's: ${RED}($numips)${NC} in file: ${GREEN} $filename ${NC}";
         echo -e "Running curl, cutycpat, gobuster, Whatweb and Nikto for all IP's";
         echo "####################################################################";
+        indexip2=1
         for ip in $(cat ./results/$filename); do 
+            echo -e "${GREEN}####################################################################"
+            echo -e "##                    Checking IP $ip  ($indexip2 out of $numips)"
+            echo -e "####################################################################${NC}"
             #Add the IP and port to the file
             echo "$ip $port" >> ./enumWEB/https_ips.txt;
             #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
@@ -183,11 +193,11 @@ for port in $(cat ./enumWEB/httpsports.txt); do
                 if test -z "$urlname"; then
                     echo -e "Validating ${GREEN}https://$ip:$port/${NC} with WhatWeb"; 
                     #Hostname does not exist, then checks using the IP only
-                    whatweb -a 3 --url-prefix https://  $ip:$port | tee enumWEB/whatweb_https_$ip-$port.txt
+                    whatweb -a 3 --url-prefix https://  $ip:$port | tee -a enumWEB/whatweb_https_$ip-$port.txt
                 else
                     #Hostname exists then check using it
                     echo -e "Validating ${GREEN}https://$urlname:$port/${NC} with WhatWeb"; 
-                    whatweb -a 3 --url-prefix https://  $urlname:$port | tee enumWEB/whatweb_https_$ip-$port-$urlname.txt
+                    whatweb -a 3 --url-prefix https://  $urlname:$port | tee -a enumWEB/whatweb_https_$ip-$port-$urlname.txt
                 fi
 
             echo "----------------------------------------------------------------------------------------------------------------------------------------"
@@ -234,12 +244,14 @@ for port in $(cat ./enumWEB/httpsports.txt); do
             #    fi
 
             echo -e "${GREEN}####################################################################"
-            echo -e "###          HTTPS validation completed for IP $ip            ###"
+            echo -e "###          HTTPS validation completed for IP $ip  ($indexip2 out of $numips)          ###"
+            indexip2=$(($indexip2+1))
             echo -e "####################################################################${NC}"
         done
     fi
     echo -e "${GREEN}####################################################################"
-    echo -e "###         HTTPS validation completed on port $port!            ###"
+    echo -e "###         HTTPS validation completed on port $port!  ($indexport2 out of $totalports2)          ###"
+    indexport2=$(($indexport2+1))
     echo -e "####################################################################${NC}"
 done
 
@@ -257,27 +269,28 @@ for port in $(cat ./enumWEB/httpsports.txt); do
         if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
         #Hostname does not exist, then checks using the IP only
         echo -e "Checking certificate with sslscan using IP $ip"; 
-        sslscan --show-certificate --bugs $ip:$port | tee enumWEB/sslscan_$ip-$port.txt
+        sslscan --show-certificate --bugs $ip:$port | tee -a enumWEB/sslscan_$ip-$port.txt
         echo -e "Checking certificate with sslyze using IP $ip"; 
-        sslyze --json_out=enumWEB/sslyzeresults_$ip-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $ip:$port| tee enumWEB/sslyze_$ip-$port.txt
+        sslyze --json_out=enumWEB/sslyzeresults_$ip-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $ip:$port| tee -a enumWEB/sslyze_$ip-$port.txt
         #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
+        #This command is getting longer in some websites until an enter is hit
         echo -e "Checking certificate with openssl using IP $ip"; 
-        openssl s_client -connect $ip:$port -showcerts | tee enumWEB/certificate_$ip-$port.txt
+        openssl s_client -connect $ip:$port -showcerts | tee -a enumWEB/certificate_$ip-$port.txt
         echo -e "Checking support to TLSv1.0 with s_client using IP $ip"; 
-        #openssl s_client -connect $ip:$port -tls1 | tee enumWEB/tlsv1_$ip-$port.txt
+        #openssl s_client -connect $ip:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$port.txt
 
         # A hostname is found for the IP in the dns
         if test -n "$urlname"; then
             #Hostname exists then check using it
             echo -e "Checking certificate with sslscan using name $urlname"; 
-            sslscan --show-certificate --bugs $urlname:$port | tee enumWEB/sslscan_$ip-$urlname-$port.txt
+            sslscan --show-certificate --bugs $urlname:$port | tee -a enumWEB/sslscan_$ip-$urlname-$port.txt
             echo -e "Checking certificate with sslyze using name $urlname"; 
-            sslyze --json_out=enumWEB/sslyzeresults_$ip-$urlname-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $urlname:$port| tee enumWEB/sslyze_$ip-$urlname-$port.txt
+            sslyze --json_out=enumWEB/sslyzeresults_$ip-$urlname-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $urlname:$port| tee -a enumWEB/sslyze_$ip-$urlname-$port.txt
             #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
             echo -e "Checking certificate with openssl using name $urlname"; 
-            openssl s_client -connect $urlname:$port -showcerts | tee enumWEB/certificate_$ip-$urlname-$port.txt
+            openssl s_client -connect $urlname:$port -showcerts | tee -a enumWEB/certificate_$ip-$urlname-$port.txt
             echo -e "Checking support to TLSv1.0 with s_client using name $urlname"; 
-            #openssl s_client -connect $urlname:$port -tls1 | tee enumWEB/tlsv1_$ip-$urlname-$port.txt
+            #openssl s_client -connect $urlname:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$urlname-$port.txt
         fi
     done
 done

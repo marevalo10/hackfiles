@@ -1,6 +1,7 @@
 #!/bin/bash
 #This script completes an UDP scan suing top 100 udp ports.
-#  ./2_resumenmap-udp_new.sh -f targets.txt
+# SYNTAX:
+#       ./2_resumenmap-udp_new.sh -f targets.txt
 #Takes the list of ip's from the provided file (targets.txt in the example) to validate. Groups by 8 IP's.
 #The script identifies if there is a previous scan to resumne it or ask to continue from the scatch
 ######################################################################################
@@ -97,7 +98,9 @@ else
     read -n1 -s -r -p $'Press any key to start or Ctrl - C to cancel\n' key
     echo "Starting the scan top $topports UDP ports..."
     # Take care with --privileged => It assumes the user has privileges and this could cause the scan to fail some detections
-    sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T3 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n;
+    # Adjusted to make it faster when the connection is good
+    #sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T3 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n;
+    sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T4 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 64 -n;
     #Zenmap in Windows system:
     #nmap -sU -sV -top-ports 100 -T3 -A -vvv -n -iL "C:\\Temp\\Client\\zenmap\\cde.txt" -oA "C:\\Temp\\Client\\zenmap\\cde_enumudp" --max-hostgroup 8 --min-rtt-timeout 100ms --min-rate 5500 --max-rate 5700 -Pn --open;
     # Soft Scan 1 by 1
@@ -148,7 +151,7 @@ echo -e "${NC}List of open ports with counts will be stored in:${GREEN}" $file.r
 echo ""
 echo -e "${NC}#####################################################################"
 echo ""
-	grep "open/udp"  $file.resumenmap-udp.gnmap --color | tee $file.resumenmap-udp.openports.csv
+	grep "open/udp"  $file.resumenmap-udp.gnmap --color | tee -a $file.resumenmap-udp.openports.csv
 	cat $file.resumenmap-udp.openports.csv | awk '{print $2}' > $file.resumenmap-udp.hosts.csv
 	cat $file.resumenmap-udp.openports.csv |  grep -o -E "\b[0-9]{1,5}/open" --color |sort -n | uniq | sed 's/\/open//g' > $file.resumenmap-udp.ports.csv
 	awk -vORS=, '{ print $1 }' $file.resumenmap-udp.ports.csv >  $file.resumenmap-udp.portsoneline.csv

@@ -111,6 +111,6 @@ for network in $(cat $file); do
     index=$(($index+1));
 done;
 
-totalips=(cat $outfile | wc -l)
+totalips=$(( cat $outfile | wc -l ))
 echo "Total IP's found alive: "$totalips
 echo "File with the list: "$outfile

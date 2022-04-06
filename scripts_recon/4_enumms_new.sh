@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script runs different tests related with NMB / Microsoft services (RDP, LDAP) withput credentials
 # It uses: enum4linux, smbmap, rpcdump, nbtscan, crackmapexec smb, nmap scripts for smb and rdp 
-#       ./4_enumSMB_new.sh
+#       sudo ./4_enumSMB_new.sh
 # It takes the consolidated file ./results/445_all_TCP.ips created by 3_preparefiles_new as input
 # and runs enum4linux and rpcdump on all hosts identified with port 445 open
 # It runs nmap with rdpenum script for all host with port 3389 open
@@ -16,6 +16,11 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+if [[ "$EUID" != 0 ]]; then
+        username=$(whoami);
+        echo "$username, please run it as sudo $0";
+        exit 0;
+fi
 
 echo "***************************************************************"
 echo -e " STARTING ${GREEN}enumSMB${NC} SCRIPT"
@@ -36,7 +41,7 @@ for ip in $(cat $file); do
     echo "***************************************************************"
     # https://highon.coffee/blog/enum4linux-cheat-sheet/
     # -a includes: -U -S -G -P -r -o -n -I
-    enum4linux -a $ip | tee $filename 
+    enum4linux -a $ip | tee -a $filename 
 
     #Gets the OS
     #enum4linux -o $ip
@@ -55,34 +60,34 @@ for ip in $(cat $file); do
     echo "***************************************************************"
     echo "Checking IP: "$ip" using smbmap saving into file $filename"; 
     echo "***************************************************************"
-    echo "" | tee $filename
-    echo "smbmap -u \'\' -H $ip" | tee $filename
-    smbmap -u "" -H $ip  | tee $filename
-    echo "" | tee $filename
-    echo "smbmap -u Guest -p \'\' -H $ip" | tee $filename
-    smbmap -u Guest -p '' -H $ip | tee $filename
+    echo "" | tee -a $filename
+    echo "smbmap -u \'\' -H $ip" | tee -a $filename
+    smbmap -u "" -H $ip  | tee -a $filename
+    echo "" | tee -a $filename
+    echo "smbmap -u Guest -p \'\' -H $ip" | tee -a $filename
+    smbmap -u Guest -p '' -H $ip | tee -a $filename
 
     filename="rpcdump_"$ip".txt"
     echo "***************************************************************"
     echo "Checking IP: "$ip" using rpcdump saving into file $filename"; 
     echo "***************************************************************"
-    python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee $filename;
+    python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee -a $filename;
 
     filename="nbtscan_"$ip".txt"
     echo "***************************************************************"
     echo "Checking IP: "$ip" using nbtscan saving into file $filename"; 
     echo "***************************************************************"
-    sudo nbtscan -r $ip | tee $filename
+    sudo nbtscan -r $ip | tee -a $filename
     echo "Scan Completed for IP: $ip"; 
 
     filename="smbclient_"$ip".txt"
     echo "***************************************************************"
     echo "Checking IP: "$ip" using smbclient saving into file $filename"; 
     echo "***************************************************************"
-    echo "smbclient -N -L //$ip " | tee $filename
-    smbclient -N -L //$ip | tee $filename
-    echo "" | tee $filename
-    echo "smbclient -N -L smb -I $target" | tee $filename
+    echo "smbclient -N -L //$ip " | tee -a $filename
+    smbclient -N -L //$ip | tee -a $filename
+    echo "" | tee -a $filename
+    echo "smbclient -N -L smb -I $target" | tee -a $filename
     smbclient -N -L smb -I $target
 
 done
@@ -91,19 +96,22 @@ done
 # Run SMB enumeration (nmap scripts) using NMAP port hosts in file $file
 # It should be normally in the local network
 echo "***************************************************************"
-echo "Checking vulnerable targets with crackmapexec into file SMBtargets.tx"; 
-sudo crackmapexec smb $file --gen-relay-list SMBtargets.txt
-crackmapexec smb SMBtargets.txt -u '' -p '' |tee SMBAttackResults.txt
+echo "Checking vulnerable targets with crackmapexec into file SMBtargets.txt"; 
+#sudo crackmapexec smb $file --gen-relay-list SMBtargets.txt
+crackmapexec smb $file --gen-relay-list SMBtargets.txt
+crackmapexec smb SMBtargets.txt -u '' -p '' |tee -a SMBAttackResults.txt
 
 # Run SMB enumeration (nmap scripts) using NMAP port hosts in file $file
 echo "********************************************************"
 echo "Checking SMB vulnerabilities port 445, 139, 137 and 135"; 
-sudo nmap -Pn -n -p445,139,135,137 -vvvv --script=smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -oA nmap-SMB -iL $file --open --max-hostgroup 16
+#sudo nmap -Pn -n -p445,139,135,137 -vvvv --script=smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -oA nmap-SMB -iL $file --open --max-hostgroup 16
+nmap -Pn -n -p445,139,135,137 -vvvv --script=smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -oA nmap-SMB -iL $file --open --max-hostgroup 16
 
 # To check if all in the same or it is needed to separate this part:
 # nmap -Pn -sV -v --script smb-os-discovery.nse,nbstat.nse -oA nmap-NBT -iL $file --open --max-hostgroup 16
 # Port 137 UDP
-sudo nmap -Pn -sU -p 137 --script nbstat.nse -iL ../results/137_all_UDP.ips --max-hostgroup 16 -oA nmap-NBSTAT
+#sudo nmap -Pn -sU -p 137 --script nbstat.nse -iL ../results/137_all_UDP.ips --max-hostgroup 16 -oA nmap-NBSTAT
+nmap -Pn -sU -p 137 --script nbstat.nse -iL ../results/137_all_UDP.ips --max-hostgroup 16 -oA nmap-NBSTAT
 
 # Run RDP enumeration using NMAP port hosts in file 3389.ips
 #nmap scripts: rdp-enum-encryption,rdp-ntlm-info,rdp-vuln-ms12-020
@@ -111,11 +119,13 @@ cd ..; mkdir enumRDP;
 cp ./results/3389_all_TCP.ips ./enumRDP/; cd enumRDP
 echo "********************************************************"
 echo "Checking RDP for port 3389 and output to enumRDPALL, enumRDPALL2, enumRDPALL3"; 
-sudo nmap -Pn -p 3389 -Pn -sV -sC -oA enumRDPALL --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
+#sudo nmap -Pn -p 3389 -Pn -sV -sC -oA enumRDPALL --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
+nmap -Pn -p 3389 -Pn -sV -sC -oA enumRDPALL --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
 #sudo nmap -Pn -p 3389 -Pn -sV -sC --script=rdp-ntlm-info,rdp-vuln-ms12-020 -oA enumRDPALL2 --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
 # script rdp-enum-encryption lock the nmap command for some specific IP's
 #sudo nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -d -oA enumRDPALL3 --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
-sudo nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -iL 3389_all_TCP.ips -oA enumRDPALL3 --max-hostgroup 16
+#sudo nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -iL 3389_all_TCP.ips -oA enumRDPALL3 --max-hostgroup 16
+nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -iL 3389_all_TCP.ips -oA enumRDPALL3 --max-hostgroup 16
 
 echo "********************************************************"
 echo "Checking for ldap servers ..."
@@ -131,13 +141,19 @@ echo "********************************************************"
 echo "Checking SMB2 on port 445"; 
 echo "This part could take time"; 
 cd enumSMB
-sudo nmap -Pn -n -p445,139,135,137 -vvvv --script vuln -oA nmap-vuln -iL $file --open --max-hostgroup 16
+#sudo nmap -Pn -n -p445,139,135,137 -vvvv --script vuln -oA nmap-vuln -iL $file --open --max-hostgroup 16
+nmap -Pn -n -p445,139,135,137 -vvvv --script vuln -oA nmap-vuln -iL $file --open --max-hostgroup 16
 #sudo nmap -Pn -n -vvvv --script=smb-double-pulsar-backdoor.nse,smb-vuln-conficker.nse,smb-vuln-cve2009-3103.nse,smb-vuln-cve-2017-7494.nse,smb-vuln-ms06-025.nse,smb-vuln-ms07-029.nse,smb-vuln-ms08-067.nse,smb-vuln-ms10-054.nse,smb-vuln-ms10-061.nse,smb-vuln-ms17-010.nse,smb-vuln-regsvc-dos.nse -Pn -p445 -oA nmap-SMB2 -iL $file
-sudo nmap -Pn -n -vvvv --script=smb-double-pulsar-backdoor.nse,smb-* -Pn -p445 -oA nmap-SMB2 -iL $file
+#sudo nmap -Pn -n -vvvv --script=smb-double-pulsar-backdoor.nse,smb-* -Pn -p445 -oA nmap-SMB2 -iL $file
+nmap -Pn -n -vvvv --script=smb-double-pulsar-backdoor.nse --script="smb-* and not brute" -Pn -p445 -oA nmap-SMB2 -iL $file
+#Previous command adjusted to not run smb-brute
 cd ..
-sudo chown -R marevalo:marevalo enumRDP/*
-sudo chown -R marevalo:marevalo enumSMB/*
-sudo chown -R marevalo:marevalo enumLDAP/*
+#sudo chown -R marevalo:marevalo enumRDP/*
+chown -R marevalo:marevalo enumRDP/*
+#sudo chown -R marevalo:marevalo enumSMB/*
+chown -R marevalo:marevalo enumSMB/*
+#sudo chown -R marevalo:marevalo enumLDAP/*
+chown -R marevalo:marevalo enumLDAP/*
 
 echo ""; 
 echo "********************************************************"
