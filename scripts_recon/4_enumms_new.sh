@@ -30,7 +30,8 @@ file=smb_all_TCP.ips
 #Join all the IP's with SMB related open ports
 cd results
 cat 135_all_*.ips 137_all_*.ips 139_all_*.ips 445_all_*.ips | sort -n | uniq > $file
-cp $file ../enumSMB; cd ../enumSMB
+cp $file ../enumSMB 
+cd ../enumSMB
 totalips=(`cat $file|wc -l`)
 echo -e "Total IP's to validate: ${GREEN}$totalips${NC}"
 echo "***************************************************************"
@@ -98,14 +99,26 @@ done
 echo "***************************************************************"
 echo "Checking vulnerable targets with crackmapexec into file SMBtargets.txt"; 
 #sudo crackmapexec smb $file --gen-relay-list SMBtargets.txt
-crackmapexec smb $file --gen-relay-list SMBtargets.txt
+crackmapexec smb $file --gen-relay-list SMBtargets_tmp.txt
+cat SMBtargets_tmp.txt | sort -n | uniq >  SMBtargets.txt
+rm  SMBtargets_tmp.txt
 crackmapexec smb SMBtargets.txt -u '' -p '' |tee -a SMBAttackResults.txt
+cat SMBAttackResults.txt |grep "signing:False"|awk '{print $2}' | sort -n | uniq > SMBVulnerableSystems.txt
+vulnsystems=$(cat SMBVulnerableSystems.txt|wc -l)
+echo "***************************************************************"
+echo -e " SMB Vulnerable systems: ${RED} $vulnsystems ${NC}"
+if [ $vulnsystems > 0 ]; then
+    echo -e " ${RED} Check file SMBVulnerableSystems.txt ${NC}";
+fi
+
 
 # Run SMB enumeration (nmap scripts) using NMAP port hosts in file $file
 echo "********************************************************"
 echo "Checking SMB vulnerabilities port 445, 139, 137 and 135"; 
 #sudo nmap -Pn -n -p445,139,135,137 -vvvv --script=smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -oA nmap-SMB -iL $file --open --max-hostgroup 16
 nmap -Pn -n -p445,139,135,137 -vvvv --script=smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -oA nmap-SMB -iL $file --open --max-hostgroup 16
+#Check if SMB not signing is enabled  (i.e.  Message signing enabled but not required)
+#nmap -Pn -sV -p 139,445 --script=smb-protocols,smb2-security-mode --max-hostgroup 16 -iL SMB_NotSigning.txt -oA SMB_NotSigning_enum
 
 # To check if all in the same or it is needed to separate this part:
 # nmap -Pn -sV -v --script smb-os-discovery.nse,nbstat.nse -oA nmap-NBT -iL $file --open --max-hostgroup 16

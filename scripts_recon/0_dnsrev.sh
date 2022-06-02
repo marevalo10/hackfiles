@@ -1,6 +1,7 @@
 #!/bin/bash
-# SYNTAX: ./0_dnsrev.sh -t targetnets.txt -n <ipdns>
-# This script complete some basic DNS checks and stores the results in the file dnsrecon.txt
+# SYNTAX: 
+#   ./0_dnsrev.sh -t targetnets.txt -n <ipdns>
+# This script complete some basic DNS checks using the DNS <ipdns>. It stores the results in the file dnsrecon.txt
 # Created by M@rc14n0
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -13,16 +14,29 @@ outfile=dnsrev.txt
 # First check input for paramaters
 validate_parameters()
 {
-    while getopts "d:hAVS" opt; do
+    while getopts t:n: opt;
+    do
         case $opt in
         # t to receive the networklist name to evaluate
-        t)  #echo "-t was triggered, Parameter: $OPTARG" >&2
+        t)  echo "-t was triggered, Parameter: $OPTARG" >&2
+            echo "Received arg -t: "$OPTARG;
             networklist=$OPTARG;
+            if test -s "$networklist"
+            then
+                #Read number of lines of target file
+                limit=$(cat $networklist | wc -l);
+                echo "OK $networklist exists and it contains $limit lines to be validated with nmap";
+            else
+                echo "ERROR: $networklist does not exist or is empty. "
+            exit 1
+            fi
             ;;
 
         # n nameserver IP
         n)  echo "-n was triggered, Parameter: $OPTARG" >&2
-            nameserver=$OPTARG
+            echo "Received arg -n: "$OPTARG;
+            nameserver=$OPTARG;
+            ;;
 
         # help
         h)  echo "0_dnsrev version 0.1";
@@ -48,11 +62,12 @@ validate_parameters()
             echo "Option -$OPTARG requires an argument." >&2
             exit 1
             ;;
+
         esac
     done
 
     # If no -d was specified then it is a mistake
-    if [[ $@ != *"-d"* ]] ; then
+    if [[ $@ != *"-n"* ]] ; then
         echo "ERROR: No target networklist was specified!"
         echo "SYNTAX: ./0_dnsrev.sh -t targetnets.txt -n <ip_nameserver> or ./0_dnsrev.sh -h for help" >&2
         exit 1
@@ -84,8 +99,11 @@ echo -e "#Checking reverse dns server ${GREEN}$nameserver${NC} "  |tee -a $outfi
 for subnet in $(cat $networklist); do 
     echo -e "#Checking subnet ${GREEN}$subnet${NC} "  |tee -a $outfile
     #This expresion extracts the first 3 parts of the network 10.10.10.
-    sub=$((echo $subnet | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\.\)\(.\+\)/\1/g'))
-    for ip in $(seq 1 254); do host $sub.$ip $nameserver; done |tee dnsreverse.txt
+    sub=$( echo $subnet | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\.\)\(.\+\)/\1/g' )
+    for ip in $(seq 1 254); do 
+        echo "Checking IP "$sub$ip" on DNS server "$nameserver
+        host $sub$ip $nameserver |tee dnsreverse.txt;
+    done 
 done;
 echo "********************************************************************************************"  |tee -a $outfile
 

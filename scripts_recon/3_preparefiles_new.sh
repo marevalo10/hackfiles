@@ -268,10 +268,10 @@ cp ../$file.resumenmap-udp.gnmap .
     cat all"$raw"TCP.csv all"$raw"UDP.csv > all"$raw"All.csv
 
     # Consolidate information of all IP address with open TCP/UDP ports -> 1 IP per line
-    cat *_hostsTCP.csv > all_hostsTCP.csv
-    cat *_hostsUDP.csv > all_hostsUDP.csv
-    cat *_portsbyhostTCP.csv > all_portsbyhostTCP.csv
-    cat *_portsbyhostUDP.csv > all_portsbyhostUDP.csv
+    cat *_hostsTCP.csv | sort -n | uniq  > all_hostsTCP_tmp.csv
+    cat *_hostsUDP.csv | sort -n | uniq > all_hostsUDP.csv
+    cat *_portsbyhostTCP.csv | sort -n | uniq > all_portsbyhostTCP.csv
+    cat *_portsbyhostUDP.csv | sort -n | uniq > all_portsbyhostUDP.csv
     echo -e "${RED}IMPORTANT File including IP port1,port2,..., IN: ${GREEN}all_portsbyhost[TCP|UDP].csv and $file_portsbyhost[TCP|UDP].csv${NC}"
 
     # Join all hosts TCP and UDP and unify the list to elminate any duplicated IPs (IPs with TCP and UDP ports)
@@ -305,7 +305,7 @@ cp ../$file.resumenmap-udp.gnmap .
 
     # Joins all networks info with the IP and port info from the file created by nmaptocsv.py (1 port per line). 
     # Format: "IP", "", "port#", ...
-    cat *_ipsnports_all.csv > all_ipsnports.csv
+    cat *_ipsnports_all.csv | sort -n | uniq > all_ipsnports.csv
 
     # Consolidates the information of the IPs by port in all the networks.
     # File name port#_all_tcp.ips. Format: IP  (1 IP per line)

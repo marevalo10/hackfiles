@@ -70,8 +70,8 @@ for((i=1;i<=$n;i++)); do
     echo -e "Scanning IP ${GREEN}$ipadd${NC}... ($i out of $n)"
     echo "Scanning IP $ipadd AND PORTS: $tports" >> ./$focused/scantcp.log
     outfile="./$focused/"$ipadd"_vulnscanTCP"
-    echo "Command to be run: nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "T:"$tports $ipadd; "
-    nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --max-hostgroup 64 --privileged -p "T:"$tports $ipadd; 
+    echo "Command to be run: nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --privileged -p "T:"$tports $ipadd; "
+    nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --privileged -p "T:"$tports $ipadd; 
     echo -e "IP ${GREEN}$ipadd${NC} scanned!  ($i out of $n)"; 
     echo "IP $ipadd scanned! ($i out of $n)" >> ./$focused/scantcp.log
     echo -e "############################################################################################################################"
@@ -84,7 +84,7 @@ grep --include=\*TCP.nmap -rnw './'$focused -e "CVE\|VULNERABLE" |grep -v 'avahi
 #lines=`wc -l ./$focused/vulnsystemsTCP.txt`
 cat ./$focused/vulnsystemsTCP.txt|awk '{print $1}' |sed 's/\(.\+\/\)\(.\+_\)\(.\+\)/\2/g'|sed 's/_//g' |sort|uniq > ./$focused/vulnsystemsTCP_ips.txt
 totalips=$(cat ./$focused/vulnsystemsTCP_ips.txt |wc -l)
-echo "Total IPs: $totalips" >> vulnsystemsTCP_ips.txt
+echo "Total IPs: $totalips" >> ./$focused/vulnsystemsTCP_ips.txt
 echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsTCP.txt${NC}."
 echo -e "File with list of IP's found vulnerables in the file: ${GREEN}./$focused/vulnsystemsTCP_ips.txt${NC}"
 echo -e "A total of ${RED}$totalips${NC} where found vulnerable"

@@ -80,9 +80,9 @@ chown -R $user:$user *
 grep --include=\*UDP.nmap -rnw './'$focused -e "CVE" |grep -v "avahi" > ./$focused/vulnsystemsUDP.txt
 #lines=`wc -l ./$focused/vulnsystemsUDP.txt`
 cat ./$focused/vulnsystemsUDP.txt|awk '{print $1}' |sed 's/\(.\+\/\)\(.\+_\)\(.\+\)/\2/g'|sed 's/_//g' |sort|uniq > ./$focused/vulnsystemsUDP_ips.txt
-totalips=$(cat ./$focused/vulnsystemsUDP_ips.txt |wc -l)
-echo "Total IPs: $totalips" >> vulnsystemsUDP_ips.txt
-echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsUDP.txt${NC}." 
+totalips=$( cat ./$focused/vulnsystemsUDP_ips.txt |wc -l )
+echo "Total IPs: $totalips" >> ./$focused/vulnsystemsUDP_ips.txt
+echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsUDP.txt${NC}" 
 echo -e "File with list of IP's found vulnerables in the file: ${GREEN}./$focused/vulnsystemsUDP_ips.txt${NC}"
 echo -e "A total of ${RED}$totalips${NC} where found vulnerable"
 echo -e "Script vulnSCAN-udp finished successfully"

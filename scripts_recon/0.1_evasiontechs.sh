@@ -1,7 +1,7 @@
 #!/bin/bash
 # SYNTAX: sudo ./1_evasiontechs.sh -f [filename]    by default it takes ipshide.txt as the source 
-# This script attempts to bypass network controls to validate if a conneciton can be established to a non-reachable IP.
-# To do do, the script first extract a list of hosts from the received file (ipshide.txt) and tries to check if it is reacheble using some evasion techniques
+# This script attempts to bypass network controls to validate if a connection can be established to a non-reachable IP.
+# To do so, the script first extract a list of hosts from the received file (ipshide.txt) and tries to check if it is reacheble using some evasion techniques
 # Results are left in files evasiontech[x].$file
 file=ipshide.txt
 

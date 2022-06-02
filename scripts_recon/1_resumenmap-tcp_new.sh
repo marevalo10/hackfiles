@@ -35,6 +35,8 @@ declare limit
 #Ports to scan
 declare topports
 topports=10000
+declare user
+user==marevalo
 echo "#################################################################################"
 
 
@@ -113,9 +115,9 @@ else
     #echo "Starting the scan top $topports TCP ports..."
     echo "Starting the scan for all TCP ports..."
     # Take care with --privileged => It assumes the user has privileges and this could cause the scan to fail some detections
-    #sudo nmap --top-ports $topports -A -Pn -T4 -sV -sT --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 64 -n -iL $file -oA $file.resumenmap-tcp;
+    #sudo nmap --top-ports $topports -A -Pn -T4 -sV -sS --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 64 -n -iL $file -oA $file.resumenmap-tcp;
     # Scan all ports by groups of 8
-    #sudo nmap -p- -A -Pn -T4 -sV -sT --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n -iL $file -oA $file.resumenmap-tcp;
+    #sudo nmap -p- -A -Pn -T4 -sV -sS --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n -iL $file -oA $file.resumenmap-tcp;
     # Light scan to do it faster => I added -sV again to get services that are used in the preparefiles.   
     # => If this scan is taking longer (i.e. 2 hours for each 8 hosts). Stop the script and modify the gnmap file ($file.resumenmap-tcp.gnmap) to topports 1000 and 64 hosts and restart the scan (nmap --resume $file.resumenmap-tcp.gnmap)
     sudo nmap --top-ports $topports -Pn -T4 --open -vvvv --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 16 -n -iL $file -oA $file.resumenmap-tcp;
@@ -175,4 +177,4 @@ echo -e "${NC}List of TCP open ports with counts in desc order (number_of_hosts 
     echo ""
 echo -e "${NC}#####################################################################"
 echo ""
-sudo chown -R marevalo:marevalo *
+sudo chown -R $user:$user *

@@ -331,6 +331,7 @@ numips==$(cat ./results/1433_all_TCP.ips | wc -l)
 echo -e "Checking TLS connections on SQL Servers for ${RED}$numips${NC} IP's using nmap...";
 if test -e ./results/1433_all_TCP.ips; then
     nmap -sV --script=ssl-enum-ciphers -p 1433 -iL ./results/1433_all_TCP.ips -oA enumWEB/nmap_sslenum_1433;
+    nmap -sV --script ms-sql-info --script-args mssql.instance-port=1433 -p 1433 -iL ./results/1433_all_TCP.ips -oA enumDB/mssql_all;
 fi
 
 
@@ -371,7 +372,7 @@ mkdir enumDB;
 cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($3=="\"5432\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq > ./enumDB/postgres.txt
 numservers==$(cat ./enumDB/postgres.txt | wc -l)
 echo -e "Total Postgres servers found: ${RED} $numservers${NC}"
-nmap -p5432 -sV --script=pgsql-* -iL ./enumDB/postgres.txt -oA ./enumDB/postgres_all
+nmap -p5432 -sV --script=pgsql-*,auth,vuln,version -iL ./enumDB/postgres.txt -oA ./enumDB/postgres_all2
 
 
 echo "####################################################################"
