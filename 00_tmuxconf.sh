@@ -16,4 +16,4 @@ echo "****************************************************************"
     chmod +x ~/tmux-logging/scripts/*.sh
     curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o ~/.tmux.conf
     rm dotfiles_mod.zip
-    echo "tmux configured to support mouse and logs..."
+    echo "tmux configured to support mouse and logs. It is also configured to save history using Ctrl+b Shift+p ..."

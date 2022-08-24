@@ -276,7 +276,7 @@ for port in $(cat ./enumWEB/httpsports.txt); do
         #This command is getting longer in some websites until an enter is hit
         echo -e "Checking certificate with openssl using IP $ip"; 
         openssl s_client -connect $ip:$port -showcerts | tee -a enumWEB/certificate_$ip-$port.txt
-        echo -e "Checking support to TLSv1.0 with s_client using IP $ip"; 
+        #echo -e "Checking support to TLSv1.0 with s_client using IP $ip"; 
         #openssl s_client -connect $ip:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$port.txt
 
         # A hostname is found for the IP in the dns
@@ -289,7 +289,7 @@ for port in $(cat ./enumWEB/httpsports.txt); do
             #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
             echo -e "Checking certificate with openssl using name $urlname"; 
             openssl s_client -connect $urlname:$port -showcerts | tee -a enumWEB/certificate_$ip-$urlname-$port.txt
-            echo -e "Checking support to TLSv1.0 with s_client using name $urlname"; 
+            #echo -e "Checking support to TLSv1.0 with s_client using name $urlname"; 
             #openssl s_client -connect $urlname:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$urlname-$port.txt
         fi
     done

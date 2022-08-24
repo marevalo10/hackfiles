@@ -46,11 +46,43 @@ echo "******************************************************"
 echo "Installing metagoofil"
 sudo apt-get install metagoofil
 
+# Update Metasploit:
+echo "******************************************************"
+echo "Updating Metasploit"
+sudo apt install metasploit-framework
+
+#Install wayback machine
+echo "******************************************************"
+echo "Installing WayBack Machine"
+echo "******************************************************"
+    go install github.com/tomnomnom/waybackurls@latest
+    export PATH=$PATH:~/go/bin/
+    source ~/.zshrc
+
+#Subdomain takeover tools
+echo "******************************************************"
+echo "Installing Subdomain takeover tools"
+echo "******************************************************"
+    #Nuclei:
+    sudo apt-get install nuclei 
+    #Get the templates (installed in ~/.local/nuclei-templates
+    nuclei update-templates
+    #Subzy
+    go install -v github.com/lukasikic/subzy@latest
+    # Install httprobe amd httpx
+    sudo apt install httprobe
+    GO111MODULE=on go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+    #Install dnsprobe:https://github.com/projectdiscovery/dnsprobe
+    GO111MODULE=on go install -v github.com/projectdiscovery/dnsprobe@latest
+    #It is installed in ~/go/bin/dnsprobe
+    #Install subjack:
+    sudo apt install subjack
+
 # Sn1per:   => It installs and configure a lot of python packages and a different version of metasploit
 # This could affect other programs! => it is better to use it in Docker
-#echo "******************************************************"
-#echo "Installing Sn1per"
-    #mkdir ~/Downloads
+echo "******************************************************"
+echo "Installing Sn1per"
+#   mkdir ~/Downloads
 #    cd ~/Downloads
 #    git clone https://github.com/1N3/Sn1per.git
 #    cd Sn1per
@@ -58,11 +90,9 @@ sudo apt-get install metagoofil
 #    sudo bash install.sh
 #    cd ~/Downloads
 #    sudo rm -R Sn1per
-
-# Update Metasploit:
-echo "******************************************************"
-echo "Updating Metasploit"
-sudo apt install metasploit-framework
+    cd ~/Downloads
+    git clone https://github.com/1N3/Sn1per
+    cd Sn1per; sudo ./install.sh
 
 
 #REQUIRED FOR INTERNAL PENTEST

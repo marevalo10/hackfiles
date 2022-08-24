@@ -15,6 +15,7 @@ declare limit
 #Ports to scan
 declare topports
 topports=10000
+USERNAME="marevalo"
 echo "#################################################################################"
 
 
@@ -79,13 +80,16 @@ validate_parameters $@
 n=` cat $file | wc -l`
 echo -e "Number of IP's to autorecon: $n"
 
-echo "Autorecon all IP's in $file. Results in folder ./results"
-sudo $(which autorecon) -t $file
-sudo chown -R marevalo:marevalo results/*
+echo "Autorecon all IP's in $file. Results in folder ./autorecon_results"
+#sudo $(which autorecon) -t $file
+#sudo chown -R $USERNAME:$USERNAME results/*
+sudo env "PATH=$PATH" autorecon  -vv -o autorecon_results -t $file
+sudo chown -R $USERNAME:$USERNAME autorecon_results/*
 
+echo "Rustscan all IP's in $file. Results in folder ./autorecon_results"
 for ipadd in $(cat "$file"); do
     echo "Rustscan IP $ipadd"
-    rustscan --accessible -a $ipadd -r 1-65535  -- -sC -sV -Pn -T4 -A -oA ./results/rustscan_$ipadd | tee ./results/rustscan_results_$ipadd.txt
+    rustscan --accessible -a $ipadd -r 1-65535  -- -sC -sV -Pn -T4 -A -oA ./autorecon_results/rustscan_$ipadd | tee ./autorecon_results/rustscan_results_$ipadd.txt
 done
 
 

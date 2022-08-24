@@ -1,6 +1,7 @@
 #!/bin/bash
 # SYNTAX: ./0_dnsrecon.sh -d domain.com
 # This script complete some basic DNS checks and stores the results in the file dnsrecon.txt
+# This script is suposed to be run in an internal network
 # Created by M@rc14n0
 RED='\033[0;31m'
 GREEN='\033[0;32m'
