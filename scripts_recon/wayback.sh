@@ -1,4 +1,8 @@
 #!/usr/bin/zsh
+#If not installed:
+#go install github.com/tomnomnom/waybackurls@latest
+#username=$(whoami)
+#export PATH=$PATH:/home/$username/go/bin/
 echo "********************************************************************************************"
 echo "Be sure file domains.txt exists and it contains all the domains you want to wayback"
 echo "********************************************************************************************"

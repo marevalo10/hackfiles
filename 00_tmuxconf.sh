@@ -1,6 +1,9 @@
-echo "****************************************************************"
+echo "****************************************************************************"
+echo "Old file, mostly included in the initial configuration. Not required to run "
+echo "Ctrl - C to cancel"
+read temp
 echo "Installing the shell and tmux improvements scripts for kali user "
-echo "****************************************************************"
+echo "****************************************************************************"
     echo "Downloading and Installing dotfiles"
     cd ~/
     wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/dotfiles_mod.zip -O dotfiles_mod.zip

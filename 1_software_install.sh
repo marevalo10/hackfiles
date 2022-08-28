@@ -8,26 +8,26 @@ echo "Installing required software for INTERNAL / EXTERNAL tests"
 echo "******************************************************"
 echo "Installing python-pip 3 (2 is no longer supported)"
 	#sudo apt install python-pip
-	sudo apt install python3-pip 
+	sudo apt -y install python3-pip 
 echo "Install pipenv: (some programs require it)"
-	sudo apt-get install pipenv    
+	sudo apt-get -y install pipenv    
 echo "Install virtualenv:"
-	sudo apt-get install python3-virtualenv
+	sudo apt-get -y install python3-virtualenv
 echo "Install python FTP to facilitate files exchange when required:"
-	pip3 install pyftpdlib
+	pip3 install -y pyftpdlib
 echo "To run the ftp server: python3 -m pyftpdlib -w
     Or it can be used Metasploit ftp: auxiliary/server/ftp
 	set FTPROOT /home/marevalo"
 
 echo "***********************************************************"
     # List all services listening and stop unnecesary:
-    sudo netstat -tulpn > services.txt
+    sudo netstat -tulpn > ~/services.txt
 # Updating
 echo "******************************************************"
     sudo apt-get update
 # Installing seclists:
 echo "******************************************************"
-    sudo apt-get install seclists
+    sudo apt-get -y install seclists
 #REQUIRED FOR EXTERNAL PENTEST
 echo "******************************************************"
 echo "Installing required software for external tests"
@@ -44,12 +44,12 @@ cd ..; sudo rm -R thc-ipv6
 # Metagoofil -> to look for documents in the website. 
 echo "******************************************************"
 echo "Installing metagoofil"
-sudo apt-get install metagoofil
+sudo apt-get -y install metagoofil
 
 # Update Metasploit:
 echo "******************************************************"
 echo "Updating Metasploit"
-sudo apt install metasploit-framework
+sudo apt -y install metasploit-framework
 
 #Install wayback machine
 echo "******************************************************"
@@ -64,19 +64,21 @@ echo "******************************************************"
 echo "Installing Subdomain takeover tools"
 echo "******************************************************"
     #Nuclei:
-    sudo apt-get install nuclei 
+    sudo apt-get -y install nuclei 
     #Get the templates (installed in ~/.local/nuclei-templates
     nuclei update-templates
     #Subzy
     go install -v github.com/lukasikic/subzy@latest
     # Install httprobe amd httpx
-    sudo apt install httprobe
+    sudo apt -y install httprobe
     GO111MODULE=on go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
     #Install dnsprobe:https://github.com/projectdiscovery/dnsprobe
     GO111MODULE=on go install -v github.com/projectdiscovery/dnsprobe@latest
     #It is installed in ~/go/bin/dnsprobe
     #Install subjack:
-    sudo apt install subjack
+    sudo apt -y install subjack
+    sudo apt -y install assetfinder
+    sudo apt -y install sublist3r
 
 # Sn1per:   => It installs and configure a lot of python packages and a different version of metasploit
 # This could affect other programs! => it is better to use it in Docker
@@ -101,7 +103,7 @@ echo "Installing required software for internal tests"
 echo "******************************************************"
 echo "******************************************************"
 echo "Downloading PCredz"
-    sudo apt-get install libpcap-dev && pip3 install Cython && pip3 install python-libpcap
+    sudo apt-get -y install libpcap-dev && pip3 install Cython && pip3 install python-libpcap
     wget https://raw.githubusercontent.com/lgandx/PCredz/master/Pcredz
     chmod +x Pcredz
     sudo mv Pcredz /usr/bin
@@ -121,7 +123,7 @@ echo "Downloading PCredz"
 
 echo "******************************************************"
 echo "Install / run armitage: (if not is installed yet)"
-	sudo apt-get install armitage
+	sudo apt-get -y install armitage
 	sudo msfdb init
 	# Armintage ready to tun
     echo "To run armintage use the graphical interface or run sudo -E armitage"
@@ -132,7 +134,7 @@ echo "Install / run armitage: (if not is installed yet)"
 
 #echo "****************************************************************************************"
 echo "Download and Install Free RDP (if not is installed yet). This is used to some pth attacks to rdp"
-	sudo apt-get install freerdp2-x11
+	sudo apt-get -y install freerdp2-x11
 	#Use it to Pass the hash if any is available:
 	#	xfreerdp /u:admin /d:[domain] /pth:[hash:hash] /v:192.168.1.101
 	#	xfreerdp /u:admin /pth:aad3b435b51404eeaad3b435b51404ee:aedcbf154ddab484bc8b96d02d433d5f /v:10.4.32.36
@@ -142,12 +144,12 @@ echo "Powershell"
     sudo apt -y install curl gnupg apt-transport-https
     sudo "curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -"
     echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/powershell.list
-    apt -y install powershell
+    sudo apt -y install powershell
     echo "Run powershell using pwsh command"
 		
 echo "****************************************************************************************"
 echo "Download and Install Empire -> Use it in combination with Responder to get credentials (NTLM / SMB / …) and automatically try PTH to get some sessions: -> Check now Empire 3.0 https://github.com/BC-SECURITY/Empire and how to evade: https://www.mike-gualtieri.com/posts/modifying-empire-to-evade-windows-defender"
-    sudo apt install powershell-empire
+    sudo apt -y install powershell-empire
 	
 			
 echo "****************************************************************************************"
@@ -168,10 +170,16 @@ echo "If required a SMB server use impacket SMB:
 
 echo "******************************************************"
     echo "Install MINGW AND WIN EMULATOR WINE"
-    sudo apt install mingw-w64
+    sudo apt -y install mingw-w64
     echo "Use: i686-w64-mingw32-gcc 42341.c -o syncbreeze_exploit.exe"
-    sudo apt-get install wine
+    sudo apt-get -y install wine
     
+
+echo "Installing  rust"
+	wget https://github.com/RustScan/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb
+    dpkg -i  rustscan_2.0.1_amd64.deb
+    sudo rustscan -a 127.0.0.1
+
 
 #IMPORTANT! Have a vulnerability scanner installed and updated (OpenVAS, Nessus, NMAP)
 # UNCOMMENT THIS SECTION IF REQUIRED
@@ -193,7 +201,7 @@ echo "******************************************************"
 
 searchsploit -u
 #To analyse webpages
-sudo apt install html2text
+sudo apt -y install html2text
 
 sudo apt autoremove
 

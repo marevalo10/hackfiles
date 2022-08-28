@@ -143,7 +143,7 @@ echo "****************************************************************"
         echo "Process completed"
         echo "Machine ready to attack! Nice hacking"
         echo "Run sudo visudo and add this line at the end: "
-        echo "marevalo        ALL = NOPASSWD: /home/"$NEW_USER"/scripts_recon/*sh"
+        echo "marevalo        ALL = NOPASSWD: /home/"$NEW_USER"/hackfiles//scripts_recon/*sh"
         echo "Close the session and start as the new user "$NEW_USER
         echo "Create 2 files with the in-scope ips (ips.txt and ips.udp) and then...."
         echo "You can run ./run_scripts_tmux.sh to start the automated scans"
