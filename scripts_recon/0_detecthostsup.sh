@@ -8,7 +8,7 @@
 # Created by M@rc14n0
 declare file
 declare outfile
-
+username=$(whoami)
 # When the program start, runs from here
 # First check input for paramaters
 validate_parameters()
@@ -99,18 +99,27 @@ validate_parameters $@
 
 # Runs the nmap validation
 index=1
+echo "#Starting host identification for all networks in file "$file
+echo "#This could take time if there are huge networks"
+echo "********************************************************************************************"
 for network in $(cat $file); do 
-    echo "********************************************************************************************"
-    echo "#Starting host identification for network "$network
-    echo "#This could take time if it is a big network"
-    echo "********************************************************************************************"
-    echo "Creating the file hostup_"$index$file" to include the hosts from network "$network
-    sudo nmap -sn -n -PA -PU -PO -T4 $network -oG - | awk '/Up$/{print $2}' |tee hostup_$index$file
-    echo "Adding hosts found to file "$outfile
-    cat hostup_$index$file >> $outfile;
+    #Remove numbers and ^M if it exist at the end of each line
+    subnet=$(echo $network | sed "s/\r$//g" | sed "s/[0-9]//g")
+    echo "Checking line "$network" inspect: "$subnet;
+    if [ ".../" = $subnet ]; then 
+        echo "# Starting host identification for network "$network;
+        #Removing PU as UDP is too slow
+        #sudo nmap -sn -n -PA -PU -PO -T5 $network -oG - | awk '/Up$/{print $2}' |tee -a $outfile;
+        sudo nmap -sn -n -PA -PO -T5 $network -oG - | awk '/Up$/{print $2}' |tee -a $outfile;
+        echo "# Final line network "$network >> hostup_$file;
+        echo "********************************************************************************************"
+    else
+        echo "# Ignoring line $index. No network found (format x.y.z.w/n)";
+    fi
     index=$(($index+1));
 done;
 
-totalips=$(( cat $outfile | wc -l ))
-echo "Total IP's found alive: "$totalips
+sudo chown $username:$username $outfile
+totalips=$(cat $outfile | grep -v "#" | wc -l )
+echo "# Total IP's found alive: "$totalips |tee -a $outfile
 echo "File with the list: "$outfile

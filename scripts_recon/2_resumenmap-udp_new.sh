@@ -98,9 +98,9 @@ else
     read -n1 -s -r -p $'Press any key to start or Ctrl - C to cancel\n' key
     echo "Starting the scan top $topports UDP ports..."
     # Take care with --privileged => It assumes the user has privileges and this could cause the scan to fail some detections
-    # Adjusted to make it faster when the connection is good
+    # Adjusted to make it faster when the connection is good. In a good network configuring 64 host at the same time toks around 4 hours, so I put it down to 16
     #sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T3 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 8 -n;
-    sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T4 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 64 -n;
+    sudo nmap  -iL $file -oA $file.resumenmap-udp --top-ports 100 -sU -Pn -T4 -sV --open -vvvv --min-rate 5500 --max-rate 5700 --min-rtt-timeout 100ms --max-hostgroup 16 -n;
     #Zenmap in Windows system:
     #nmap -sU -sV -top-ports 100 -T3 -A -vvv -n -iL "C:\\Temp\\Client\\zenmap\\cde.txt" -oA "C:\\Temp\\Client\\zenmap\\cde_enumudp" --max-hostgroup 8 --min-rtt-timeout 100ms --min-rate 5500 --max-rate 5700 -Pn --open;
     # Soft Scan 1 by 1

@@ -59,6 +59,11 @@ echo "******************************************************"
     export PATH=$PATH:~/go/bin/
     source ~/.zshrc
 
+echo "******************************************************"
+echo "Installing Feroxbuster"
+echo "******************************************************"
+    sudo apt install -y feroxbuster
+
 #Subdomain takeover tools
 echo "******************************************************"
 echo "Installing Subdomain takeover tools"

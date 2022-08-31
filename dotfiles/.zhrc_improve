@@ -1,0 +1,8 @@
+vi ~/.zshrc
+	Add this to the PROMPT after └─ (line 98 approx.): 
+		%{$fg[yellow]%}[%D{%y-%m-%d %T}]
+		This is how it should looks like:
+		└─%{$fg[yellow]%}[%D{%f/%m/%y %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset} ' 
+
+		└─%{$fg[yellow]%}[%D{%y-%m-%d %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '  => this part is working NOW
+		

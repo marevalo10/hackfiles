@@ -23,7 +23,8 @@ for port in $(cat ./enumSSH/sshports.txt); do
     cp ./results/$filename ./enumSSH
     numips=$(cat ./results/$filename | wc -l)
     echo "Running nmap scripts for SSH on port $port"
-    sudo nmap -p $port --script ssh2-enum-algos,ssh-auth-methods,sshv1.nse -iL ./results/$filename -oA ./enumSSH/nmap_$port.txt
+    #sudo nmap -p $port --script ssh2-enum-algos,ssh-auth-methods,sshv1.nse -iL ./results/$filename -oA ./enumSSH/nmap_$port.txt
+    sudo nmap -p $port --script "ssh*-* and not ssh-brut*" -iL ./results/$filename -oA ./enumSSH/nmap_$port.txt
 
     echo -e "Running SSH check for each IP ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
     for ipadd in $(cat ./results/$filename); do 

@@ -36,7 +36,7 @@ declare limit
 declare topports
 topports=10000
 declare user
-user==marevalo
+user=$(whoami)
 echo "#################################################################################"
 
 

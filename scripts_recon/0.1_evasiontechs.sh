@@ -1,5 +1,5 @@
 #!/bin/bash
-# SYNTAX: sudo ./1_evasiontechs.sh -f [filename]    by default it takes ipshide.txt as the source 
+# SYNTAX: sudo ./1_evasiontechs.sh [-f filename]    by default it takes ipshide.txt as the source 
 # This script attempts to bypass network controls to validate if a connection can be established to a non-reachable IP.
 # To do so, the script first extract a list of hosts from the received file (ipshide.txt) and tries to check if it is reacheble using some evasion techniques
 # Results are left in files evasiontech[x].$file
@@ -70,6 +70,8 @@ nmap -D 10.68.254.1,10.68.100.129,172.30.35.10,10.68.58.101,10.69.25.111 -iL $fi
 nmap --source-port 53 -iL $file -oN evasiontech7.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
 nmap -sT -Pn --spoof Dell -iL $file -oN evasiontech8.$file -F --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup 1 -Pn -vvvv
 
+echo "Check summary of IP's and open ports in file evasiontechsum_$file "
+cat evasiontech*.txt |grep "open\|report" > evasiontechsum_$file
 # Using a Zombie machine:
 echo "To run through a zombie machine run: "
 echo "sudo nmap -sI [ZOMbie_Machine] [target] -F -oN evasiontech9.txt"
@@ -80,8 +82,8 @@ echo "sudo nmap -sI [ZOMbie_Machine] [target] -F -oN evasiontech9.txt"
 
 # Metasploit:
 echo "In Metasploit: use auxiliary/scanner/ip/ipidseq"
-echo "set RHOSTS ip1,ip2,..."
-echo "run"
+echo ">  set RHOSTS ip1,ip2,..."
+echo ">  run"
 echo "To start Metasploit: msfconsole"
 #msfconsole
 

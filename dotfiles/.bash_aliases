@@ -1,0 +1,5 @@
+alias less='less -R'
+alias diff='colordiff'
+alias ll='ls -l'
+alias la='ls -lah'
+#alias l='ls -CF'

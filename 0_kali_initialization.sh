@@ -82,6 +82,11 @@ echo "*********************************************************"
     echo "..."
     echo "..."
 
+    echo "Including the time in the promp#"
+    cp ~/.zshrc ~/.zshrc.bak
+    #Not working, pending to adjust
+    #sed -i 's|%B%(#.%F{red}#.%F{blue}$)%b%F{reset}|%{$fg[yellow]%}[%D{%y-%m-%d %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset}|g' .zshrc
+
 echo "****************************************************************"
 echo "Installing the shell and tmux improvements scripts for kali user "
 echo "****************************************************************"

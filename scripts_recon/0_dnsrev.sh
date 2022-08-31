@@ -1,7 +1,9 @@
 #!/bin/bash
 # SYNTAX: 
 #   ./0_dnsrev.sh -t targetnets.txt -n <ipdns>
-# This script complete some basic DNS checks using the DNS <ipdns>. It stores the results in the file dnsrecon.txt
+# This script complete some basic DNS checks to validate if each IP has a name using the DNS <ipdns>. 
+# It stores the results in the file dnsreV.txt and all IPs with a name in the DNS in the file dnsreverseallips.txt
+# PENDING TO TEST!
 # Created by M@rc14n0
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -95,17 +97,32 @@ validate_parameters $@
 
 #Loop to get each subnet (assuming it is /24 and it comes with 0 at the end
 echo "********************************************************************************************" |tee -a $outfile
+echo "Please confirm the file contains only /24 segments or IP's, otherwise it will not work properly"
+echo "If not sure presss Ctrl-C to pase, any other key to continue..."
+read wanttocontinue
 echo -e "#Checking reverse dns server ${GREEN}$nameserver${NC} "  |tee -a $outfile
-for subnet in $(cat $networklist); do 
-    echo -e "#Checking subnet ${GREEN}$subnet${NC} "  |tee -a $outfile
-    #This expresion extracts the first 3 parts of the network 10.10.10.
-    sub=$( echo $subnet | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\.\)\(.\+\)/\1/g' )
-    for ip in $(seq 1 254); do 
-        echo "Checking IP "$sub$ip" on DNS server "$nameserver
-        host $sub$ip $nameserver |tee dnsreverse.txt;
-    done 
+for line in $(cat $networklist); do 
+    # Check if it is a subnet or an IP
+    if [ ".../" = $(echo $line |sed 's/[0-9]//g') ]; then
+        #It is a subnet
+        subnet=$( echo $line | sed 's/\/..$//g');
+        echo -e "#Checking subnet ${GREEN}$subnet${NC} "  |tee -a $outfile
+        #This expresion extracts the first 3 parts of the network 10.10.10.
+        sub=$( echo $subnet | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\.\)\(.\+\)/\1/g' )
+        for ip in $(seq 1 254); do 
+            echo "Checking IP "$sub$ip" on DNS server "$nameserver
+            host $sub$ip $nameserver |tee -a dnsreverseallipstmp.txt;
+        done 
+    elif [ "..." = $(echo $line |sed 's/[0-9]//g') ];
+        #It is an IP
+        ip=$line
+        host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g" | tee -a dnsreverseallipstmp.txt;
 done;
-echo "********************************************************************************************"  |tee -a $outfile
+cat dnsreverseallipstmp.txt |sort -u > dnsreverseallips.txt; rm dnsreverseallipstmp.txt;
+numipsreversed=$(cat dnsreverseallips.txt | wc -l);
+echo "A total of $numipsreversed were found with an associated name!"   |tee -a $outfile;
+echo "Check results in file dnsreverseallips.txt "   |tee -a $outfile;
+echo "********************************************************************************************"   |tee -a $outfile;
 
 # For each IP in the file (allips.txt) will try to look for a name associated with it
 #echo "********************************************************************************************"  |tee $outfile

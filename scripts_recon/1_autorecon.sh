@@ -2,9 +2,12 @@
 #################################################################################
 # SYNTAX: ./1_autorecon.sh -f ips.txt
 # Run automatic scans for all ports identified as open
+# Include only the juicy fruits in this scan.
 ######################################################################################
 # RESULTS
+#   It will include all the results compelted by autorecon tool (nmap, suggested commands, ports open,...)
 #   Files:
+#       ./autorecon_results/*
 ######################################################################################
 #Identify file with targets and if is a new scan or an already started scan
 #The base for this script was taken from a previous version provided by Carlos Marquez

@@ -5,7 +5,9 @@ echo "Logs will be stored in /usr/share/responder/logs"
 echo "********************************************************************************************"
 read -n1 -s -r -p $'Press any key to continue ... or Ctrl - C to cancel\n' key
 # Run responder in aggresive mode:
-sudo responder -I eth0 -rvFbw
+#sudo responder -I eth0 -rvFbw
+#Remove -r options as it is not available anymore
+sudo responder -I eth0 -vFbw
 # Run responder in passive mode:
 #sudo responder -I eth0 -A -rvFbw
 

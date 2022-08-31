@@ -8,6 +8,7 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 declare outfile
 declare domain
+outfile=dnsrecon.txt
 
 # First check input for paramaters
 validate_parameters()
@@ -17,7 +18,6 @@ validate_parameters()
         # d to receive the domain name to evaluate
         d)  #echo "-d was triggered, Parameter: $OPTARG" >&2
             domain=$OPTARG;
-            outfile=dnsrecon.txt
             ;;
 
         # help
@@ -94,7 +94,7 @@ echo -e "Total DNS Servers reviewed: ${GREEN}$index${NC} "  |tee -a $outfile
 echo "********************************************************************************************"  |tee -a $outfile
 
 #Run dnsrecon (python)
-echo "********************************************************************************************"  |tee $outfile
+echo "********************************************************************************************"  |tee -a $outfile
 echo "dnsrecon $domain results: "   |tee -a $outfile
 echo "********************************************************************************************"   |tee -a $outfile
 # -a checks zone transfer, -s runs reverse lookups for names in soa, 
@@ -103,16 +103,37 @@ echo "**************************************************************************
 dnsrecon -d $domain -a -s -k -w |tee -a $outfile
 
 #Run nmap for dns
-echo "********************************************************************************************"  |tee $outfile
+echo "********************************************************************************************"  |tee -a $outfile
 echo "Running nmap for DNS servers: sudo nmap -p53 -sU -sC -sV --script vuln -i dnsservers.txt "   |tee -a $outfile
 echo "********************************************************************************************"   |tee -a $outfile
 sudo nmap -p53 -sU -sC -sV --script vuln -i dnsservers.txt -oA nmap_dnsservers
 
 # For each IP in the file (allips.txt) will try to look for a name associated with it
-echo "********************************************************************************************"  |tee $outfile
+echo "********************************************************************************************"  |tee -a $outfile
 echo "Running reverse lookup for each IP in the file allips.txt "   |tee -a $outfile
-echo "Output will be saved in file dnsreverseallips.txt "   |tee -a $outfile
+echo "A file with all IP's (allips.txt) extracted from ips*.txt and hostup_*.txt will be created. "
+echo "This file will be used to check if a name is asociated with each IP."
+echo "You can also run the script 0_dnsrev.sh specifying the file with all the ips later to complete this process"
+dnsserver=$(head -n 1 dnsservers.txt);
+echo "Call it using ./0_dnsrev.sh -t targetips.txt -n $dnsserver"
+echo "Do you want to continue (y/n)?"
+read isready
+if [ $isready = 'y' ]; then
+    echo "Creating file allips.txt "   |tee -a $outfile;
+    cat ips*.txt hostup_*.txt |grep -v "#" |grep -v "/" | sort -u >allips.txt;
+    numips=$(cat allips.txt |wc -l);
+    echo "A total of $numips will be checked for a associated name"   |tee -a $outfile;
+    echo "Output will be saved in file dnsreverseallips.txt "   |tee -a $outfile;
+    filename=allips.txt;
+    for ip in $(cat $filename); do host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g"; done | tee dnsreverseallipstmp.txt;
+    numipsreversed=$(cat dnsreverseallips.txt | wc -l);
+    cat dnsreverseallipstmp.txt |sort > dnsreverseallips.txt; rm dnsreverseallipstmp.txt;
+    echo "A total of $numipsreversed were found with an associated name!"   |tee -a $outfile;
+    echo "Check results in file dnsreverseallips.txt "   |tee -a $outfile;
+    echo "********************************************************************************************"   |tee -a $outfile;
+else
+    echo "No reverse process was completed..."  |tee -a $outfile
+fi
+echo "********************************************************************************************"  |tee -a $outfile
+echo "Batch Process compelted successfully " |tee -a $outfile
 echo "********************************************************************************************"   |tee -a $outfile
-filename=allips.txt
-dnsserver=`head -n 1 dnsservers.txt`
-for ip in $(cat $filename); do host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g"; done | tee dnsreverseallips.txt
