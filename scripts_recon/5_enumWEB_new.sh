@@ -33,6 +33,7 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 mkdir enumWEB;
+mkdir enumweb/img;
 # Creates a file with the servers IP having HTTP and another for HTTPS
 echo "####################################################################"
 echo "                      WEB DISCOVERY AND SCAN "
@@ -68,88 +69,95 @@ for port in $(cat ./enumWEB/httpports.txt); do
     echo -e "## Checking port ${GREEN}$port${NC} ($indexport out of $totalports) for a total of ${RED}$numips${NC} IP's in file: ${GREEN} $filename ${NC} ###"
     echo -e "## Running curl, cutycapt, gobuster, Whatweb and Nikto for all IP's"
     indexip=1
+    #If required to start in a different possition just change here this value
+    startpoint=0
     for ip in $(cat ./enumWEB/$filename); do 
+        if [ $indexip -gt $startpoint ]; then 
+            echo -e "${GREEN}####################################################################"
+            echo -e "##                    Checking IP $ip  ($indexip out of $numips)"
+            echo -e "####################################################################${NC}"
+            #Add the IP and port to the file
+            echo "$ip $port" >> ./enumWEB/http_ips.txt;
+
+            #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
+            nodnsname=$(host $ip|grep "not found")
+            #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
+            if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
+            echo -e "Capturing a screenshot for ${GREEN}http://$ip:$port/${NC} with cutycapt"; 
+                cutycapt --url=http://$ip:$port --out=./enumWEB/img/Cutycapt_$ip-$port.png
+                # If urlname is not empty then tries to capture the webpage using the name
+                if test -z $urlname; then
+                    echo "No name was found in the DNS for $ip"; 
+                else
+                    #Hostname exist then check using it
+                    echo -e "Capturing a screenshot for ${GREEN}http://$urlname:$port/${NC} with cutycapt"; 
+                    cutycapt --url=http://$urlname:$port --out=./enumWEB/img/Cutycapt_$ip-$port-$urlname.png;
+                fi
+
+            echo "----------------------------------------------------------------------------------------------------------------------------------------"
+            echo -e "Validating ${GREEN}http://$ip:$port/${NC} with WhatWeb"; 
+                if test -z "$urlname"; then
+                    #Hostname does not exist, then checks using the IP only
+                    whatweb -a 3 -v $ip:$port --log-verbose=enumWEB/whatweb_http_$ip-$port.txt;
+                else
+                    #Hostname exists then check using it
+                    whatweb -a 3 -v $urlname:$port --log-verbose=enumWEB/whatweb_http_$ip-$port.txt;
+                fi
+
+            echo "----------------------------------------------------------------------------------------------------------------------------------------"
+            echo -e "Testing ${GREEN}http://$ip:$port/${NC} with Nikto"; 
+                if test -z "$urlname"; then
+                    #Hostname does not exist, then checks using the IP only
+                    nikto -ask no -host $ip -p $port -o enumWEB/nikto_http_$ip-$port.csv -maxtime 300
+                else
+                    #Hostname exists then check using it
+                    nikto -ask no -host $urlname -p $port -o enumWEB/nikto_http_$ip-$port.csv -maxtime 300
+                fi
+
+
+            echo "----------------------------------------------------------------------------------------------------------------------------------------"
+            echo -e "Checking for interesting directories in ${GREEN}http://$ip:$port/${NC} with GoBuster"; 
+                #https://www.hackingarticles.in/comprehensive-guide-on-gobuster-tool/
+                #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20 -x txt,php -u http://$ip:$port/
+                #Additional options: -s 200 filter to check only status 200 pages, -to 10s timeout 10 seconds
+                if test -z "$urlname"; then
+                    #Hostname does not exist, then checks using the IP only
+                    #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$ip:$port/ -o enumWEB/gobuster_http_$ip-$port.txt;
+                    #Small initially
+                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -e -t 20 -u http://$ip:$port/ -o enumWEB/gobuster_http_$ip-$port.txt;
+                else
+                    #Hostname exists then check using it
+                    #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$urlname:$port/ -o enumWEB/gobuster_http_$ip-$port-$urlname.txt;
+                    #Small initially
+                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -e -t 20 -u http://$urlname:$port/ -o enumWEB/gobuster_http_$ip-$port-$urlname.txt;
+                fi
+
+            echo "----------------------------------------------------------------------------------------------------------------------------------------"
+            #echo -e "Checking for interesting directories in ${GREEN}http://$ip:$port/${NC} with FeroxBuster"; 
+            #    # Additional opts: -t threads, -d deep level, --silent prints only the URL's
+            #        #-C 404 or --filter-status 400 Filter out / ignore 404 responses
+            #        #-x php  #extenstions php or pdf or aspx or js (php,pdf)
+            #        #--filter-regex '^ignore me$'
+            #        #--filter-similar-to http://site.xyz/soft404
+            #        #-H, --headers <HEADER> ex: -H Accept:application/json "Authorization: Bearer {token}"
+            #        #--insecure --proxy http://127.0.0.1:8080
+            #        #cat targets | feroxbuster --stdin --silent -s 200 301 302 --redirects -x js | fff -s 200 -o js-files
+            #        #-w, --wordlist <FILE> 
+            #    if test -z "$urlname"; then
+            #        #Hostname does not exist, then checks using the IP only
+            #        feroxbuster --url http://$ip:$port -o ./enumWEB/feroxbuster_http_$ip-$port.txt -t 20 -d 3 --silent
+            #    else
+            #        #Hostname exists then check using it
+            #        feroxbuster --url http://$urlname:$port -o ./enumWEB/feroxbuster_http_$ip-$port-$urlname.txt -t 20 -d 3 --silent
+            #    fi
+            echo -e "${GREEN}####################################################################"
+            echo -e "###          HTTP validation completed for IP $ip  ($indexip out of $numips)"
+            indexip=$(($indexip+1))
+            echo -e "####################################################################${NC}"
+        done
         echo -e "${GREEN}####################################################################"
-        echo -e "##                    Checking IP $ip  ($indexip out of $numips)"
-        echo -e "####################################################################${NC}"
-        #Add the IP and port to the file
-        echo "$ip $port" >> ./enumWEB/http_ips.txt;
-
-        #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
-        nodnsname=$(host $ip|grep "not found")
-        #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
-        if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
-        echo -e "Capturing a screenshot for ${GREEN}http://$ip:$port/${NC} with cutycapt"; 
-            cutycapt --url=http://$ip:$port --out=./enumWEB/Cutycapt_$ip-$port.png
-            # If urlname is not empty then tries to capture the webpage using the name
-            if test -z $urlname; then
-                echo "No name was found in the DNS for $ip"; 
-            else
-                #Hostname exist then check using it
-                echo -e "Capturing a screenshot for ${GREEN}http://$urlname:$port/${NC} with cutycapt"; 
-                cutycapt --url=http://$urlname:$port --out=./enumWEB/Cutycapt_$ip-$port-$urlname.png;
-            fi
-
-        echo "----------------------------------------------------------------------------------------------------------------------------------------"
-        echo -e "Validating ${GREEN}http://$ip:$port/${NC} with WhatWeb"; 
-            if test -z "$urlname"; then
-                #Hostname does not exist, then checks using the IP only
-                whatweb -a 3 -v $ip:$port --log-verbose=enumWEB/whatweb_http_$ip-$port.txt;
-            else
-                #Hostname exists then check using it
-                whatweb -a 3 -v $urlname:$port --log-verbose=enumWEB/whatweb_http_$ip-$port.txt;
-            fi
-
-        echo "----------------------------------------------------------------------------------------------------------------------------------------"
-        echo -e "Testing ${GREEN}http://$ip:$port/${NC} with Nikto"; 
-        echo "Testing $ip port $port with nikto"; 
-            if test -z "$urlname"; then
-                #Hostname does not exist, then checks using the IP only
-                nikto -host $ip -p $port -o enumWEB/nikto_http_$ip-$port.csv -maxtime 300
-            else
-                #Hostname exists then check using it
-                nikto -host $urlname -p $port -o enumWEB/nikto_http_$ip-$port.csv -maxtime 300
-            fi
-
-
-        echo "----------------------------------------------------------------------------------------------------------------------------------------"
-        echo -e "Checking for interesting directories in ${GREEN}http://$ip:$port/${NC} with GoBuster"; 
-            #https://www.hackingarticles.in/comprehensive-guide-on-gobuster-tool/
-            #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20 -x txt,php -u http://$ip:$port/
-            #Additional options: -s 200 filter to check only status 200 pages, -to 10s timeout 10 seconds
-            if test -z "$urlname"; then
-                #Hostname does not exist, then checks using the IP only
-                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$ip:$port/ -o enumWEB/gobuster_http_$ip-$port.txt;
-            else
-                #Hostname exists then check using it
-                gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$urlname:$port/ -o enumWEB/gobuster_http_$ip-$port-$urlname.txt;
-            fi
-
-        echo "----------------------------------------------------------------------------------------------------------------------------------------"
-        #echo -e "Checking for interesting directories in ${GREEN}http://$ip:$port/${NC} with FeroxBuster"; 
-        #    # Additional opts: -t threads, -d deep level, --silent prints only the URL's
-        #        #-C 404 or --filter-status 400 Filter out / ignore 404 responses
-        #        #-x php  #extenstions php or pdf or aspx or js (php,pdf)
-        #        #--filter-regex '^ignore me$'
-        #        #--filter-similar-to http://site.xyz/soft404
-        #        #-H, --headers <HEADER> ex: -H Accept:application/json "Authorization: Bearer {token}"
-        #        #--insecure --proxy http://127.0.0.1:8080
-        #        #cat targets | feroxbuster --stdin --silent -s 200 301 302 --redirects -x js | fff -s 200 -o js-files
-        #        #-w, --wordlist <FILE> 
-        #    if test -z "$urlname"; then
-        #        #Hostname does not exist, then checks using the IP only
-        #        feroxbuster --url http://$ip:$port -o ./enumWEB/feroxbuster_http_$ip-$port.txt -t 20 -d 3 --silent
-        #    else
-        #        #Hostname exists then check using it
-        #        feroxbuster --url http://$urlname:$port -o ./enumWEB/feroxbuster_http_$ip-$port-$urlname.txt -t 20 -d 3 --silent
-        #    fi
-        echo -e "${GREEN}####################################################################"
-        echo -e "###          HTTP validation completed for IP $ip  ($indexip out of $numips)"
-        indexip=$(($indexip+1))
-        echo -e "####################################################################${NC}"
-    done
-    echo -e "${GREEN}####################################################################"
-    echo -e "###          HTTP validation completed on port $port!  ($indexport out of $totalports)          ###"
+        echo -e "###          HTTP validation completed on port $port!  ($indexport out of $totalports)          ###"
+    fi
     indexport=$(($indexport+1))
     echo -e "####################################################################${NC}"
 done
@@ -168,83 +176,91 @@ for port in $(cat ./enumWEB/httpsports.txt); do
         echo -e "Running curl, cutycpat, gobuster, Whatweb and Nikto for all IP's";
         echo "####################################################################";
         indexip2=1
+        #If required to start in a different possition just change here this value
+        startpoint2=0
         for ip in $(cat ./results/$filename); do 
-            echo -e "${GREEN}####################################################################"
-            echo -e "##                    Checking IP $ip  ($indexip2 out of $numips)"
-            echo -e "####################################################################${NC}"
-            #Add the IP and port to the file
-            echo "$ip $port" >> ./enumWEB/https_ips.txt;
-            #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
-            nodnsname=$(host $ip|grep "not found")
-            #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
-            if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
-            echo -e "Capturing a screenshot for ${GREEN}https://$ip:$port/${NC} with cutycapt"; 
-                cutycapt --url=https://$ip:$port --out=./enumWEB/Cutycapt_$ip-$port.png --insecure;
-                # If urlname is not empty then tries to capture the webpage using the name
-                if test -z "$urlname"; then
-                    echo "No name was found in the DNS for $ip"; 
-                else
-                    #Hostname exist then check using it
-                    echo -e "Capturing a screenshot for ${GREEN}https://$urlname:$port/${NC} with cutycapt"; 
-                    cutycapt --url=https://$urlname:$port --out=./enumWEB/Cutycapt_$ip-$port-$urlname.png --insecure;
-                fi
+            if [ $indexip2 -gt $startpoint2 ]; then 
+                echo -e "${GREEN}####################################################################"
+                echo -e "##                    Checking IP $ip  ($indexip2 out of $numips)"
+                echo -e "####################################################################${NC}"
+                #Add the IP and port to the file
+                echo "$ip $port" >> ./enumWEB/https_ips.txt;
+                #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
+                nodnsname=$(host $ip|grep "not found")
+                #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
+                if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
+                echo -e "Capturing a screenshot for ${GREEN}https://$ip:$port/${NC} with cutycapt"; 
+                    cutycapt --url=https://$ip:$port --out=./enumWEB/img/Cutycapt_$ip-$port.png --insecure;
+                    # If urlname is not empty then tries to capture the webpage using the name
+                    if test -z "$urlname"; then
+                        echo "No name was found in the DNS for $ip"; 
+                    else
+                        #Hostname exist then check using it
+                        echo -e "Capturing a screenshot for ${GREEN}https://$urlname:$port/${NC} with cutycapt"; 
+                        cutycapt --url=https://$urlname:$port --out=./enumWEB/img/Cutycapt_$ip-$port-$urlname.png --insecure;
+                    fi
 
-            echo "----------------------------------------------------------------------------------------------------------------------------------------"
-                if test -z "$urlname"; then
-                    echo -e "Validating ${GREEN}https://$ip:$port/${NC} with WhatWeb"; 
-                    #Hostname does not exist, then checks using the IP only
-                    whatweb -a 3 --url-prefix https://  $ip:$port | tee -a enumWEB/whatweb_https_$ip-$port.txt
-                else
-                    #Hostname exists then check using it
-                    echo -e "Validating ${GREEN}https://$urlname:$port/${NC} with WhatWeb"; 
-                    whatweb -a 3 --url-prefix https://  $urlname:$port | tee -a enumWEB/whatweb_https_$ip-$port-$urlname.txt
-                fi
+                echo "----------------------------------------------------------------------------------------------------------------------------------------"
+                    if test -z "$urlname"; then
+                        echo -e "Validating ${GREEN}https://$ip:$port/${NC} with WhatWeb"; 
+                        #Hostname does not exist, then checks using the IP only
+                        whatweb -a 3 --url-prefix https://  $ip:$port | tee -a enumWEB/whatweb_https_$ip-$port.txt
+                    else
+                        #Hostname exists then check using it
+                        echo -e "Validating ${GREEN}https://$urlname:$port/${NC} with WhatWeb"; 
+                        whatweb -a 3 --url-prefix https://  $urlname:$port | tee -a enumWEB/whatweb_https_$ip-$port-$urlname.txt
+                    fi
 
-            echo "----------------------------------------------------------------------------------------------------------------------------------------"
-                if test -z "$urlname"; then
-                    echo -e "Testing ${GREEN}https://$ip:$port/${NC} with Nikto"; 
-                    #Hostname does not exist, then checks using the IP only
-                    nikto -host $ip -p $port -o enumWEB/nikto_https_$ip-$port.csv -maxtime 300
-                else
-                    echo -e "Testing ${GREEN}https://$urlname:$port/${NC} with Nikto"; 
-                    #Hostname exists then check using it
-                    nikto -host $urlname -p $port -o enumWEB/nikto_https_$ip-$port-$urlname.csv -maxtime 300
-                fi
+                echo "----------------------------------------------------------------------------------------------------------------------------------------"
+                    if test -z "$urlname"; then
+                        echo -e "Testing ${GREEN}https://$ip:$port/${NC} with Nikto"; 
+                        #Hostname does not exist, then checks using the IP only
+                        nikto -ask no -host $ip -p $port -o enumWEB/nikto_https_$ip-$port.csv -maxtime 300
+                    else
+                        echo -e "Testing ${GREEN}https://$urlname:$port/${NC} with Nikto"; 
+                        #Hostname exists then check using it
+                        nikto -ask no -host $urlname -p $port -o enumWEB/nikto_https_$ip-$port-$urlname.csv -maxtime 300
+                    fi
 
-            echo "----------------------------------------------------------------------------------------------------------------------------------------"
-                if test -z "$urlname"; then
-                    echo -e "Checking for interesting directories in ${GREEN}https://$ip:$port/${NC} with GoBuster"; 
-                    #Hostname does not exist, then checks using the IP only
-                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$ip:$port/ -o enumWEB/gobuster_https_$ip-$port.txt;
-                else
-                    echo -e "Checking for interesting directories in ${GREEN}https://$urlname:$port/${NC} with GoBuster"; 
-                    #Hostname exists then check using it
-                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/gobuster_https_$ip-$port-$urlname.txt;
-                fi
+                echo "----------------------------------------------------------------------------------------------------------------------------------------"
+                    if test -z "$urlname"; then
+                        echo -e "Checking for interesting directories in ${GREEN}https://$ip:$port/${NC} with GoBuster"; 
+                        #Hostname does not exist, then checks using the IP only
+                        #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$ip:$port/ -o enumWEB/gobuster_https_$ip-$port.txt;
+                        #Small first
+                        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -t 20 -k -u https://$ip:$port/ -o enumWEB/gobuster_https_$ip-$port.txt;
+                    else
+                        echo -e "Checking for interesting directories in ${GREEN}https://$urlname:$port/${NC} with GoBuster"; 
+                        #Hostname exists then check using it
+                        #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/gobuster_https_$ip-$port-$urlname.txt;
+                        #Small first
+                        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/gobuster_https_$ip-$port-$urlname.txt;
+                    fi
 
 
-            echo "----------------------------------------------------------------------------------------------------------------------------------------"
-            #    # Additional opts: -t threads, -d deep level, --silent prints only the URL's
-            #        #-C 404 or --filter-status 400 Filter out / ignore 404 responses
-            #        #-x php  #extenstions php or pdf or aspx or js (php,pdf)
-            #        #--filter-regex '^ignore me$'
-            #        #--filter-similar-to http://site.xyz/soft404
-            #        #-H, --headers <HEADER> ex: -H Accept:application/json "Authorization: Bearer {token}"
-            #        #--insecure --proxy http://127.0.0.1:8080
-            #        #cat targets | feroxbuster --stdin --silent -s 200 301 302 --redirects -x js | fff -s 200 -o js-files
-            #        #-w, --wordlist <FILE> 
-            #    if test -z "$urlname"; then
-            #        echo -e "Checking for interesting directories in ${GREEN}https://$ip:$port/${NC} with FeroxBuster"; 
-            #        #Hostname does not exist, then checks using the IP only
-            #        feroxbuster --url https://$ip:$port -o ./enumWEB/feroxbuster_https_$ip-$port.txt -t 20 -d 3 --silent
-            #    else
-            #        echo -e "Checking for interesting directories in ${GREEN}https://$urlname:$port/${NC} with FeroxBuster"; 
-            #        #Hostname exists then check using it
-            #        feroxbuster --url https://$urlname:$port -o ./enumWEB/feroxbuster_https_$ip-$port.txt -t 20 -d 3 --silent
-            #    fi
+                echo "----------------------------------------------------------------------------------------------------------------------------------------"
+                #    # Additional opts: -t threads, -d deep level, --silent prints only the URL's
+                #        #-C 404 or --filter-status 400 Filter out / ignore 404 responses
+                #        #-x php  #extenstions php or pdf or aspx or js (php,pdf)
+                #        #--filter-regex '^ignore me$'
+                #        #--filter-similar-to http://site.xyz/soft404
+                #        #-H, --headers <HEADER> ex: -H Accept:application/json "Authorization: Bearer {token}"
+                #        #--insecure --proxy http://127.0.0.1:8080
+                #        #cat targets | feroxbuster --stdin --silent -s 200 301 302 --redirects -x js | fff -s 200 -o js-files
+                #        #-w, --wordlist <FILE> 
+                #    if test -z "$urlname"; then
+                #        echo -e "Checking for interesting directories in ${GREEN}https://$ip:$port/${NC} with FeroxBuster"; 
+                #        #Hostname does not exist, then checks using the IP only
+                #        feroxbuster --url https://$ip:$port -o ./enumWEB/feroxbuster_https_$ip-$port.txt -t 20 -d 3 --silent
+                #    else
+                #        echo -e "Checking for interesting directories in ${GREEN}https://$urlname:$port/${NC} with FeroxBuster"; 
+                #        #Hostname exists then check using it
+                #        feroxbuster --url https://$urlname:$port -o ./enumWEB/feroxbuster_https_$ip-$port.txt -t 20 -d 3 --silent
+                #    fi
 
-            echo -e "${GREEN}####################################################################"
-            echo -e "###          HTTPS validation completed for IP $ip  ($indexip2 out of $numips)          ###"
+                echo -e "${GREEN}####################################################################"
+                echo -e "###          HTTPS validation completed for IP $ip  ($indexip2 out of $numips)          ###"
+            fi
             indexip2=$(($indexip2+1))
             echo -e "####################################################################${NC}"
         done
@@ -322,57 +338,6 @@ for port in $(cat ./enumWEB/httpsports.txt); do
     filename=$port"_all_TCP.ips"
     nmap -sV --script=ssl-enum-ciphers,ssl-ccs-injection.nse,ssl-dh-params.nse,ssl-date.nse,ssl-dh-params.nse,ssl-heartbleed.nse,ssl-known-key.nse,ssl-poodle.nse,sslv2-drown.nse,sslv2.nse -p $port -iL ./results/$filename -oA enumWEB/nmap_sslenum_$port
 done
-
-echo "####################################################################"
-echo -e "${GREEN}TLS connections on SQL Servers using nmap...${NC}"
-echo "####################################################################"
-# Test certificates used in SQL Servers
-numips==$(cat ./results/1433_all_TCP.ips | wc -l)
-echo -e "Checking TLS connections on SQL Servers for ${RED}$numips${NC} IP's using nmap...";
-if test -e ./results/1433_all_TCP.ips; then
-    nmap -sV --script=ssl-enum-ciphers -p 1433 -iL ./results/1433_all_TCP.ips -oA enumWEB/nmap_sslenum_1433;
-    nmap -sV --script ms-sql-info --script-args mssql.instance-port=1433 -p 1433 -iL ./results/1433_all_TCP.ips -oA enumDB/mssql_all;
-fi
-
-
-echo ""
-echo ""
-echo "####################################################################"
-echo -e "${GREEN}Checking for printers ...${NC}"
-echo "####################################################################"
-mkdir enumPrinters;
-# Grep selects only printers services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
-cat ./results/*_ipsnports_all.csv | grep '9100\|jetdirect\|printer' | awk 'BEGIN {FS = ","}; {print $1}' | sed 's/\"//g' | sort -n | uniq > ./enumPrinters/printers.txt
-numprinters==$(cat ./enumPrinters/printers.txt | wc -l)
-echo -e "Total printers found: ${RED} $numprinters${NC}. "
-echo "Check printers manually in the file ./enumPrinters/printers.txt"
-echo "####################################################################"
-
-
-echo ""
-echo ""
-echo "####################################################################"
-echo -e "${GREEN}Checking for email servers ...${NC}"
-echo "####################################################################"
-mkdir enumEMAIL;
-# Grep selects only smtp services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
-cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($3=="\"25\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq > ./enumEMAIL/smtp.txt
-numemailserverssmtp=$(cat ./enumEMAIL/smtp.txt | wc -l)
-echo -e "Total servers found: ${RED} $numemailserverssmtp${NC}"
-cat ./enumEMAIL/smtp.txt
-#nmap -p25,587 --script=smtp-commands -iL ./enumEMAIL/smtp.txt -oA ./enumEMAIL/smtp_commands
-nmap -p25,587 --script=smtp-* -iL ./enumEMAIL/smtp.txt -oA ./enumEMAIL/smtp_all
-
-echo ""
-echo ""
-echo "####################################################################"
-echo -e "${GREEN}Checking for postgres servers ...${NC}"
-mkdir enumDB;
-# Grep selects only postgres services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
-cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($3=="\"5432\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq > ./enumDB/postgres.txt
-numservers==$(cat ./enumDB/postgres.txt | wc -l)
-echo -e "Total Postgres servers found: ${RED} $numservers${NC}"
-nmap -p5432 -sV --script=pgsql-*,auth,vuln,version -iL ./enumDB/postgres.txt -oA ./enumDB/postgres_all2
 
 
 echo "####################################################################"
