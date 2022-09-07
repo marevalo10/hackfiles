@@ -9,7 +9,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
-
+username=$(whoami)
 mkdir enumSSH;
 echo "Selecting ports identified as ssh services in the scan"
 # Grep selects only ssh services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
@@ -23,12 +23,14 @@ for port in $(cat ./enumSSH/sshports.txt); do
     cp ./results/$filename ./enumSSH
     numips=$(cat ./results/$filename | wc -l)
     echo "Running nmap scripts for SSH on port $port"
-    #sudo nmap -p $port --script ssh2-enum-algos,ssh-auth-methods,sshv1.nse -iL ./results/$filename -oA ./enumSSH/nmap_$port.txt
-    sudo nmap -p $port --script "ssh*-* and not ssh-brut*" -iL ./results/$filename -oA ./enumSSH/nmap_$port.txt
+    #sudo nmap -p $port --script "ssh*-* and not ssh-brut* -iL ./results/$filename -oA ./enumSSH/nmap_$port.txt
+    sudo nmap -p $port --script "ssh2-enum-algos,ssh-auth-methods,ssh-hostkey,ssh-publickey-acceptance,sshv1" -iL ./results/$filename -oA ./enumSSH/nmap_$port.txt
 
-    echo -e "Running SSH check for each IP ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
-    for ipadd in $(cat ./results/$filename); do 
-        echo "Testing SSH on $ipadd port $port "; 
-        ssh -o "StrictHostKeyChecking no" -vN root@$ipadd 2>&1 | grep "remote software version" | tee enumSSH/enum$ipadd.txt
-    done
+    #echo -e "Running SSH check for each IP ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
+    #for ipadd in $(cat ./results/$filename); do 
+    #    echo "Testing SSH on $ipadd port $port "; 
+    #    ssh -o "StrictHostKeyChecking no" -vN root@$ipadd 2>&1 | grep "remote software version" | tee enumSSH/enum$ipadd.txt
+    #done
 done
+
+sudo chown $username:$username ./enumSSH/*

@@ -60,9 +60,10 @@ echo "******************************************************"
     source ~/.zshrc
 
 echo "******************************************************"
-echo "Installing Feroxbuster"
+echo "Installing Webtools"
 echo "******************************************************"
     sudo apt install -y feroxbuster
+    sudo apt install -y eyewitness
 
 #Subdomain takeover tools
 echo "******************************************************"
@@ -145,13 +146,20 @@ echo "Download and Install Free RDP (if not is installed yet). This is used to s
 	#	xfreerdp /u:admin /pth:aad3b435b51404eeaad3b435b51404ee:aedcbf154ddab484bc8b96d02d433d5f /v:10.4.32.36
 
 echo "****************************************************************************************"
-echo "Powershell"
+echo "Powershell and AD attacking tools"
     sudo apt -y install curl gnupg apt-transport-https
     sudo "curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -"
     echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/powershell.list
     sudo apt -y install powershell
     echo "Run powershell using pwsh command"
-		
+    #This is the graph tool. It includes neo4j in case it is not installed.
+    sudo apt -y install bloohound
+    #This install the collector to extract the AD information from a domain controller
+    # To run it: bloodhound-python -u <domainuser> -p <domianpwd> -ns <dc ip or name> -d <domainname.local> -c All
+    pip3 install bloohound
+    sudo apt -y install kerberoast
+
+
 echo "****************************************************************************************"
 echo "Download and Install Empire -> Use it in combination with Responder to get credentials (NTLM / SMB / …) and automatically try PTH to get some sessions: -> Check now Empire 3.0 https://github.com/BC-SECURITY/Empire and how to evade: https://www.mike-gualtieri.com/posts/modifying-empire-to-evade-windows-defender"
     sudo apt -y install powershell-empire

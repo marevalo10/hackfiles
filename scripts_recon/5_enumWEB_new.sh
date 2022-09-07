@@ -33,7 +33,11 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 mkdir enumWEB;
-mkdir enumweb/img;
+mkdir enumWEB/img;
+mkdir enumWEB/whatweb;
+mkdir enumWEB/nikto;
+mkdir enumWEB/dirbuster;
+mkdir enumWEB/ssl;
 # Creates a file with the servers IP having HTTP and another for HTTPS
 echo "####################################################################"
 echo "                      WEB DISCOVERY AND SCAN "
@@ -61,6 +65,10 @@ touch ./enumWEB/http_ips.txt
 touch ./enumWEB/https_ips.txt
 # A loop to read the file storing the IP's with the specific port open
 indexport=1
+# Change if it is required to start in a differeent point for any specific port. Only works for one
+gappoint=0
+gapport=80
+gapstartpoint=0
 for port in $(cat ./enumWEB/httpports.txt); do
     filename=$port"_all_TCP.ips"
     cp ./results/$filename ./enumWEB/
@@ -68,11 +76,18 @@ for port in $(cat ./enumWEB/httpports.txt); do
     echo "####################################################################"
     echo -e "## Checking port ${GREEN}$port${NC} ($indexport out of $totalports) for a total of ${RED}$numips${NC} IP's in file: ${GREEN} $filename ${NC} ###"
     echo -e "## Running curl, cutycapt, gobuster, Whatweb and Nikto for all IP's"
+    # Counter to go through all IP's in this port
     indexip=1
-    #If required to start in a different possition just change here this value
-    startpoint=0
     for ip in $(cat ./enumWEB/$filename); do 
-        if [ $indexip -gt $startpoint ]; then 
+        #Should ignore it?
+        if [ $gappoint -eq 1 ]; then 
+            echo "Ignoring IP $ip on port $port"
+            #Last IP to ignore
+            if [ $gapstartpoint -eq $indexip ]; then 
+                gappoint=0; 
+                echo "This was the last ignored IP for port $port"; 
+            fi
+        else  
             echo -e "${GREEN}####################################################################"
             echo -e "##                    Checking IP $ip  ($indexip out of $numips)"
             echo -e "####################################################################${NC}"
@@ -98,20 +113,20 @@ for port in $(cat ./enumWEB/httpports.txt); do
             echo -e "Validating ${GREEN}http://$ip:$port/${NC} with WhatWeb"; 
                 if test -z "$urlname"; then
                     #Hostname does not exist, then checks using the IP only
-                    whatweb -a 3 -v $ip:$port --log-verbose=enumWEB/whatweb_http_$ip-$port.txt;
+                    whatweb -a 3 -v $ip:$port --log-verbose=enumWEB/whatweb/whatweb_http_$ip-$port.txt;
                 else
                     #Hostname exists then check using it
-                    whatweb -a 3 -v $urlname:$port --log-verbose=enumWEB/whatweb_http_$ip-$port.txt;
+                    whatweb -a 3 -v $urlname:$port --log-verbose=enumWEB/whatweb/whatweb_http_$ip-$port.txt;
                 fi
 
             echo "----------------------------------------------------------------------------------------------------------------------------------------"
             echo -e "Testing ${GREEN}http://$ip:$port/${NC} with Nikto"; 
                 if test -z "$urlname"; then
                     #Hostname does not exist, then checks using the IP only
-                    nikto -ask no -host $ip -p $port -o enumWEB/nikto_http_$ip-$port.csv -maxtime 300
+                    nikto -ask no -host $ip -p $port -o enumWEB/nikto/nikto_http_$ip-$port.csv -maxtime 200s
                 else
                     #Hostname exists then check using it
-                    nikto -ask no -host $urlname -p $port -o enumWEB/nikto_http_$ip-$port.csv -maxtime 300
+                    nikto -ask no -host $urlname -p $port -o enumWEB/nikto/nikto_http_$ip-$port.csv -maxtime 200s
                 fi
 
 
@@ -124,12 +139,12 @@ for port in $(cat ./enumWEB/httpports.txt); do
                     #Hostname does not exist, then checks using the IP only
                     #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$ip:$port/ -o enumWEB/gobuster_http_$ip-$port.txt;
                     #Small initially
-                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -e -t 20 -u http://$ip:$port/ -o enumWEB/gobuster_http_$ip-$port.txt;
+                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -e -t 20 -u http://$ip:$port/ -o enumWEB/dirbuster/gobuster_http_$ip-$port.txt;
                 else
                     #Hostname exists then check using it
                     #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -e -t 20 -u http://$urlname:$port/ -o enumWEB/gobuster_http_$ip-$port-$urlname.txt;
                     #Small initially
-                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -e -t 20 -u http://$urlname:$port/ -o enumWEB/gobuster_http_$ip-$port-$urlname.txt;
+                    gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -e -t 20 -u http://$urlname:$port/ -o enumWEB/dirbuster/gobuster_http_$ip-$port-$urlname.txt;
                 fi
 
             echo "----------------------------------------------------------------------------------------------------------------------------------------"
@@ -152,34 +167,44 @@ for port in $(cat ./enumWEB/httpports.txt); do
             #    fi
             echo -e "${GREEN}####################################################################"
             echo -e "###          HTTP validation completed for IP $ip  ($indexip out of $numips)"
-            indexip=$(($indexip+1))
-            echo -e "####################################################################${NC}"
-        done
-        echo -e "${GREEN}####################################################################"
-        echo -e "###          HTTP validation completed on port $port!  ($indexport out of $totalports)          ###"
-    fi
+        fi
+        indexip=$(($indexip+1))
+    done
+    echo -e "${GREEN}################################################################################################"
+    echo -e "###       HTTP validation completed on PORT $port!  ($indexport out of $totalports ports)       ###"
     indexport=$(($indexport+1))
-    echo -e "####################################################################${NC}"
+    echo -e "################################################################################################${NC}"
 done
 
 echo "####################################################################"
 echo "                  Checking HTTPS servers "
 echo "####################################################################"
 indexport2=1
+gappoint2=0
+gapport2=443
+gapstartpoint2=0
 for port in $(cat ./enumWEB/httpsports.txt); do
+    filename=$port"_all_TCP.ips";
+    cp ./results/$filename ./enumWEB/;
+    numips=$(cat ./results/$filename | wc -l);
     echo -e "${GREEN}####################################################################"
     echo -e "Checking port  ${RED}($port)${NC} ($indexport2 out of $totalports2) for discovered IP's: ${RED}($numips)${NC} in file: ${GREEN} $filename ${NC}";
     if [ $port -ne 3389 ]; then 
-        filename=$port"_all_TCP.ips";
-        cp ./results/$filename ./enumWEB/;
-        numips=$(cat ./results/$filename | wc -l);
         echo -e "Running curl, cutycpat, gobuster, Whatweb and Nikto for all IP's";
         echo "####################################################################";
         indexip2=1
         #If required to start in a different possition just change here this value
         startpoint2=0
         for ip in $(cat ./results/$filename); do 
-            if [ $indexip2 -gt $startpoint2 ]; then 
+            #Should ignore it?
+            if [ $gappoint2 -eq 1 ]; then 
+                echo "Ignoring IP $ip on port $port"
+                #Last IP to ignore
+                if [ $gapstartpoint2 -eq $indexip2 ]; then 
+                    gappoint2=0; 
+                    echo "This was the last ignored IP for port $port"; 
+                fi
+            else  
                 echo -e "${GREEN}####################################################################"
                 echo -e "##                    Checking IP $ip  ($indexip2 out of $numips)"
                 echo -e "####################################################################${NC}"
@@ -204,22 +229,22 @@ for port in $(cat ./enumWEB/httpsports.txt); do
                     if test -z "$urlname"; then
                         echo -e "Validating ${GREEN}https://$ip:$port/${NC} with WhatWeb"; 
                         #Hostname does not exist, then checks using the IP only
-                        whatweb -a 3 --url-prefix https://  $ip:$port | tee -a enumWEB/whatweb_https_$ip-$port.txt
+                        whatweb -a 3 --url-prefix https://  $ip:$port | tee -a enumWEB/whatweb/whatweb_https_$ip-$port.txt
                     else
                         #Hostname exists then check using it
                         echo -e "Validating ${GREEN}https://$urlname:$port/${NC} with WhatWeb"; 
-                        whatweb -a 3 --url-prefix https://  $urlname:$port | tee -a enumWEB/whatweb_https_$ip-$port-$urlname.txt
+                        whatweb -a 3 --url-prefix https://  $urlname:$port | tee -a enumWEB/whatweb/whatweb_https_$ip-$port-$urlname.txt
                     fi
 
                 echo "----------------------------------------------------------------------------------------------------------------------------------------"
                     if test -z "$urlname"; then
                         echo -e "Testing ${GREEN}https://$ip:$port/${NC} with Nikto"; 
                         #Hostname does not exist, then checks using the IP only
-                        nikto -ask no -host $ip -p $port -o enumWEB/nikto_https_$ip-$port.csv -maxtime 300
+                        nikto -ask no -host $ip -p $port -o enumWEB/nikto/nikto_https_$ip-$port.csv -maxtime 200s
                     else
                         echo -e "Testing ${GREEN}https://$urlname:$port/${NC} with Nikto"; 
                         #Hostname exists then check using it
-                        nikto -ask no -host $urlname -p $port -o enumWEB/nikto_https_$ip-$port-$urlname.csv -maxtime 300
+                        nikto -ask no -host $urlname -p $port -o enumWEB/nikto/nikto_https_$ip-$port-$urlname.csv -maxtime 200s
                     fi
 
                 echo "----------------------------------------------------------------------------------------------------------------------------------------"
@@ -228,13 +253,13 @@ for port in $(cat ./enumWEB/httpsports.txt); do
                         #Hostname does not exist, then checks using the IP only
                         #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$ip:$port/ -o enumWEB/gobuster_https_$ip-$port.txt;
                         #Small first
-                        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -t 20 -k -u https://$ip:$port/ -o enumWEB/gobuster_https_$ip-$port.txt;
+                        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -t 20 -k -u https://$ip:$port/ -o enumWEB/dirbuster/gobuster_https_$ip-$port.txt;
                     else
                         echo -e "Checking for interesting directories in ${GREEN}https://$urlname:$port/${NC} with GoBuster"; 
                         #Hostname exists then check using it
-                        #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/gobuster_https_$ip-$port-$urlname.txt;
+                        #gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/dirbuster/gobuster_https_$ip-$port-$urlname.txt;
                         #Small first
-                        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/gobuster_https_$ip-$port-$urlname.txt;
+                        gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -q -t 20 -k -u https://$urlname:$port/ -o enumWEB/dirbuster/gobuster_https_$ip-$port-$urlname.txt;
                     fi
 
 
@@ -271,44 +296,83 @@ for port in $(cat ./enumWEB/httpsports.txt); do
     echo -e "####################################################################${NC}"
 done
 
+indexport3=1
+gappoint3=0
+gapport3=443
+gapstartpoint3=21
+
 echo "####################################################################"
-echo -e "${GREEN}Checking certificates on HTTPS servers${NC}"
+echo -e "          ${GREEN}Checking certificates on HTTPS servers${NC}"
 echo "####################################################################"
 for port in $(cat ./enumWEB/httpsports.txt); do
     filename=$port"_all_TCP.ips"
     numips=$(cat ./results/$filename | wc -l)
+    indexip3=1
     echo -e "Running sslscan, sslyze and openssl for all IP's ${RED}($numips)${NC} in ${GREEN} $filename ${NC}"
     for ip in $(cat ./results/$filename); do 
-        #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
-        nodnsname=$(host $ip|grep "not found")
-        #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
-        if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
-        #Hostname does not exist, then checks using the IP only
-        echo -e "Checking certificate with sslscan using IP $ip"; 
-        sslscan --show-certificate --bugs $ip:$port | tee -a enumWEB/sslscan_$ip-$port.txt
-        echo -e "Checking certificate with sslyze using IP $ip"; 
-        sslyze --json_out=enumWEB/sslyzeresults_$ip-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $ip:$port| tee -a enumWEB/sslyze_$ip-$port.txt
-        #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
-        #This command is getting longer in some websites until an enter is hit
-        echo -e "Checking certificate with openssl using IP $ip"; 
-        openssl s_client -connect $ip:$port -showcerts | tee -a enumWEB/certificate_$ip-$port.txt
-        #echo -e "Checking support to TLSv1.0 with s_client using IP $ip"; 
-        #openssl s_client -connect $ip:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$port.txt
+        if [ $gappoint3 -eq 1 ]; then 
+            echo "Ignoring IP $ip on port $port"
+            #Last IP to ignore
+            if [ $gapstartpoint3 -eq $indexip3 ]; then 
+                gappoint3=0; 
+                echo "This was the last ignored IP ($ip) on port $port"; 
+            fi
+        else  
+            #Check if the IP has a defined hostname in the DNS. If "not found" is not received in the anseer (grep result is empty), it means a hostname exist for the IP
+            nodnsname=$(host $ip|grep "not found")
+            #If nodnsname is empty, means it does not have a "not found" => it has a hostname in the DNS
+            if test -z "$nodnsname"; then urlname=$(host $ip | cut -f 5 -d " " | sed "s/\.$//g"); else urlname=""; fi
+            #Hostname does not exist, then checks using the IP only
+            echo "####################################################################"
+            echo -e "${GREEN}Checking certificate with sslscan using IP $ip${NC}"; 
+            echo "####################################################################"
+            sslscan --show-certificate --connect-timeout=30s --bugs $ip:$port | tee -a enumWEB/ssl/sslscan_$ip-$port.txt
 
-        # A hostname is found for the IP in the dns
-        if test -n "$urlname"; then
-            #Hostname exists then check using it
-            echo -e "Checking certificate with sslscan using name $urlname"; 
-            sslscan --show-certificate --bugs $urlname:$port | tee -a enumWEB/sslscan_$ip-$urlname-$port.txt
-            echo -e "Checking certificate with sslyze using name $urlname"; 
-            sslyze --json_out=enumWEB/sslyzeresults_$ip-$urlname-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $urlname:$port| tee -a enumWEB/sslyze_$ip-$urlname-$port.txt
+            #I used timeout for this scan as it is taking too much time
+            #echo "####################################################################"
+            #echo -e "${GREEN}Checking certificate with sslyze using IP $ip${NC}"; 
+            #echo "####################################################################"
+            timeout 30s sslyze --json_out=enumWEB/ssl/sslyzeresults_$ip-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $ip:$port| tee -a enumWEB/ssl/sslyze_$ip-$port.txt
+
             #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
-            echo -e "Checking certificate with openssl using name $urlname"; 
-            openssl s_client -connect $urlname:$port -showcerts | tee -a enumWEB/certificate_$ip-$urlname-$port.txt
-            #echo -e "Checking support to TLSv1.0 with s_client using name $urlname"; 
-            #openssl s_client -connect $urlname:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$urlname-$port.txt
+            #This command is getting longer in some websites until an enter is hit
+            echo "####################################################################"
+            echo -e "${GREEN}Checking certificate with openssl using IP $ip${NC}"; 
+            echo "####################################################################"
+            timeout 15s openssl s_client -connect $ip:$port -showcerts | tee -a enumWEB/ssl/certificate_$ip-$port.txt
+            #echo -e "Checking support to TLSv1.0 with s_client using IP $ip"; 
+            #openssl s_client -connect $ip:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$port.txt
+
+            # A hostname is found for the IP in the dns
+            if test -n "$urlname"; then
+                #Hostname exists then check using it
+                echo "####################################################################"
+                echo -e "${GREEN}Checking certificate with sslscan using name $urlname${NC}"; 
+                echo "####################################################################"
+                sslscan --show-certificate --connect-timeout=30s --bugs $urlname:$port | tee -a enumWEB/ssl/sslscan_$ip-$urlname-$port.txt
+
+                #echo "####################################################################"
+                #echo -e "${GREEN}Checking certificate with sslyze using name $urlname${NC}"; 
+                #echo "####################################################################"
+                timeout 30s sslyze --json_out=enumWEB/ssl/sslyzeresults_$ip-$urlname-$port.json --robot --sslv2 --sslv3 --tlsv1_1 --tlsv1_2 --tlsv1_3  --certinfo --reneg --openssl_ccs --heartbleed --fallback --http_headers $urlname:$port| tee -a enumWEB/ssl/sslyze_$ip-$urlname-$port.txt
+
+                #Exporting the certificate: openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
+                echo "####################################################################"
+                echo -e "${GREEN}Checking certificate with openssl using name $urlname${NC}"; 
+                echo "####################################################################"
+                timeout 15s openssl s_client -connect $urlname:$port -showcerts | tee -a enumWEB/ssl/certificate_$ip-$urlname-$port.txt
+                #echo -e "Checking support to TLSv1.0 with s_client using name $urlname"; 
+                timeout 15s openssl s_client -connect $urlname:$port -tls1 | tee -a enumWEB/tlsv1_$ip-$urlname-$port.txt
+            fi
+            echo -e "${GREEN}###############################################################################################${NC}"
+            echo -e "###       Certificates validation completed for IP ${RED}$ip  ($indexip3 out of $numips)${NC}        ###"
         fi
+        indexip3=$(($indexip3+1))
     done
+    echo -e "${GREEN}####################################################################"
+    echo -e "###     Certificates validation completed on port $port!  ($indexport3 out of $totalports3) "
+    echo -e "####################################################################${NC}"
+    indexport3=$(($indexport3+1))
 done
 # Checking insecure TLS
 echo ""
@@ -324,8 +388,6 @@ for filenmap in $(ls ./*.nmap); do
         cat $filenmap >> ./enumWEB/tls1.0.txt;
     fi
 done
-
-
 echo "####################################################################"
 
 # Test SSL certificates
@@ -336,7 +398,7 @@ echo -e "${GREEN}TLS connections on HTTPS using nmap...${NC}"
 echo "####################################################################"
 for port in $(cat ./enumWEB/httpsports.txt); do
     filename=$port"_all_TCP.ips"
-    nmap -sV --script=ssl-enum-ciphers,ssl-ccs-injection.nse,ssl-dh-params.nse,ssl-date.nse,ssl-dh-params.nse,ssl-heartbleed.nse,ssl-known-key.nse,ssl-poodle.nse,sslv2-drown.nse,sslv2.nse -p $port -iL ./results/$filename -oA enumWEB/nmap_sslenum_$port
+    nmap -sV --script=ssl-enum-ciphers,ssl-ccs-injection.nse,ssl-dh-params.nse,ssl-date.nse,ssl-dh-params.nse,ssl-heartbleed.nse,ssl-known-key.nse,ssl-poodle.nse,sslv2-drown.nse,sslv2.nse --max-hostgroup 16 -p $port -iL ./results/$filename -oA enumWEB/ssl/nmap_sslenum_$port
 done
 
 

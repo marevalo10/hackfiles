@@ -136,18 +136,17 @@ cp ../$file.resumenmap-udp.gnmap .
 
     # Check if the required files exist and are not empty (at least one):
     if $($(test -s $file.resumenmap-tcp.gnmap) || $(test -s $file.resumenmap-udp.gnmap)); then 
-        echo -e "{GREEN} Required files were found and are not empty. {NC}";
+        echo -e "${GREEN} Good news! Required files were found and are not empty. ${NC}";
     else
-        echo -e "{RED} Error: Required files were not found: "$file".resumenmap-tcp.gnmap or "$file".resumenmap-udp.gnmap){NC}";
+        echo -e "${RED} Error: Required files were not found: "$file".resumenmap-tcp.gnmap or "$file".resumenmap-udp.gnmap)${NC}";
         exit 1;
     fi
 
     # Loop to extract the information relative to each network segment analized
     n=` cat $file | wc -l`
-    echo -e "Number of networks or IP's in the file: $n"
+    echo -e "Number of networks or IP's in the file: ${RED}$n${NC}"
     # file name to be used to create the raw file with a list of IP's and ports 
     raw="_raw_"
-        echo -e ""
         echo -e "##################################################################"
         echo -e "Extracting info from files ${RED} "$file".resumenmap-[tcp|udp]" ${NC}
         echo -e "##################################################################"
@@ -250,9 +249,9 @@ cp ../$file.resumenmap-udp.gnmap .
         cat "$file"_ipsnports*.csv > "$file"_ipsnports_all.csv
         echo -e "CSV with IPs and ports were created with nmaptocsv.py: ${GREEN}"$file"_ipsnports[TCP|UDP|all].csv${NC}"
 
-    echo -e "######################################"
+    echo -e "##################################################################"
     echo -e "Consolidating ${RED} ALL the information" ${NC}
-    echo -e "######################################"
+    echo -e "##################################################################"
 
     # Delete existing files (if any)
     rm -f all_*.csv
@@ -318,16 +317,31 @@ cp ../$file.resumenmap-udp.gnmap .
     done;
     cd ..
     echo -e "Hosts list for each port was consolidated in ${GREEN}./results/<port#>_[TCP|UDP].ips${NC} for all networks";
-    echo -e "${GREEN}Most IMPORTANT files to check: ${NC}"
+    echo -e "${GREEN}***** MOST IMPORTANT FILES TO CHECK: *****${NC}"
     echo -e "IP and details open port by line CVS: ${RED}cat "$file"_ipsnports_all.csv |more${NC}"
     echo -e "IP and open ports list: ${GREEN}cat "$file"_portsbyhostTCP.csv |more${NC}"
-    echo -e "Top TCP open ports: ${GREEN}head -10 ./results/all_TCPportscount.csv${NC}"
+    echo -e "Top TCP open ports in this file: ${GREEN}head -10 ./results/"$file"_all_TCPportscount.csv${NC}"
+    echo -e "${RED}___________________${NC}"
     echo -e "${RED}TPORT   #HOSTS${NC}"
+    echo -e "${RED}___________________${NC}"
+    head -10 ./results/"$file"_all_TCPportscount.csv
+    echo -e "Top UDP open ports in this file: ${GREEN}head -10 ./results/"$file"_all_UDPportscount.csv${NC}"
+    echo -e "${RED}___________________${NC}"
+    echo -e "${RED}UPORT   #HOSTS${NC}"
+    head -10 ./results/"$file"_all_UDPportscount.csv
+    echo -e "${RED}___________________${NC}"
+
+    echo -e "Top TCP open ports in ALL files: ${GREEN}head -10 ./results/all_TCPportscount.csv${NC}"
+    echo -e "${RED}___________________${NC}"
+    echo -e "${RED}TPORT   #HOSTS${NC}"
+    echo -e "${RED}___________________${NC}"
     head -10 ./results/all_TCPportscount.csv
-    echo -e "Top UDP open ports: ${GREEN}head -10 ./results/all_TCPportscount.csv${NC}"
+    echo -e "Top UDP open ports in ALL files: ${GREEN}head -10 ./results/all_TCPportscount.csv${NC}"
+    echo -e "${RED}___________________${NC}"
     echo -e "${RED}UPORT   #HOSTS${NC}"
     head -10 ./results/all_UDPportscount.csv
-    echo -e "All information of the processed files with this script are consolidated in files ${RED}all_*${NC}";
+    echo -e "${RED}___________________${NC}"
+    echo -e "All information of the processed files with this script are consolidated in files ${RED}eresults/all_*.csv${NC}";
     echo -e "#####################################################################"
 
 cd ..;

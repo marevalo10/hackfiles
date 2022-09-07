@@ -79,7 +79,7 @@ echo -e "        A total of ${RED} $numips ${NC} will be taken"
 eyewitness -f $filescreens -d enumWEB/screenshotshttp --no-prompt --timeout 3 
 
 echo -e "${GREEN}####################################################################"
-echo -e "###          HTTP validation completed           ###"
+echo -e "###                 HTTP validation completed                    ###"
 echo -e "####################################################################${NC}"
 
 echo ""
@@ -91,7 +91,7 @@ for port in $(cat ./enumWEB/httpsports.txt); do
     filename=$port"_all_TCP.ips";
     cp ./results/$filename ./enumWEB/;
     numips=$(cat ./enumWEB/$filename | wc -l);
-    indexport=$(($indexport+1))
+    indexport2=$(($indexport2+1))
     sed 's/^/https:\/\//' ./enumWEB/$filename | sed 's/$/:'$port'\//' >> $tempfilescreens2;
 done
 

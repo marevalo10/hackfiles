@@ -59,10 +59,10 @@ echo -e "${GREEN}Checking for mysql servers ...${NC}"
 mkdir enumDB;
 # Grep selects only postgres services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
 cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"mysql\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq > ./enumDB/mysql.txt
-ports=$(cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"mysql\"") {print $3}}' | sort -n | uniq | tr '\r\n' ',')
+ports=$(cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"mysql\"") {print $3}}' | sed 's/\"//g' | sort -n | uniq | tr '\r\n' ',')
 numservers==$(cat ./enumDB/mysql.txt | wc -l)
 echo -e "Total Postgres servers found: ${RED} $numservers${NC}"
-nmap -p$ports -sV --script="mysql-* and not brute" --script=vuln,version -iL ./enumDB/mysql.txt -oA ./enumDB/mysql_all
+nmap -p$ports -sV --script="mysql-* and not ftp-brute and not ftp-bounce" --script=vuln,version -iL ./enumDB/mysql.txt -oA ./enumDB/mysql_all
 
 echo ""
 echo ""
