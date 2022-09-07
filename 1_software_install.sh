@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#TODO
+# ADD THE TIME TO THE PROMPT AGAIN
+# ADD /home/$username/go/bin TO THE PATH
+
 #REQUIRED FOR INTERNAL / EXTERNAL PENTEST
 echo "In case of problems with the display, run:"
 echo "xrandr -s 1280x960 or xrandr -s 1680x1050"
@@ -14,7 +18,7 @@ echo "Install pipenv: (some programs require it)"
 echo "Install virtualenv:"
 	sudo apt-get -y install python3-virtualenv
 echo "Install python FTP to facilitate files exchange when required:"
-	pip3 install -y pyftpdlib
+	pip3 install pyftpdlib
 echo "To run the ftp server: python3 -m pyftpdlib -w
     Or it can be used Metasploit ftp: auxiliary/server/ftp
 	set FTPROOT /home/marevalo"
@@ -107,6 +111,30 @@ echo "Installing Sn1per"
 echo "******************************************************"
 echo "Installing required software for internal tests"
 echo "******************************************************"
+
+echo "Installing Impacket. All programs should be run as impacket-xxx. i.e. impacket-psexec"
+sudo apt install -y python3-impacket
+echo "Run commands by using impacket-xxnamexx"
+
+echo "Installing Active Directory Tools"
+sudo apt install -y evil-winrm
+# Install AD tools
+sudo apt install -y bloodhound neo4j
+# Bruteforcing with Kerberos is stealthier since pre-authentication failures do not trigger An account failed to log on event 4625
+go install github.com/ropnop/kerbrute@latest 
+sudo apt install -y kerberoast
+sudo apt install -y krb5-user
+sudo gem install evil-winrm
+#Install python collector:
+pip3 install bloodhound
+#To create rogue LDAP servers. Start it by sudo systemctl enable slapd. Ask for a password
+#Reconfigure it by sudo dpkg-reconfigure -p low slapd
+echo "Installing a rogue LDAP tool. Should configure a password (Abcd1234)"
+sudo apt-get -y install slapd ldap-utils
+
+#Install CIFS
+sudo apt install -y cifs-utils
+
 echo "******************************************************"
 echo "Downloading PCredz"
     sudo apt-get -y install libpcap-dev && pip3 install Cython && pip3 install python-libpcap
@@ -134,7 +162,9 @@ echo "Install / run armitage: (if not is installed yet)"
 	# Armintage ready to tun
     echo "To run armintage use the graphical interface or run sudo -E armitage"
 
-	
+echo "******************************************************"
+echo "Installing webtools "
+sudo apt install -y feroxbuster
 
 
 
@@ -212,6 +242,7 @@ echo "Installing  rust"
 #    echo "******************************************************"
 #    #gvm-start
 
+#Update searchsploit. The bad think is it install all documents that are so big
 searchsploit -u
 #To analyse webpages
 sudo apt -y install html2text
