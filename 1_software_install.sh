@@ -116,17 +116,32 @@ echo "Installing Impacket. All programs should be run as impacket-xxx. i.e. impa
 sudo apt install -y python3-impacket
 echo "Run commands by using impacket-xxnamexx"
 
+echo "****************************************************************************************"
 echo "Installing Active Directory Tools"
-sudo apt install -y evil-winrm
+echo "****************************************************************************************"
+sudo apt -y install curl gnupg apt-transport-https
+#Powershell
+sudo "curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -"
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/powershell.list
+sudo apt -y install powershell
+echo "Run powershell using pwsh command"
 # Install AD tools
+#This is the graph tool. It includes neo4j in case it is not installed.
 sudo apt install -y bloodhound neo4j
+#This install the collector to extract the AD information from a domain controller
+# To run it: bloodhound-python -u <domainuser> -p <domianpwd> -ns <dc ip or name> -d <domainname.local> -c All
+pip3 install bloodhound
 # Bruteforcing with Kerberos is stealthier since pre-authentication failures do not trigger An account failed to log on event 4625
 go install github.com/ropnop/kerbrute@latest 
 sudo apt install -y kerberoast
 sudo apt install -y krb5-user
-sudo gem install evil-winrm
-#Install python collector:
-pip3 install bloodhound
+sudo apt -y install kerberoast
+sudo apt install -y evil-winrm
+#sudo gem install evil-winrm
+#Download Kekeo zip
+wget https://github.com/gentilkiwi/kekeo/releases/download/2.2.0-20211214/kekeo.zip
+mkdir kekeo; 
+unzip kekeo.zip -d kekeo
 #To create rogue LDAP servers. Start it by sudo systemctl enable slapd. Ask for a password
 #Reconfigure it by sudo dpkg-reconfigure -p low slapd
 echo "Installing a rogue LDAP tool. Should configure a password (Abcd1234)"
@@ -174,21 +189,6 @@ echo "Download and Install Free RDP (if not is installed yet). This is used to s
 	#Use it to Pass the hash if any is available:
 	#	xfreerdp /u:admin /d:[domain] /pth:[hash:hash] /v:192.168.1.101
 	#	xfreerdp /u:admin /pth:aad3b435b51404eeaad3b435b51404ee:aedcbf154ddab484bc8b96d02d433d5f /v:10.4.32.36
-
-echo "****************************************************************************************"
-echo "Powershell and AD attacking tools"
-    sudo apt -y install curl gnupg apt-transport-https
-    sudo "curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -"
-    echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/powershell.list
-    sudo apt -y install powershell
-    echo "Run powershell using pwsh command"
-    #This is the graph tool. It includes neo4j in case it is not installed.
-    sudo apt -y install bloohound
-    #This install the collector to extract the AD information from a domain controller
-    # To run it: bloodhound-python -u <domainuser> -p <domianpwd> -ns <dc ip or name> -d <domainname.local> -c All
-    pip3 install bloohound
-    sudo apt -y install kerberoast
-
 
 echo "****************************************************************************************"
 echo "Download and Install Empire -> Use it in combination with Responder to get credentials (NTLM / SMB / …) and automatically try PTH to get some sessions: -> Check now Empire 3.0 https://github.com/BC-SECURITY/Empire and how to evade: https://www.mike-gualtieri.com/posts/modifying-empire-to-evade-windows-defender"
