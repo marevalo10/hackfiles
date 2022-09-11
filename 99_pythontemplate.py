@@ -7,6 +7,7 @@ import argparse
 from optparse import OptionParser
 import os.path
 import sys
+import datetime
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -92,7 +93,7 @@ def log(msg):
         show = True
 
     LAST_MSG = msg
-        print "[%s] %s" % (time.asctime(), msg)
+    print ("[{0}}] {1}}".format(datetime.datetime.now(), msg))
 
 
 

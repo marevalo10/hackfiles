@@ -39,7 +39,7 @@ echo "******************************************************"
 # thc-ipv6 (not installed by default): to run IPv6 tests: 
 echo "******************************************************"
 echo "Installing thc-ipv6"
-sudo apt-get install libpcap-dev libssl-dev libnetfilter-queue-dev
+sudo apt-get install -y libpcap-dev libssl-dev libnetfilter-queue-dev
 cd ~/Downloads
 git clone https://github.com/vanhauser-thc/thc-ipv6.git
 cd thc-ipv6; sudo make all; sudo make install
@@ -102,6 +102,7 @@ echo "Installing Sn1per"
 #    sudo bash install.sh
 #    cd ~/Downloads
 #    sudo rm -R Sn1per
+    #temporarily disable as it is installig many things and causing machines to crash in some times afer installation.....
     cd ~/Downloads
     git clone https://github.com/1N3/Sn1per
     cd Sn1per; sudo ./install.sh
@@ -247,7 +248,7 @@ searchsploit -u
 #To analyse webpages
 sudo apt -y install html2text
 
-sudo apt autoremove
+sudo apt -y autoremove
 
 #########################################################################################
 # END OF SCRIPTS

@@ -9,7 +9,7 @@ echo "Updating the system..."
 echo "*********************************************************"
     sudo apt-get update
     # These sometimes cause the system to fail…. Sometimes it is better to download an updated version from Kali
-    sudo apt-get upgrade 
+    #sudo apt-get upgrade 
 
 username=`whoami`
 echo "*************************************************************************"
@@ -114,6 +114,11 @@ echo "****************************************************************"
     #curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o ~/.tmux.conf
     cp .tmux.conf ~/.tmux.conf
 
+    #Add the date to the PROMPT
+    replaceby="└─%{$fg[yellow]%}[%D{%y-%m-%d %T}]"
+	sed -i.bak "s/└─/$replaceby/g" ~/.zshrc
+    source ~/.zshrc
+
     if [ $username = kali ]; then
         echo "**********************************************************************"
         echo "Installing the shell and tmux improvements scripts for user "$NEW_USER
@@ -125,6 +130,9 @@ echo "****************************************************************"
         sudo -H -u $NEW_USER bash -c 'cp -R ~/dotfiles/tmux-logging ~/; rm dotfiles_mod.zip'
         sudo -H -u $NEW_USER bash -c 'cp -R ~/tpm ~/'
         sudo -H -u $NEW_USER bash -c 'curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o ~/.tmux.conf'
+        sudo -H -u $NEW_USER bash -c 'replaceby="└─%{$fg[yellow]%}[%D{%y-%m-%d %T}]"'
+        sudo -H -u $NEW_USER bash -c 'sed -i.bak "s/└─/$replaceby/g" ~/.zshrc'
+        sudo -H -u $NEW_USER bash -c 'source ~/.zshrc'
         echo "****************************************************************"
         echo "..."
         echo "..."
@@ -161,12 +169,8 @@ echo "****************************************************************"
 
 echo "************************************************************************"
 echo "Next step: install the software using the script 1_SoftwareInstall.sh"
-echo "Press enter to start the software installation or ctrl-c to cancel"
+echo "Getting it by wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/1_software_install.sh -O 1_software_install.sh"
+wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/1_software_install.sh -O 1_software_install.sh
+chmod +x 1_software_install.sh
+echo "File was downloaded, you can run it by yourself (./1_SoftwareInstall.sh)"
 echo "************************************************************************"
-    read
-    echo "Getting it by wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/1_software_install.sh -O 1_software_install.sh"
-    wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/1_software_install.sh -O 1_software_install.sh
-    echo "************************************************************************"
-    echo "Running 1_software_install.sh"
-    chmod +x 1_software_install.sh
-    ./1_software_install.sh
