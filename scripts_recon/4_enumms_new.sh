@@ -22,7 +22,6 @@ username=$(whoami)
 #Real user
 user=$((who am i) | awk '{print $1}');
 startpoint=1
-logfile="_results_scanSMB.log"
 
 
 if [[ "$EUID" != 0 ]]; then
@@ -87,6 +86,7 @@ validate_parameters()
 validate_parameters $@
 
 mkdir enumSMB;
+logfile="_results_scanSMB_$file.log"
 msfile=smb_$file
 echo "${GREEN}**************************************************************${NC}*" | tee -a ./enumSMB/$logfile
 echo -e " STARTING ${GREEN}enumSMB${NC} SCRIPT" | tee -a ./enumSMB/$logfile
@@ -126,39 +126,39 @@ for ip in $(cat $msfile); do
         #enum4linux -r $ip
 
 
-        filename="smbmap_"$ip".txt"
+        filename2="smbmap_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using smbmap saving into file $filename"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using smbmap saving into file $filename2"; | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "" | tee -a $filename
-        echo "smbmap -u \'\' -H $ip" | tee -a $filename| tee -a $logfile
-        smbmap -u "" -H $ip  | tee -a $filename
-        echo "" | tee -a $filename| tee -a $logfile
-        echo "smbmap -u Guest -p \'\' -H $ip" | tee -a $filename| tee -a $logfile
-        smbmap -u Guest -p '' -H $ip | tee -a $filename
+        echo "" | tee -a $filename2
+        echo "smbmap -u \'\' -H $ip" | tee -a $filename2| tee -a $logfile
+        smbmap -u "" -H $ip  | tee -a $filename2
+        echo "" | tee -a $filename2| tee -a $logfile
+        echo "smbmap -u Guest -p \'\' -H $ip" | tee -a $filename2| tee -a $logfile
+        smbmap -u Guest -p '' -H $ip | tee -a $filename2
 
-        filename="rpcdump_"$ip".txt"
+        filename3="rpcdump_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using rpcdump saving into file $filename"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using rpcdump saving into file $filename3"; | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        #python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee -a $filename;
-        impacket-rpcdump.py $ip | tee -a $filename;
+        #python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee -a $filename3;
+        impacket-rpcdump.py $ip | tee -a $filename3;
 
-        filename="nbtscan_"$ip".txt"
+        filename4="nbtscan_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using nbtscan saving into file $filename"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using nbtscan saving into file $filename4"; | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        sudo nbtscan -r $ip | tee -a $filename
+        sudo nbtscan -r $ip | tee -a $filename4
         echo "Scan Completed for IP: $ip"; | tee -a $logfile
 
-        filename="smbclient_"$ip".txt"
+        filename5="smbclient_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using smbclient saving into file $filename"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using smbclient saving into file $filename5"; | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "smbclient -N -L //$ip " | tee -a $filename| tee -a $logfile
-        smbclient -N -L //$ip | tee -a $filename
-        echo "" | tee -a $filename
-        echo "smbclient -N -L smb -I $target" | tee -a $filename
+        echo "smbclient -N -L //$ip " | tee -a $filename5| tee -a $logfile
+        smbclient -N -L //$ip | tee -a $filename5
+        echo "" | tee -a $filename5
+        echo "smbclient -N -L smb -I $target" | tee -a $filename5
         smbclient -N -L smb -I $target
     fi
     indexip=$(($indexip+1))
@@ -260,7 +260,7 @@ echo "${GREEN}**************************************************************${NC
 echo "Checking SMB vulnerabilities using many scripts smb-* ports 445,139,135,137"; | tee -a ./enumSMB/$logfile
 #nmap -Pn -n -p445,139,135,137 -vvvv --script="smb-* and not brute" -iL $msfile --open --max-hostgroup 16 -oA nmap-SMB_$file
 echo "Command: nmap -Pn -n -p445,139,135,137 -vvvv --script smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -iL ./enumSMB/$msfile --open --max-hostgroup 16 -oA ./enumSMB/nmap-SMB_$file" | tee -a ./enumSMB/$logfile
-nmap -Pn -n -p445,139,135,137 -vvvv --script smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -iL ./enumSMB/$msfile --open --max-hostgroup 16 -oA ./enumSMB/nmap-SMB_$file
+timeout 300m nmap -Pn -n -p445,139,135,137 -vvvv --script smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -iL ./enumSMB/$msfile --open --max-hostgroup 16 -oA ./enumSMB/nmap-SMB_$file
 
 #Check if SMB not signing is enabled  (i.e.  Message signing enabled but not required)
 #nmap -Pn -sV -p 139,445 --script=smb-protocols,smb2-security-mode --max-hostgroup 16 -iL SMB_NotSigning.txt -oA SMB_NotSigning_enum

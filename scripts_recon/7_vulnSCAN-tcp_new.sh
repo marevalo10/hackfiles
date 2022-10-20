@@ -86,7 +86,7 @@ chown -R $user:$user *
 echo "Printing out what systems were identified using vulnerable services"  | tee -a  $logfile
 #Print out what files identified vulnerable services -r recursive -n print line number -w whole word
 #grep --include=\*.{nmap,other} -rnw ./focused -e "CVE" > ./focused/vulnsystemsTCP.txt
-grep --include=\*TCP.nmap -rnw './'$focused -e "CVE\|VULNERABLE" |grep -v 'avahi' | tee -a  $logfile > ./$focused/vulnsystemsTCP.txt
+grep --include=\*TCP.nmap -rnw './'$focused -B 2 -e "CVE\|VULNERABLE\|EXPLOIT" |grep -v 'avahi' | tee -a  $logfile > ./$focused/vulnsystemsTCP.txt
 #lines=`wc -l ./$focused/vulnsystemsTCP.txt`
 cat ./$focused/vulnsystemsTCP.txt|awk '{print $1}' |sed 's/\(.\+\/\)\(.\+_\)\(.\+\)/\2/g'|sed 's/_//g' |sort|uniq > ./$focused/vulnsystemsTCP_ips.txt
 totalips=$(cat ./$focused/vulnsystemsTCP_ips.txt |wc -l)

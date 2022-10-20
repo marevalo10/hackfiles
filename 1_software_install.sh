@@ -116,6 +116,8 @@ echo "******************************************************"
 echo "Installing Impacket. All programs should be run as impacket-xxx. i.e. impacket-psexec"
 sudo apt install -y python3-impacket
 echo "Run commands by using impacket-xxnamexx"
+echo "Installing remmina"
+sudo apt install -y remmina
 
 echo "****************************************************************************************"
 echo "Installing Active Directory Tools"
