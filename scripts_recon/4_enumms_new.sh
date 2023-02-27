@@ -203,8 +203,8 @@ nmap -Pn -p 3389 -Pn -sV -sC --open -vvv -n  -iL ../results/$filetoscan --max-ho
 #sudo nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -iL 3389_all_TCP.ips -oA enumRDPALL3 --max-hostgroup 16
 echo "Nmap completed! "; | tee -a ../enumSMB/$logfile
 echo "${GREEN}***************************************************************${NC}"| tee -a ../enumSMB/$logfile
-echo "Checking RDP using script rdp-enum-encryption"; | tee -a ../enumSMB/$logfile
-nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -iL ../results/$filetoscan --max-hostgroup 16 -oA enumRDP2_$file
+echo "Checking RDP using script rdp-enum-encryption and ssl-enum-ciphers"; | tee -a ../enumSMB/$logfile
+nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption,ssl-enum-ciphers -iL ../results/$filetoscan --max-hostgroup 16 -oA enumRDP2_$file
 
 echo "${GREEN}***************************************************************${NC}"| tee -a ../enumSMB/$logfile
 echo "Checking for LDAP servers ..."| tee -a ../enumSMB/$logfile

@@ -44,7 +44,7 @@ echo "#Housekeeping"
 echo "*********************************************************"
     echo "List of running services"
     echo "*********************************************************"
-    sudo netstat -tulpn > services.txt
+    sudo netstat -tulpn |tee services.txt
 
     echo "*********************************************************"
     echo "Disabling root login"
@@ -66,9 +66,11 @@ echo "*********************************************************"
 
     echo "************************************************************************"
     echo "# Setting up RDP with Xfce: https://www.kali.org/docs/general-use/xfce-with-rdp/"
-    sudo apt-get install -y kali-desktop-xfce xrdp
+    #sudo apt-get install -y kali-desktop-xfce xrdp
+    sudo apt-get install -y xrdp
     echo "[+] Configuring XRDP to listen to port 3390 (but not starting the service)..."
     sudo sed -i 's/port=3389/port=3390/g' /etc/xrdp/xrdp.ini
+    sudo adduser xrdp ssl-cert
     sudo systemctl enable xrdp --now
     sudo systemctl enable xrdp-sesman
     #If you are using WSL, dbus-x11 needs to be installed next for xrdp and xfce to connect.
@@ -86,6 +88,10 @@ echo "*********************************************************"
     cp ~/.zshrc ~/.zshrc.bak
     #Not working, pending to adjust
     #sed -i 's|%B%(#.%F{red}#.%F{blue}$)%b%F{reset}|%{$fg[yellow]%}[%D{%y-%m-%d %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset}|g' .zshrc
+    #Add the date to the PROMPT
+    replaceby="└─%{$fg[yellow]%}[%D{%y-%m-%d %T}]"
+	sed -i.bak "s/└─/$replaceby/g" ~/.zshrc
+    source ~/.zshrc
 
 echo "****************************************************************"
 echo "Installing the shell and tmux improvements scripts for kali user "
@@ -100,9 +106,8 @@ echo "****************************************************************"
     echo "Vim addons Installed"
 
     #echo "Downloading and Installing dotfiles"
-    #wget https://raw.githubusercontent.com/marevalo10/hackfiles/main/dotfiles_mod.zip -O dotfiles_mod.zip
-    #unzip  dotfiles_mod.zip
-    #cd dotfiles
+    #git clone https://github.com/marevalo10/hackfiles.git
+    #cd hackfiles
     #chmod +x *.sh
     #sudo ./install.sh
     echo "Copying the tmux logging files to ~/tmux-logging"
@@ -111,13 +116,10 @@ echo "****************************************************************"
     chmod +x ~/tmux-logging/scripts/*.sh
     echo "Cloning tmux plugins"
     git clone https://github.com/tmux-plugins/tpm
+    cp -R tpm ~/
     #curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/.tmux.conf -o ~/.tmux.conf
     cp .tmux.conf ~/.tmux.conf
 
-    #Add the date to the PROMPT
-    replaceby="└─%{$fg[yellow]%}[%D{%y-%m-%d %T}]"
-	sed -i.bak "s/└─/$replaceby/g" ~/.zshrc
-    source ~/.zshrc
 
     if [ $username = kali ]; then
         echo "**********************************************************************"

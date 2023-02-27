@@ -341,7 +341,7 @@ cp ../$file.resumenmap-udp.gnmap .
     echo -e "${RED}UPORT   #HOSTS${NC}"
     head -10 ./results/all_UDPportscount.csv
     echo -e "${RED}___________________${NC}"
-    echo -e "All information of the processed files with this script are consolidated in files ${RED}eresults/all_*.csv${NC}";
+    echo -e "All information of the processed files with this script are consolidated in files ${RED}results/all_*.csv${NC}";
     echo -e "#####################################################################"
 
 cd ..;

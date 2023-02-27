@@ -4,6 +4,9 @@
 # ADD THE TIME TO THE PROMPT AGAIN
 # ADD /home/$username/go/bin TO THE PATH
 
+#Install GO / Golang
+sudo apt -t install gccgo-go
+
 #REQUIRED FOR INTERNAL / EXTERNAL PENTEST
 echo "In case of problems with the display, run:"
 echo "xrandr -s 1280x960 or xrandr -s 1680x1050"
@@ -250,6 +253,14 @@ searchsploit -u
 #To analyse webpages
 sudo apt -y install html2text
 
+#Recon Framework https://github.com/six2dez/reconftw recommended by Jhaddix https://www.jhaddix.com/post/the-anti-recon-recon-club-using-reconftw
+git clone https://github.com/six2dez/reconftw
+cd reconftw/
+./install.sh
+
+#Usage: ./reconftw.sh -d target.com -r
+
+#Clean packages
 sudo apt -y autoremove
 
 #########################################################################################

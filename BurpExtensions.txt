@@ -1,0 +1,47 @@
+Jython: https://repo1.maven.org/maven2/org/python/jython-standalone/2.7.3/jython-standalone-2.7.3.jar Save it to ~/jython and select it in Extensions => Options => Python
+
+https://github.com/portswigger/active-scan-plus-plus  (needs jyther)  => https://github.com/PortSwigger/active-scan-plus-plus/raw/master/activeScan%2B%2B.py
+https://github.com/portswigger/additional-scanner-checks   => https://github.com/PortSwigger/additional-scanner-checks/raw/master/Burp-MissingScannerChecks.py
+https://github.com/secdec/attack-surface-detector-burp/releases => https://github.com/secdec/attack-surface-detector-burp/releases/download/1.1.3/attacksurfacedetector-release-1.13-jar-with-dependencies.jar
+https://github.com/portswigger/autorize => https://github.com/PortSwigger/autorize/raw/master/Autorize.py
+https://github.com/portswigger/csrf-scanner => https://github.com/PortSwigger/csrf-scanner/raw/master/CSRFScanner.jar
+https://github.com/portswigger/js-link-finder => https://github.com/PortSwigger/js-link-finder/raw/master/FransLinkfinder.py
+https://github.com/portswigger/logger-plus-plus => https://github.com/nccgroup/LoggerPlusPlus/releases/download/v3.19.4/LoggerPlusPlus.jar
+https://github.com/portswigger/retire-js => https://raw.githubusercontent.com/h3xstream/burp-retire-js/gh-pages/releases/burp/burp-retire-js-3.0.2.jar
+https://github.com/portswigger/upload-scanner => https://github.com/PortSwigger/upload-scanner/raw/master/UploadScanner.py
+https://github.com/portswigger/turbo-intruder => 
+	git clone https://github.com/PortSwigger/turbo-intruder.git 
+	Linux: ./gradlew build fatjar
+	Windows: gradlew.bat build fatjar
+	Grab the output from build/libs/turbo-intruder-all.jar
+https://github.com/portswigger/param-miner => 
+	git clone https://github.com/PortSwigger/param-miner.git
+	Linux: ./gradlew build fatjar
+	Windows: gradlew.bat build fatjar
+	Grab the output from build/libs/param-miner-all.jar
+https://github.com/portswigger/paramalyzer => requires compilation to manually install it
+https://github.com/portswigger/log4shell-scanner =>  requires compilation to manually install it
+JOSEPH https://github.com/portswigger/json-web-token-attacker => requires compilation to be manually isntalled
+https://github.com/portswigger/http-request-smuggler => 
+	git clone https://github.com/PortSwigger/http-request-smuggler.git
+	cd http-request-smuggler.; 
+	#Linux: ./gradlew build fatjar
+	#Windows: gradlew.bat build fatjar
+	Grab the output from build/libs/desynchronize-all.jar and add it to burp extensions
+https://github.com/portswigger/backslash-powered-scanner => This could require additional things... It is not clear how to install manually
+
+
+Not used so frequently
+https://github.com/portswigger/dotnet-beautifier
+https://github.com/portswigger/403-bypasser
+https://github.com/portswigger/content-type-converter => Not clear how to install it manually
+https://github.com/portswigger/hackvertor => Not clear how to install manually
+https://github.com/portswigger/j2ee-scan => not clear how to install it manually
+https://github.com/portswigger/json-web-tokens => requires compilation to install it manually
+https://github.com/portswigger/openapi-parser => 
+	git clone https://github.com/aress31/swurg
+	cd .\swurg\
+	gradle fatJar
+	Add the jar file in .\build\libs
+https://github.com/portswigger/software-vulnerability-scanner => https://github.com/vulnersCom/burp-vulners-scanner/releases/download/1.2/burp-vulners-scanner-1.2.jar
+https://github.com/portswigger/xss-validator => requires compilation
