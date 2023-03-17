@@ -18,6 +18,7 @@ validate_parameters()
         # d to receive the domain name to evaluate
         d)  #echo "-d was triggered, Parameter: $OPTARG" >&2
             domain=$OPTARG;
+            outfile=dnsrecon_$domain.txt
             ;;
 
         # help

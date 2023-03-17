@@ -28,6 +28,7 @@ validate_parameters()
                 #Read number of lines of target file
                 limit=$(cat $networklist | wc -l);
                 echo "OK $networklist exists and it contains $limit lines to be validated with nmap";
+                outfile=dnsrev_$networklist.txt
             else
                 echo "ERROR: $networklist does not exist or is empty. "
             exit 1
@@ -118,8 +119,8 @@ for line in $(cat $networklist); do
         ip=$line
         host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g" | tee -a dnsreverseallipstmp.txt;
 done;
-cat dnsreverseallipstmp.txt |sort -u > dnsreverseallips.txt; rm dnsreverseallipstmp.txt;
-numipsreversed=$(cat dnsreverseallips.txt | wc -l);
+cat dnsreverseallipstmp.txt |sort -u > dnsreverseallips_$networklist.txt; rm dnsreverseallipstmp.txt;
+numipsreversed=$(cat dnsreverseallips_$networklist.txt | wc -l);
 echo "A total of $numipsreversed were found with an associated name!"   |tee -a $outfile;
 echo "Check results in file dnsreverseallips.txt "   |tee -a $outfile;
 echo "********************************************************************************************"   |tee -a $outfile;

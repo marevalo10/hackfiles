@@ -318,7 +318,7 @@ cp ../$file.resumenmap-udp.gnmap .
     cd ..
     echo -e "Hosts list for each port was consolidated in ${GREEN}./results/<port#>_[TCP|UDP].ips${NC} for all networks";
     echo -e "${GREEN}***** MOST IMPORTANT FILES TO CHECK: *****${NC}"
-    echo -e "IP and details open port by line CVS: ${RED}cat "$file"_ipsnports_all.csv |more${NC}"
+    echo -e "IP and details open port by line CVS: ${RED}cat ./results/"$file"_ipsnports_all.csv |more${NC}"
     echo -e "IP and open ports list: ${GREEN}cat "$file"_portsbyhostTCP.csv |more${NC}"
     echo -e "Top TCP open ports in this file: ${GREEN}head -10 ./results/"$file"_all_TCPportscount.csv${NC}"
     echo -e "${RED}___________________${NC}"

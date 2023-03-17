@@ -22,6 +22,8 @@ declare limit
 #Ports to scan
 declare topports
 topports=100
+declare user
+user=$(whoami)
 echo "#################################################################################"
 
 # When the program start, runs from here
@@ -161,4 +163,4 @@ echo ""
 	cat $file.resumenmap-udp.openports.csv | grep -o -n -E "\b[0-9]{1,5}/open" --color | awk -F ":" {'print $1'}  | uniq -c | awk {'print $1'} > $file.udpport.ip
 	pr -mts  $file.resumenmap-udp.hosts.csv $file.udpport.ip > $file.resumenmap-udp.hostsportcount.csv  ; rm $file.udpport.ip
 
-sudo chown -R marevalo:marevalo *
+sudo chown -R $user:$user *
