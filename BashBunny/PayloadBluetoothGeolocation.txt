@@ -1,0 +1,20 @@
+ Title:			BashBunny Geofencing
+# Description:	Geofencing
+# Author:	M4rc14n0
+# Category:	PoC Geofencing
+# Target:	Windows 10
+# Attackmodes:	HID
+#
+
+# Website Opener payload
+
+#Configure Bach Bunny
+LED SETUP
+ATTACKMODE HID
+WAIT_FOR_PRESENT JBL Charge 4
+
+# Open Website 
+LED STAGE1
+RUN WIN 192.168.1.1
+
+LED FINISH
