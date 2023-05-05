@@ -5,7 +5,7 @@
 # ADD /home/$username/go/bin TO THE PATH
 
 #Install GO / Golang
-sudo apt -t install gccgo-go
+sudo apt -y install gccgo-go
 
 #REQUIRED FOR INTERNAL / EXTERNAL PENTEST
 echo "In case of problems with the display, run:"
@@ -81,7 +81,7 @@ echo "******************************************************"
     #Get the templates (installed in ~/.local/nuclei-templates
     nuclei update-templates
     #Subzy
-    go install -v github.com/lukasikic/subzy@latest
+    go install -v github.com/LukaSikic/subzy@latest
     # Install httprobe amd httpx
     sudo apt -y install httprobe
     GO111MODULE=on go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
@@ -207,6 +207,7 @@ echo "It could be dangerous as it will try automatically to inject code and AV c
 	# DeathStar
     #cd ~/Downloads; git clone https://github.com/byt3bl33d3r/DeathStar
     #python3 -m pip install --user pipx
+    sudo apt install pipx
     pipx install deathstar-empire
 
 echo "****************************************************************************************"
@@ -226,8 +227,10 @@ echo "******************************************************"
 
 echo "Installing  rust"
 	wget https://github.com/RustScan/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb
-    dpkg -i  rustscan_2.0.1_amd64.deb
+    sudo dpkg -i  rustscan_2.0.1_amd64.deb
+    rm rustscan_2.0.1_amd64.deb
     sudo rustscan -a 127.0.0.1
+    sudo apt-get -y install amass
 
 
 #IMPORTANT! Have a vulnerability scanner installed and updated (OpenVAS, Nessus, NMAP)
@@ -249,7 +252,8 @@ echo "Installing  rust"
 #    #gvm-start
 
 #Update searchsploit. The bad think is it install all documents that are so big
-searchsploit -u
+#searchsploit -u
+
 #To analyse webpages
 sudo apt -y install html2text
 

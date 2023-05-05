@@ -65,31 +65,34 @@ echo "*********************************************************"
     #sudo ifconfig eth1 down
 
     echo "************************************************************************"
-    echo "# Setting up RDP with Xfce: https://www.kali.org/docs/general-use/xfce-with-rdp/"
-    #sudo apt-get install -y kali-desktop-xfce xrdp
-    sudo apt-get install -y xrdp
-    echo "[+] Configuring XRDP to listen to port 3390 (but not starting the service)..."
-    sudo sed -i 's/port=3389/port=3390/g' /etc/xrdp/xrdp.ini
-    sudo adduser xrdp ssl-cert
-    sudo systemctl enable xrdp --now
-    sudo systemctl enable xrdp-sesman
-    #If you are using WSL, dbus-x11 needs to be installed next for xrdp and xfce to connect.
-    #sudo apt install -y dbus-x11
-    sudo systemctl start xrdp
-    sudo systemctl start xrdp-sesman
-    echo "************************************************************************"
-    echo "Be sure to not be logged into the Kali GUI interface when connecting to the RDP service"
-    echo "************************************************************************"
-    echo "..."
-    echo "..."
-    echo "..."
+	read -p "Do you want to install RDP? (y|n): " -n 1 -r; echo "\n";
+	if [[ $REPLY =~ ^[Yy]$ ]]; 	then
+        echo "# Setting up RDP with Xfce: https://www.kali.org/docs/general-use/xfce-with-rdp/"
+        #sudo apt-get install -y kali-desktop-xfce xrdp
+        sudo apt-get install -y xrdp
+        echo "[+] Configuring XRDP to listen to port 3390 (but not starting the service)..."
+        sudo sed -i 's/port=3389/port=3390/g' /etc/xrdp/xrdp.ini
+        sudo adduser xrdp ssl-cert
+        sudo systemctl enable xrdp --now
+        sudo systemctl enable xrdp-sesman
+        #If you are using WSL, dbus-x11 needs to be installed next for xrdp and xfce to connect.
+        #sudo apt install -y dbus-x11
+        sudo systemctl start xrdp
+        sudo systemctl start xrdp-sesman
+        echo "************************************************************************"
+        echo "Be sure to not be logged into the Kali GUI interface when connecting to the RDP service"
+        echo "************************************************************************"
+        echo "..."
+        echo "..."
+        echo "..."
+	else
+		echo "RDP configuration cancelled..."
+	fi
 
     echo "Including the time in the promp#"
     cp ~/.zshrc ~/.zshrc.bak
-    #Not working, pending to adjust
-    #sed -i 's|%B%(#.%F{red}#.%F{blue}$)%b%F{reset}|%{$fg[yellow]%}[%D{%y-%m-%d %T}]%B%(#.%F{red}#.%F{blue}$)%b%F{reset}|g' .zshrc
-    #Add the date to the PROMPT
-    replaceby="└─%{$fg[yellow]%}[%D{%y-%m-%d %T}]"
+    #PROMPT=....'└─%B%(#.%F{red}#.%F{blue}[%D{%y-%m-%d %T}] $)%b%F{reset} '
+    replaceby='└─%B%(#.%F{red}#.%F{blue}[%D{%y-%m-%d %T}] $)%b%F{reset} '
 	sed -i.bak "s/└─/$replaceby/g" ~/.zshrc
     source ~/.zshrc
 
@@ -105,10 +108,10 @@ echo "****************************************************************"
     fi
     echo "Vim addons Installed"
 
-    #echo "Downloading and Installing dotfiles"
-    #git clone https://github.com/marevalo10/hackfiles.git
-    #cd hackfiles
-    #chmod +x *.sh
+    echo "Downloading and Installing dotfiles"
+    git clone https://github.com/marevalo10/hackfiles.git
+    cd hackfiles
+    chmod +x *.sh
     #sudo ./install.sh
     echo "Copying the tmux logging files to ~/tmux-logging"
     cp -R tmux-logging ~/
