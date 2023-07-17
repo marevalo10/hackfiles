@@ -25,9 +25,9 @@ output_fileips="reachableips_$file_name"
 #tmp2_file="tmp2_${file%.txt}.txt"
 
 #Creates a file with all the evasiontech results. It contains lines with nmap ... IP or lines with the port
-cat evasiontech*.$file_name |grep "open\|report" > $tmp_file
+cat evasiontech*.$file_name |grep "open\|report" |grep -v "filter" > $tmp_file
 #Extract all the ports discovered as open in 1 line
-cat evasiontech*.$file_name | grep open |cut -f1 -d'/'|sort -n|uniq | paste -sd ',' >$output_fileports
+cat evasiontech*.$file_name | grep open |grep -v "filter" |cut -f1 -d'/'|sort -n|uniq | paste -sd ',' >$output_fileports
 
 #Creates a depured file by deleting nmap lines with no asociated open ports 
 echo -n "" > $tmp2_file
