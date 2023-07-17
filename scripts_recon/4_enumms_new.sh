@@ -106,8 +106,8 @@ for ip in $(cat $msfile); do
     else
         filename="enum4_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking position ${GREEN}$indexip${NC} out of $totalips"; | tee -a $logfile
-        echo "Checking IP: "$ip" using enum4linux saving into file $filename"; | tee -a $logfile
+        echo "Checking position ${GREEN}$indexip${NC} out of $totalips" | tee -a $logfile
+        echo "Checking IP: "$ip" using enum4linux saving into file $filename" | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
         # https://highon.coffee/blog/enum4linux-cheat-sheet/
         # -a includes: -U -S -G -P -r -o -n -I
@@ -128,7 +128,7 @@ for ip in $(cat $msfile); do
 
         filename2="smbmap_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using smbmap saving into file $filename2"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using smbmap saving into file $filename2" | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
         echo "" | tee -a $filename2
         echo "smbmap -u \'\' -H $ip" | tee -a $filename2| tee -a $logfile
@@ -139,21 +139,21 @@ for ip in $(cat $msfile); do
 
         filename3="rpcdump_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using rpcdump saving into file $filename3"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using rpcdump saving into file $filename3" | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
         #python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee -a $filename3;
         impacket-rpcdump $ip | tee -a $filename3;
 
         filename4="nbtscan_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using nbtscan saving into file $filename4"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using nbtscan saving into file $filename4" | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
         sudo nbtscan -r $ip | tee -a $filename4
-        echo "Scan Completed for IP: $ip"; | tee -a $logfile
+        echo "Scan Completed for IP: $ip" | tee -a $logfile
 
         filename5="smbclient_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-        echo "Checking IP: ${GREEN}"$ip"${NC} using smbclient saving into file $filename5"; | tee -a $logfile
+        echo "Checking IP: ${GREEN}"$ip"${NC} using smbclient saving into file $filename5" | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
         echo "smbclient -N -L //$ip " | tee -a $filename5| tee -a $logfile
         smbclient -N -L //$ip | tee -a $filename5
@@ -164,14 +164,14 @@ for ip in $(cat $msfile); do
     indexip=$(($indexip+1))
 done
 echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-echo "COMPLETED! A total of $totalips were checked!"; | tee -a $logfile
+echo "COMPLETED! A total of $totalips were checked!" | tee -a $logfile
 echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
 
 
 # Run SMB enumeration (nmap scripts) using NMAP port hosts in file $file
 # It should be normally in the local network
 echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-echo "Checking vulnerable targets with crackmapexec into file SMBtargets.txt"; | tee -a $logfile
+echo "Checking vulnerable targets with crackmapexec into file SMBtargets.txt" | tee -a $logfile
 #sudo crackmapexec smb $file --gen-relay-list SMBtargets.txt
 crackmapexec smb $msfile --gen-relay-list SMBtargets_tmp.txt
 cat SMBtargets_tmp.txt | sort -n | uniq >  SMBtargets_$msfile
@@ -182,10 +182,10 @@ vulnsystems=$(cat SMBVulnerableSystems_$msfile|wc -l)
 echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
 echo -e " SMB Vulnerable systems: ${RED} $vulnsystems ${NC}"| tee -a $logfile
 if [ $vulnsystems > 0 ]; then
-    echo -e " ${RED} Check file SMBVulnerableSystems_$msfile ${NC}";| tee -a $logfile
+    echo -e " ${RED} Check file SMBVulnerableSystems_$msfile ${NC}"| tee -a $logfile
 fi
 echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
-echo "CrackMapExec COMPLETED!"; | tee -a $logfile
+echo "CrackMapExec COMPLETED!" | tee -a $logfile
 echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
 
 # Run RDP enumeration using NMAP port hosts in file 3389.ips
@@ -193,17 +193,17 @@ echo "${GREEN}***************************************************************${N
 cd ..; mkdir enumRDP; cd enumRDP
 filetoscan="3389_"$file"_TCP.ips" 
 echo "${GREEN}***************************************************************${NC}"| tee -a ../enumSMB/$logfile
-echo "Checking RDP for port 3389 "; | tee -a ../enumSMB/$logfile
-echo "Command: nmap -Pn -p 3389 -Pn -sV -sC --open -vvv -n  -iL ../results/$filetoscan --max-hostgroup 16 -oA enumRDP_$file"; | tee -a ../enumSMB/$logfile
+echo "Checking RDP for port 3389 " | tee -a ../enumSMB/$logfile
+echo "Command: nmap -Pn -p 3389 -Pn -sV -sC --open -vvv -n  -iL ../results/$filetoscan --max-hostgroup 16 -oA enumRDP_$file" | tee -a ../enumSMB/$logfile
 #sudo nmap -Pn -p 3389 -Pn -sV -sC -oA enumRDPALL --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
 nmap -Pn -p 3389 -Pn -sV -sC --open -vvv -n  -iL ../results/$filetoscan --max-hostgroup 16 -oA enumRDP_$file
 #sudo nmap -Pn -p 3389 -Pn -sV -sC --script=rdp-ntlm-info,rdp-vuln-ms12-020 -oA enumRDPALL2 --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
 # script rdp-enum-encryption lock the nmap command for some specific IP's
 #sudo nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -d -oA enumRDPALL3 --open -vvv -n  -iL 3389_all_TCP.ips --max-hostgroup 16
 #sudo nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption -iL 3389_all_TCP.ips -oA enumRDPALL3 --max-hostgroup 16
-echo "Nmap completed! "; | tee -a ../enumSMB/$logfile
+echo "Nmap completed! " | tee -a ../enumSMB/$logfile
 echo "${GREEN}***************************************************************${NC}"| tee -a ../enumSMB/$logfile
-echo "Checking RDP using script rdp-enum-encryption and ssl-enum-ciphers"; | tee -a ../enumSMB/$logfile
+echo "Checking RDP using script rdp-enum-encryption and ssl-enum-ciphers" | tee -a ../enumSMB/$logfile
 nmap -Pn -p 3389 -Pn -sC --script=rdp-enum-encryption,ssl-enum-ciphers -iL ../results/$filetoscan --max-hostgroup 16 -oA enumRDP2_$file
 
 echo "${GREEN}***************************************************************${NC}"| tee -a ../enumSMB/$logfile
@@ -216,12 +216,12 @@ cat ./enumLDAP/ldap_tmp.txt | sort -n |uniq > ./enumLDAP/ldap_$file
 rm ./enumLDAP/ldap_tmp.txt
 numservers==$(cat ./enumLDAP/ldap_$file | wc -l)
 echo -e "Total servers found: ${RED} $numservers ${NC}"| tee -a ../enumSMB/$logfile
-echo "Command: nmap -p389,636,3268,3269 -Pn -sV --script="ldap* and not brute" --max-hostgroup 16 -iL ./enumLDAP/ldap_$file -oA ./enumLDAP/ldap_$file"; | tee -a ../enumSMB/$logfile
+echo "Command: nmap -p389,636,3268,3269 -Pn -sV --script="ldap* and not brute" --max-hostgroup 16 -iL ./enumLDAP/ldap_$file -oA ./enumLDAP/ldap_$file" | tee -a ../enumSMB/$logfile
 nmap -p389,636,3268,3269 -Pn -sV --script="ldap* and not brute" --max-hostgroup 16 -iL ./enumLDAP/ldap_$file -oA ./enumLDAP/ldap_$file
 
 echo "${GREEN}***************************************************************${NC}"| tee -a ../enumSMB/$logfile
-echo "Checking SMB2 on port 445"; | tee -a ../enumSMB/$logfile
-echo "This part could take time"; | tee -a ../enumSMB/$logfile
+echo "Checking SMB2 on port 445" | tee -a ../enumSMB/$logfile
+echo "This part could take time" | tee -a ../enumSMB/$logfile
 cd enumSMB
 #sudo nmap -Pn -n -p445,139,135,137 -vvvv --script vuln -oA nmap-vuln -iL $file --open --max-hostgroup 16 --script-timeout 60m
 echo "Command: nmap -Pn -n -p445,139,135,137 -vvvv --script vuln -iL $msfile --open --max-hostgroup 16 -oA nmap-vuln_$file" | tee -a ../enumSMB/$logfile
@@ -233,14 +233,14 @@ nmap -Pn -n -p445,139,135,137 -vvvv --script vuln -iL $msfile --open --max-hostg
 
 cd ..;mkdir enumMSSQL;
 echo "${GREEN}***************************************************************${NC}"| tee -a ./enumSMB/$logfile
-echo "Checking MS-SQL port 1433 "; | tee -a ../enumSMB/$logfile
+echo "Checking MS-SQL port 1433 " | tee -a ../enumSMB/$logfile
 cat ./results/$file"_ipsnports_all.csv" | grep "ms-sql" | cut -f 1 -d ","| sed 's/\"//g' | sort -n | uniq > ./enumMSSQL/mssql_$file
 # All other scripts require authentication or additional parmameters
 echo "Command: nmap -p 1433 -Pn -n -vvvv --script "ms-sql-info" -sV -sC -iL ./enumMSSQL/mssql_$file --max-hostgroup 16 -oA ./enumMSSQL/enumSQLALL_$file" | tee -a ./enumSMB/$logfile
 nmap -p 1433 -Pn -n -vvvv --script "ms-sql-info" -sV -sC -iL ./enumMSSQL/mssql_$file --max-hostgroup 16 -oA ./enumMSSQL/enumSQLALL_$file
 
 # Test certificates used in SQL Servers
-echo -e "Checking TLS connections on SQL Servers for ${RED}$numips${NC} IP's using nmap..."; | tee -a ../enumSMB/$logfile
+echo -e "Checking TLS connections on SQL Servers for ${RED}$numips${NC} IP's using nmap..." | tee -a ../enumSMB/$logfile
 echo "Command: nmap -sV --script=ssl-enum-ciphers -p 1433 --max-hostgroup 16 -iL ./enumMSSQL/mssql_$file -oA enumMSSQL/nmap_sslenum_1433_$file" | tee -a ./enumSMB/$logfile
 nmap -sV --script=ssl-enum-ciphers -p 1433 --max-hostgroup 16 -iL ./enumMSSQL/mssql_$file -oA ./enumMSSQL/nmap_sslenum_1433_$file;
 
@@ -248,7 +248,7 @@ nmap -sV --script=ssl-enum-ciphers -p 1433 --max-hostgroup 16 -iL ./enumMSSQL/ms
 # Run SMB enumeration (nmap scripts) using NMAP port hosts in file $file
 # I moved this to the end as it was taking too long all time (last part)
 echo "${GREEN}**************************************************************${NC}*"| tee -a ./enumSMB/$logfile
-echo "Checking SMB vulnerabilities using script nbsat.nse port 137"; | tee -a ./enumSMB/$logfile
+echo "Checking SMB vulnerabilities using script nbsat.nse port 137" | tee -a ./enumSMB/$logfile
 # Port 137 UDP
 #sudo nmap -Pn -sU -p 137 --script nbstat.nse -iL ./results/137_all_UDP.ips --max-hostgroup 16 -oA nmap-NBSTAT
 filetoscan="137_"$file"_UDP.ips"
@@ -257,7 +257,7 @@ nmap -Pn -sU -p 137 --script nbstat.nse -iL ./results/$filetoscan --max-hostgrou
 
 # I tried this but was not working properly. Scans get no progress at some point
 echo "${GREEN}**************************************************************${NC}*"| tee -a ./enumSMB/$logfile
-echo "Checking SMB vulnerabilities using many scripts smb-* ports 445,139,135,137"; | tee -a ./enumSMB/$logfile
+echo "Checking SMB vulnerabilities using many scripts smb-* ports 445,139,135,137" | tee -a ./enumSMB/$logfile
 #nmap -Pn -n -p445,139,135,137 -vvvv --script="smb-* and not brute" -iL $msfile --open --max-hostgroup 16 -oA nmap-SMB_$file
 echo "Command: nmap -Pn -n -p445,139,135,137 -vvvv --script smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -iL ./enumSMB/$msfile --open --max-hostgroup 16 -oA ./enumSMB/nmap-SMB_$file" | tee -a ./enumSMB/$logfile
 timeout 300m nmap -Pn -n -p445,139,135,137 -vvvv --script smb-os-discovery,smb-enum-shares,smb-enum-users,smb-enum-sessions,smb-system-info,smb-vuln-ms17-010 -iL ./enumSMB/$msfile --open --max-hostgroup 16 -oA ./enumSMB/nmap-SMB_$file
