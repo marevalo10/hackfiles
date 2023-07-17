@@ -77,56 +77,56 @@ validate_parameters()
 # Validate arguments ($@ is the list of received parameters)
 validate_parameters $@
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 1 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 nmap -f -iL $file -oN evasiontech1.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 1 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 2 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 nmap --mtu 16 -iL $file -oN evasiontech2.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 2 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 3 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 nmap --badsum -iL $file -oN evasiontech3.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 3 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 4 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 nmap -sS -T4 -iL $file --script firewall-bypass -oN evasiontech4.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 4 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 5 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 nmap -D RND:10 -iL $file -oN evasiontech5.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 5 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 6 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 # Change these IP's to other known segments in the network to be assessed
 nmap -D 10.68.254.1,10.68.100.129,172.30.35.10,10.68.58.101,10.69.25.111 -iL $file -oN evasiontech6.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 6 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 7 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 nmap --source-port 53 -iL $file -oN evasiontech7.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 7 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo -e " STARTING ${RED}Evasion Technique 8 ${NC} SCRIPT" | tee -a evasiontechsum_$file
 nmap -sT -Pn --spoof Dell -iL $file -oN evasiontech8.$file --top-ports $numports --max-rate 100 --min-rtt-timeout 100ms --max-hostgroup $maxhosts -Pn -vvvv
 echo -e " ${RED}Evasion Technique 8 ${NC} COMPLETED" | tee -a evasiontechsum_$file
 
-echo "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo "Results Evasion Techniques scan " | tee -a evasiontechsum_$file
 echo "Look for any open port reported in these lines: " | tee -a evasiontechsum_$file
 cat evasiontech[0-9].$file |grep "open\|report" |tee -a evasiontechsum_$file
 echo "Check summary of the results, including IP's and open ports in file evasiontechsum_$file " | tee -a evasiontechsum_$file
 chown -R $user:$user *
-echo "${GREEN}SCRIPT COMPLETED SUCCESSFULLY${NC}*" | tee -a evasiontechsum_$file
-echo "${GREEN}RUN ./0.2_analyseresultsevasion.sh $file SCRIPT TO GET THE DETAILS OF IPs AND PORTS FOUND${NC}*" | tee -a evasiontechsum_$file
-echo "${RED}**************************************************************${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}SCRIPT COMPLETED SUCCESSFULLY${NC}*" | tee -a evasiontechsum_$file
+echo -e "${GREEN}RUN ./0.2_analyseresultsevasion.sh $file SCRIPT TO GET THE DETAILS OF IPs AND PORTS FOUND${NC}*" | tee -a evasiontechsum_$file
+echo -e "${RED}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 # Using a Zombie machine:
 echo "If you want to complete additional tests: "
 echo "To run through a zombie machine run: "
