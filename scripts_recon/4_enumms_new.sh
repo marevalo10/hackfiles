@@ -142,7 +142,7 @@ for ip in $(cat $msfile); do
         echo "Checking IP: ${GREEN}"$ip"${NC} using rpcdump saving into file $filename3"; | tee -a $logfile
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
         #python3 /usr/share/doc/python3-impacket/examples/rpcdump.py $ip | tee -a $filename3;
-        impacket-rpcdump.py $ip | tee -a $filename3;
+        impacket-rpcdump $ip | tee -a $filename3;
 
         filename4="nbtscan_"$ip".txt"
         echo "${GREEN}***************************************************************${NC}"| tee -a $logfile
