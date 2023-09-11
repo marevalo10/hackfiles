@@ -136,7 +136,7 @@ echo -e " ${RED}Evasion Technique 1 ${NC} COMPLETED" | tee -a evasiontechsum_$fi
 echo -e "${GREEN}**************************************************************${NC}*" | tee -a evasiontechsum_$file
 echo "Results Evasion Techniques scan " | tee -a evasiontechsum_$file
 echo "Look for any open port reported in these lines: " | tee -a evasiontechsum_$file
-cat evasiontech[0-9].$file |grep "open\|report" |tee -a evasiontechsum_$file
+cat evasiontech[0-9].$file |grep "open\|report" | grep -1 "open" | tee -a evasiontechsum_$file
 echo "Check summary of the results, including IP's and open ports in file evasiontechsum_$file " | tee -a evasiontechsum_$file
 chown -R $user:$user *
 echo -e "${GREEN}SCRIPT COMPLETED SUCCESSFULLY${NC}*" | tee -a evasiontechsum_$file
