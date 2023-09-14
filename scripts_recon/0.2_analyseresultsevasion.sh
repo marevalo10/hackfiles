@@ -112,3 +112,4 @@ ips=$(cat $output_fileips |wc -l)
 echo "Total IPs found: $ips "
 ports=$(cat $output_fileports | tr ',' ' ' |wc -w)
 echo "Total different open ports found: $ports "
+echo "Check file $output_file as it contains all the identified IPs and ports"
