@@ -4,7 +4,7 @@
 file_name=$1
 if [ -z "$file_name" ]; then
   echo "No file name received"
-  read -p "Enter the file name used to run the evasion now or hit enter to use default name (ips.txt): " file_name
+  read -p "Enter the file name used to run the analysis or hit enter to use default file (ips.txt): " file_name
   if [ -z "$file_name" ]; then
 	file_name=ips.txt
   fi
@@ -18,6 +18,7 @@ tmp_file="tmp_$file_name"
 tmp2_file="tmp2_$file_name"
 #File that will contain a line with the IP and ports found open
 output_file="reachable_$file_name"
+output_file_canopy="reachable_canopy_$file_name"
 #File that will contain a list of all ports open separated by comma
 output_fileports="reachableports_$file_name"
 #File that will contain a list of all IP address with open ports
@@ -99,7 +100,7 @@ for ip in "${!ip_ports[@]}"; do
 
     # Join the unique ports back into a single string
     joined_ports=$(echo "$unique_ports" | paste -sd ' ')
-
+    
     echo "$ip $joined_ports" >> "$tmp_file"
 done
 
@@ -108,8 +109,34 @@ cat $tmp_file |sort -n > $output_file
 cat $output_file  |cut -d' ' -f1 >$output_fileips
 rm -f $tmp_file
 
+#Creates the file in Canopy report required format
+
+# Read the file line by line
+while IFS= read -r linex
+do
+    # Divide the line into IP and the list of ports and protocols
+    ip="${lrnx%% *}"
+    ports="${linex#* }"
+
+    # Divide the list of ports and protocols into individual elements
+    IFS=' ' read -ra elements <<< "$ports"
+
+    # Iterate through the elements to extract the protocol and port
+    for element in "${elements[@]}"
+    do
+        # Divide the element into protocol and port
+        protocol="${element##*/}"
+        port="${element%/*}"
+
+        # Print the information in the desired format
+        echo "$protocol://$ip:$port" > $output_file_canopy
+    done
+done < $output_fileips
+
+
 ips=$(cat $output_fileips |wc -l)
 echo "Total IPs found: $ips "
 ports=$(cat $output_fileports | tr ',' ' ' |wc -w)
 echo "Total different open ports found: $ports "
 echo "Check file $output_file as it contains all the identified IPs and ports"
+echo "Run cat $output_file_canopy to have the information ready to include in the report"
