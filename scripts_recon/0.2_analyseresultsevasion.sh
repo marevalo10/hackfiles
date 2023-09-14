@@ -115,7 +115,7 @@ rm -f $tmp_file
 while IFS= read -r linex
 do
     # Divide the line into IP and the list of ports and protocols
-    ip="${lrnx%% *}"
+    ip="${linex%% *}"
     ports="${linex#* }"
 
     # Divide the list of ports and protocols into individual elements
@@ -129,9 +129,9 @@ do
         port="${element%/*}"
 
         # Print the information in the desired format
-        echo "$protocol://$ip:$port" > $output_file_canopy
+        echo "$protocol://$ip:$port" >> $output_file_canopy
     done
-done < $output_fileips
+done < $output_file
 
 
 ips=$(cat $output_fileips |wc -l)
