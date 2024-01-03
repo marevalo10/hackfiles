@@ -261,6 +261,7 @@ sudo apt -y install html2text
 git clone https://github.com/six2dez/reconftw
 cd reconftw/
 ./install.sh
+#When finishes, it creates a user (root by default) and ask for a password.
 
 #Usage: ./reconftw.sh -d target.com -r
 

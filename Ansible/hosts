@@ -1,0 +1,18 @@
+## Ansible hosts file
+
+[all:vars]
+ansible_user=cisco
+## Password can be stored in an Ansible Vault to be protected but to make a simple example we left it in clear
+ansible_ssh_pass=admin
+ansible_network_os=ios
+ansible_connection=network_cli
+
+
+[CSR-Routers]
+CSR1 ansible_host=192.168.1.121
+CSR2 ansible_host=192.168.1.122
+CSR3 ansible_host=192.168.1.123
+
+[SWITCHES]
+SW1 ansible_host=192.168.1.211
+SW2 ansible_host=192.168.1.212

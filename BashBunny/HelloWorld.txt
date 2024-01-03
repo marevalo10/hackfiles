@@ -1,7 +1,7 @@
- Title: 	BlueTooth2
-# Description:	Bluthooth remote triggers
+ Title: 	HelloWorld
+# Description:	Notepad Hello World 
 # Author:	M4rc14n0
-# Category:	BLE - Bluetooth Low Energy
+# Category:	POC
 # Target:	Windows 10
 # Attackmodes:	HID
 # Suggestion: Use BLE Tool if triggers take to long
@@ -9,12 +9,8 @@
 
 #Hello World Payload 
 
-
 LED SETUP
 ATTACKMODE HID
-# Use BLE tool in the mobile
-WAIT_FOR_PRESENT M@rc14n0S21
-#WAIT_FOR_NOT_PRESENT M@rc14n0S21
 
 # Open Notepad
 LED STAGE1

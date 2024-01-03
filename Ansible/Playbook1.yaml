@@ -1,0 +1,21 @@
+---
+#Playbook to backup all config from Cisco routers
+
+#- hosts: ALL
+# gather_facts is more for linux servers
+- hosts: CSR-Routers
+  gather_facts: false
+
+  tasks:
+   #Any descrition
+   - name: Show Run on Device
+     #Module wanted to be used
+     ios_command: 
+       commads:
+         - show run
+     register: config
+
+   - name: Save output to ./backups
+     copy:
+       content: "{{config.stdout[0]}}"
+       dest: "./backups/{{inventory_hostname}}_config.txt"
