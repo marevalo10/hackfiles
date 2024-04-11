@@ -107,17 +107,18 @@ for line in $(cat $networklist); do
     if [ ".../" = $(echo $line |sed 's/[0-9]//g') ]; then
         #It is a subnet
         subnet=$( echo $line | sed 's/\/..$//g');
-        echo -e "#Checking subnet ${GREEN}$subnet${NC} "  |tee -a $outfile
+        echo -e "#Checking subnet ${GREEN}$subnet${NC} "  |tee -a $outfile;
         #This expresion extracts the first 3 parts of the network 10.10.10.
         sub=$( echo $subnet | sed 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\.\)\(.\+\)/\1/g' )
         for ip in $(seq 1 254); do 
-            echo "Checking IP "$sub$ip" on DNS server "$nameserver
+            echo "Checking IP "$sub$ip" on DNS server "$nameserver;
             host $sub$ip $nameserver |tee -a dnsreverseallipstmp.txt;
         done 
     elif [ "..." = $(echo $line |sed 's/[0-9]//g') ];
         #It is an IP
-        ip=$line
+        ip=$line;
         host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g" | tee -a dnsreverseallipstmp.txt;
+    fi
 done;
 cat dnsreverseallipstmp.txt |sort -u > dnsreverseallips_$networklist.txt; rm dnsreverseallipstmp.txt;
 numipsreversed=$(cat dnsreverseallips_$networklist.txt | wc -l);

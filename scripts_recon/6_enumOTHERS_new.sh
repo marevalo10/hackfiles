@@ -56,7 +56,6 @@ echo ""
 echo ""
 echo "####################################################################"
 echo -e "${GREEN}Checking for mysql servers ...${NC}"
-mkdir enumDB;
 # Grep selects only postgres services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
 cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"mysql\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq > ./enumDB/mysql.txt
 ports=$(cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"mysql\"") {print $3}}' | sed 's/\"//g' | sort -n | uniq | tr '\r\n' ',')
@@ -68,7 +67,6 @@ echo ""
 echo ""
 echo "####################################################################"
 echo -e "${GREEN}Checking for FTP servers ...${NC}"
-mkdir enumOTHERS;
 # Grep selects only FTP services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
 cat ./results/*_ipsnports_all.csv | grep "ftp" |awk 'BEGIN {FS = ","}; {print $1}' | sed 's/\"//g' | sort -n | uniq > ./enumOTHERS/ftp.txt
 ports=$(cat ./results/*_ipsnports_all.csv | grep "ftp" |awk 'BEGIN {FS = ","}; {print $3}' | sed 's/\"//g' | sort -n | uniq | tr '\r\n' ',')
@@ -83,7 +81,6 @@ echo ""
 echo ""
 echo "####################################################################"
 echo -e "${GREEN}Checking for TFTP servers ...${NC}"
-mkdir enumOTHERS;
 # Grep selects only TFTP services. awk extract only the third field (port). sed removes the " symbol. Sort them by number and unique ports
 cat ./results/*_ipsnports_all.csv | grep "tftp" |awk 'BEGIN {FS = ","}; {print $1}' | sed 's/\"//g' | sort -n | uniq > ./enumOTHERS/tftp.txt
 ports=$(cat ./results/*_ipsnports_all.csv | grep "tftp" |awk 'BEGIN {FS = ","}; {print $3}' | sed 's/\"//g' | sort -n | uniq | tr '\r\n' ',')
