@@ -114,7 +114,7 @@ for line in $(cat $networklist); do
             echo "Checking IP "$sub$ip" on DNS server "$nameserver;
             host $sub$ip $nameserver |tee -a dnsreverseallipstmp.txt;
         done 
-    elif [ "..." = $(echo $line |sed 's/[0-9]//g') ];
+    elif [ "..." = $(echo $line |sed 's/[0-9]//g') ]; then
         #It is an IP
         ip=$line;
         host $ip $dnsserver | grep pointer|cut -d " " -f 5 |sort -n|uniq | sed "s/\.$/\t$ip/g" | tee -a dnsreverseallipstmp.txt;
