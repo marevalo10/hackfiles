@@ -10,7 +10,7 @@ if [ -z "$file_name" ]; then
   fi
 fi
 if [ ! -f "evasiontech1.$file_name" ]; then
-  echo "File $file_name does not exist."
+  echo "File evasiontech1.$file_name does not exist."
   exit 1
 fi
 

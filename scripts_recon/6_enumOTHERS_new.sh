@@ -22,7 +22,7 @@ mkdir enumPrinters;
 cat ./results/*_ipsnports_all.csv | grep '9100\|jetdirect\|printer' | awk 'BEGIN {FS = ","}; {print $1}' | sed 's/\"//g' | sort -n | uniq > ./enumPrinters/printers.txt
 numprinters==$(cat ./enumPrinters/printers.txt | wc -l)
 echo -e "Total printers found: ${RED} $numprinters${NC}. "
-echo "Check printers manually in the file ./enumPrinters/printers.txt"
+echo -e "${RED}Check printers manually in the file ./enumPrinters/printers.txt${NC}"
 echo "####################################################################"
 
 
@@ -38,7 +38,7 @@ numemailservers=$(cat ./enumEMAIL/smtp.txt | wc -l)
 echo -e "Total servers found: ${RED} $numemailservers${NC}"
 cat ./enumEMAIL/smtp.txt
 #nmap -p25,587 --script=smtp-commands -iL ./enumEMAIL/smtp.txt -oA ./enumEMAIL/smtp_commands
-nmap -p25,587 --script=smtp-* -iL ./enumEMAIL/smtp.txt -oA ./enumEMAIL/smtp_all
+nmap -p25,587 -sV --script=smtp-* -Pn -iL ./enumEMAIL/smtp.txt -oA ./enumEMAIL/smtp_all
 
 echo ""
 echo ""
@@ -49,7 +49,7 @@ mkdir enumDB;
 cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"postg\"") {print $1}}' | sed 's/\"//g' | sort -n | uniq > ./enumDB/postgres.txt
 numservers==$(cat ./enumDB/postgres.txt | wc -l)
 echo -e "Total Postgres servers found: ${RED} $numservers${NC}"
-nmap -p5432 -sV --script=pgsql-*,auth,vuln,version -iL ./enumDB/postgres.txt -oA ./enumDB/postgres_all
+nmap -p5432 -sV -Pn --script=pgsql-*,auth,vuln,version -iL ./enumDB/postgres.txt -oA ./enumDB/postgres_all
 
 
 echo ""
@@ -61,7 +61,7 @@ cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"mysql\"")
 ports=$(cat ./results/*_ipsnports_all.csv | awk 'BEGIN {FS = ","}; {if ($5=="\"mysql\"") {print $3}}' | sed 's/\"//g' | sort -n | uniq | tr '\r\n' ',')
 numservers==$(cat ./enumDB/mysql.txt | wc -l)
 echo -e "Total Postgres servers found: ${RED} $numservers${NC}"
-nmap -p$ports -sV --script="mysql-* and not ftp-brute and not ftp-bounce" --script=vuln,version -iL ./enumDB/mysql.txt -oA ./enumDB/mysql_all
+nmap -p$ports -sV -Pn --script="mysql-* and not ftp-brute and not ftp-bounce" --script=vuln,version -iL ./enumDB/mysql.txt -oA ./enumDB/mysql_all
 
 echo ""
 echo ""
@@ -73,7 +73,7 @@ ports=$(cat ./results/*_ipsnports_all.csv | grep "ftp" |awk 'BEGIN {FS = ","}; {
 numservers=$(cat ./enumOTHERS/ftp.txt | wc -l)
 echo -e "Total ftp servers found: ${RED} $numservers${NC}"
 if [ $numservers -gt 0 ]; then
-    nmap -p$ports -sV --script "ftp-* and not brute" -iL ./enumOTHERS/ftp.txt -oA ./enumOTHERS/ftp_all
+    nmap -p$ports -sV -Pn --script "ftp-* and not brute" -iL ./enumOTHERS/ftp.txt -oA ./enumOTHERS/ftp_all
 fi
 
 
@@ -87,7 +87,7 @@ ports=$(cat ./results/*_ipsnports_all.csv | grep "tftp" |awk 'BEGIN {FS = ","}; 
 numservers=$(cat ./enumOTHERS/tftp.txt | wc -l)
 echo -e "Total tftp servers found: ${RED} $numservers${NC}"
 if [ $numservers -gt 0 ]; then
-    nmap -p$ports -sV --script tftp-enum -iL ./enumOTHERS/tftp.txt -oA ./enumOTHERS/tftp_all
+    nmap -p$ports -sV -Pn --script tftp-enum -iL ./enumOTHERS/tftp.txt -oA ./enumOTHERS/tftp_all
 fi
 
 echo "####################################################################"

@@ -320,15 +320,15 @@ cp ../$file.resumenmap-udp.gnmap .
     echo -e "${GREEN}***** MOST IMPORTANT FILES TO CHECK: *****${NC}"
     echo -e "IP and details open port by line CVS: ${RED}cat ./results/"$file"_ipsnports_all.csv |more${NC}"
     echo -e "IP and open ports list: ${GREEN}cat "$file"_portsbyhostTCP.csv |more${NC}"
-    echo -e "Top TCP open ports in this file: ${GREEN}head -10 ./results/"$file"_all_TCPportscount.csv${NC}"
+    echo -e "Top TCP open ports in this file: ${GREEN}head -10 ./results/"$file"_TCPportscount.csv${NC}"
     echo -e "${RED}___________________${NC}"
     echo -e "${RED}TPORT   #HOSTS${NC}"
     echo -e "${RED}___________________${NC}"
-    head -10 ./results/"$file"_all_TCPportscount.csv
-    echo -e "Top UDP open ports in this file: ${GREEN}head -10 ./results/"$file"_all_UDPportscount.csv${NC}"
+    head -10 ./results/"$file"_TCPportscount.csv
+    echo -e "Top UDP open ports in this file: ${GREEN}head -10 ./results/"$file"_UDPportscount.csv${NC}"
     echo -e "${RED}___________________${NC}"
     echo -e "${RED}UPORT   #HOSTS${NC}"
-    head -10 ./results/"$file"_all_UDPportscount.csv
+    head -10 ./results/"$file"_UDPportscount.csv
     echo -e "${RED}___________________${NC}"
 
     echo -e "Top TCP open ports in ALL files: ${GREEN}head -10 ./results/all_TCPportscount.csv${NC}"

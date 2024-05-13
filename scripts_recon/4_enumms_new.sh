@@ -25,7 +25,7 @@ startpoint=1
 
 
 if [[ "$EUID" != 0 ]]; then
-        echo "$username, please run it as sudo $0";
+        echo -e "$username, please run it as sudo $0";
         exit 0;
 fi
 
@@ -232,7 +232,7 @@ nmap -Pn -n -p445,139,135,137 -vvvv --script vuln -iL $msfile --open --max-hostg
 #nmap -Pn -n -vvvv --script=smb-double-pulsar-backdoor.nse --script="smb-* and not brute" -Pn -p445 -oA nmap-SMB2_$file -iL $file
 
 cd ..;mkdir enumMSSQL;
-echo "${GREEN}***************************************************************${NC}"| tee -a ./enumSMB/$logfile
+echo -e "${GREEN}***************************************************************${NC}"| tee -a ./enumSMB/$logfile
 echo "Checking MS-SQL port 1433 " | tee -a ../enumSMB/$logfile
 cat ./results/$file"_ipsnports_all.csv" | grep "ms-sql" | cut -f 1 -d ","| sed 's/\"//g' | sort -n | uniq > ./enumMSSQL/mssql_$file
 # All other scripts require authentication or additional parmameters
