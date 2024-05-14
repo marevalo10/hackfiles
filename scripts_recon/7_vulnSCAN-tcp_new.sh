@@ -83,6 +83,12 @@ for((i=$startpoint;i<=$n;i++)); do
 done
 chown -R $user:$user *
 
+echo -e "${RED}############################################################################################################################${NC}" | tee -a  $logfile
+echo -e "${RED}Some systems were not identified as UP or with open ports as initialy detected${NC}"  | tee -a  $logfile
+
+echo "IP addresses having this issue can be found in ./focused/ips_to_rescan.txt" | tee -a  $logfile
+echo -e "${RED}############################################################################################################################${NC}" | tee -a  $logfile
+
 echo "Printing out what systems were identified using vulnerable services"  | tee -a  $logfile
 #Print out what files identified vulnerable services -r recursive -n print line number -w whole word
 #grep --include=\*.{nmap,other} -rnw ./focused -e "CVE" > ./focused/vulnsystemsTCP.txt
