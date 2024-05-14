@@ -76,17 +76,54 @@ for((i=$startpoint;i<=$n;i++)); do
     outfile="./$focused/"$ipadd"_vulnscanTCP"
     echo "Saving results on file $outfile"  | tee -a  $logfile
     echo "Command to be run: nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --privileged -p "T:"$tports $ipadd; " | tee -a  $logfile
-    timeout 5m nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O -T5 --script=default,auth,vuln,version --script-timeout 1m --open -vvv -oA $outfile --max-rate 700 --privileged -p "T:"$tports $ipadd; 
+    timeout 10m nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O -T5 --script=default,auth,vuln,version --script-timeout 1m --open -vvv -oA $outfile --max-rate 700 --privileged -p "T:"$tports $ipadd; 
     echo -e "${GREEN}############################################################################################################################${NC}" | tee -a  $logfile
     echo -e "IP ${GREEN}$ipadd${NC} scanned!  ($i out of $n)" | tee -a  $logfile
     echo -e "${GREEN}############################################################################################################################${NC}" | tee -a  $logfile
 done
+
+#Check if some results show the scna was not completed
+find ./focused -type f -name "*.nmap" -size -1000c|sort|grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' > ips_to_rescan.txt
+to_rescan = $(cat ips_to_rescan.txt |wc -l)
+if [ $to_rescan -gt 0 ]; then
+    echo -e "${RED}############################################################################################################################${NC}" | tee -a  $logfile
+    echo -e "${RED}Some systems were not identified as UP or with open ports as initialy detected or they took more than 10 minutes to be compelted${NC}"  | tee -a  $logfile
+    echo "IP addresses having this issue can be found in ./ips_to_rescan.txt" | tee -a  $logfile
+    echo "IP addresses and ports to scan can be found in file ./all_portsbyhostTCP_to_rescan.csv" | tee -a  $logfile
+    grep -Ff ./ips_to_rescan.txt ./results/all_portsbyhostTCP.csv > ./all_portsbyhostTCP_to_rescan.csv
+    echo -e "You can run this program again, but changing the variable tcpfile to tcpfile=\"all_portsbyhostTCP_to_rescan.csv\""  | tee -a  $logfile
+    read -p "Or you want to try these IPs again without timeout to run nmap now?? (y|n): " -n 1 -r; echo -e "\n";
+    if [[ $REPLY =~ ^[Yy]$ ]]; 	then
+        tcpfile="all_portsbyhostTCP_to_rescan.csv"
+        # Number of IP's to check
+        n=` cat $tcpfile | wc -l`
+        echo -e "Rescaning a total of ${RED}$n IP's ${NC}"
+        for((i=$startpoint;i<=$n;i++)); do 
+            # Extract the line $i from the file (ip port1,port2,...)
+            line=`awk FNR==$i $tcpfile`
+            #Extract the IP from the line and the ports
+            ipadd=`echo $line | awk '{ print $1 }'`
+            tports=`echo $line | awk '{ print $2 }'`
+            echo "IP: $ipadd Ports: $tports" | tee -a  $logfile
+            echo "File: $tcpfile Line: "$line | tee -a  $logfile
+            echo -e "Scanning IP ${GREEN}$ipadd${NC}... ($i out of $n)" | tee -a  $logfile
+            echo "Scanning IP $ipadd AND PORTS: $tports"  | tee -a  $logfile
+            outfile="./$focused/"$ipadd"_vulnscanTCP"
+            echo "Saving results on file $outfile"  | tee -a  $logfile
+            echo "Command to be run: nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O --script=default,auth,vuln,version --open -vvv -oA $outfile --max-rate 700 --privileged -p "T:"$tports $ipadd; " | tee -a  $logfile
+            nmap -R -PE -PP -Pn --source-port 53 --traceroute --reason -sV -A -sC -O -T5 --script=default,auth,vuln,version --script-timeout 1m --open -vvv -oA $outfile --max-rate 700 --privileged -p "T:"$tports $ipadd; 
+            echo -e "${GREEN}############################################################################################################################${NC}" | tee -a  $logfile
+            echo -e "IP ${GREEN}$ipadd${NC} Rescanned!  ($i out of $n to rescan)" | tee -a  $logfile
+            echo -e "${GREEN}############################################################################################################################${NC}" | tee -a  $logfile
+        done
+    else
+        echo -e "${RED}Please remember you can run this program again, but changing the variable tcpfile to tcpfile=\"all_portsbyhostTCP_to_rescan.csv\" before running it!${NC}"  | tee -a  $logfile
+        echo -e "Rescan for IPs not completed was not executed..."
+        exit 1
+    fi
+fi
 chown -R $user:$user *
-
-echo -e "${RED}############################################################################################################################${NC}" | tee -a  $logfile
-echo -e "${RED}Some systems were not identified as UP or with open ports as initialy detected${NC}"  | tee -a  $logfile
-
-echo "IP addresses having this issue can be found in ./focused/ips_to_rescan.txt" | tee -a  $logfile
+echo -e "${RED}#####################################    RESCAN PROCESS COMPLETED    #######################################################${NC}" | tee -a  $logfile
 echo -e "${RED}############################################################################################################################${NC}" | tee -a  $logfile
 
 echo "Printing out what systems were identified using vulnerable services"  | tee -a  $logfile
