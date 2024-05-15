@@ -14,6 +14,11 @@ This will install xrdp in the machine to get access remotely using any RDP clien
 
 # 1. Internal Recon Scripts
 Useful scripts to run as a part of the initial recon in an internal network. This scripts should be used in a recent Kali Linux machine.
+To facilitate the downloading of the scripts in machines with limited access, I created a .zip file. Use this commands to download it directly to the system and unzip:
+'''curl https://raw.githubusercontent.com/marevalo10/hackfiles/main/scripts_recon_May2024.zip -o scripts_recon_May2024.zip
+unzip scripts_recon_May2024.zip
+#If needed in tar format, then run this after unzip the file:
+tar -cvf scripts_recon_may2024.tar scripts_recon/*
 
 ## Prepare list of IP's or networks to scan
 - [ ] Before running the recon scripts, you should define the scope IP's or networks by creating a file *ips.txt* inside the recon_scripts folder. 
