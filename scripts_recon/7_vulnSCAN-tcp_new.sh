@@ -84,7 +84,7 @@ done
 
 #Check if some results show the scna was not completed
 find ./focused -type f -name "*.nmap" -size -1000c|sort|grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' > ips_to_rescan.txt
-to_rescan = $(cat ips_to_rescan.txt |wc -l)
+to_rescan=$(cat ips_to_rescan.txt |wc -l)
 if [ $to_rescan -gt 0 ]; then
     echo -e "${RED}############################################################################################################################${NC}" | tee -a  $logfile
     echo -e "${RED}Some systems were not identified as UP or with open ports as initialy detected or they took more than 10 minutes to be compelted${NC}"  | tee -a  $logfile
@@ -98,6 +98,7 @@ if [ $to_rescan -gt 0 ]; then
         # Number of IP's to check
         n=` cat $tcpfile | wc -l`
         echo -e "Rescaning a total of ${RED}$n IP's ${NC}"
+        startpoint=1
         for((i=$startpoint;i<=$n;i++)); do 
             # Extract the line $i from the file (ip port1,port2,...)
             line=`awk FNR==$i $tcpfile`
@@ -131,7 +132,7 @@ echo "Printing out what systems were identified using vulnerable services"  | te
 #grep --include=\*.{nmap,other} -rnw ./focused -e "CVE" > ./focused/vulnsystemsTCP.txt
 grep --include=\*TCP.nmap -rnw './'$focused -B 2 -e "CVE\|VULNERABLE\|EXPLOIT" |grep -v 'avahi' | tee -a  $logfile > ./$focused/vulnsystemsTCP.txt
 #lines=`wc -l ./$focused/vulnsystemsTCP.txt`
-cat ./$focused/vulnsystemsTCP.txt|awk '{print $1}' |sed 's/\(.\+\/\)\(.\+_\)\(.\+\)/\2/g'|sed 's/_.*//g' |sort|uniq > ./$focused/vulnsystemsTCP_ips.txt
+cat ./$focused/vulnsystemsTCP.txt|awk '{print $1}' |sed 's/\(.\+\/\)\(.\+_\)\(.\+\)/\2/g'|sed 's/_.*//g'| grep -v "^-" |sort|uniq > ./$focused/vulnsystemsTCP_ips.txt
 totalips=$(cat ./$focused/vulnsystemsTCP_ips.txt |wc -l)
 echo "Total IPs: $totalips" | tee -a ./$focused/vulnsystemsTCP_ips.txt  | tee -a  $logfile
 echo -e "File including summary of vulns is located in ${GREEN}./$focused/vulnsystemsTCP.txt${NC}." | tee -a  $logfile
